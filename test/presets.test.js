@@ -4,6 +4,8 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadPresets, expandPreset, validatePresets } from '../src/presets.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const tmp = (obj) => {
   const f = join(mkdtempSync(join(tmpdir(), 'ccpm-')), 'presets.json');
@@ -26,7 +28,7 @@ test('expandPreset 未知预设', () => {
 });
 
 test('loadPresets 文件不存在', () => {
-  assert.deepEqual(loadPresets('/no/such/presets.json'), { presets: {}, warning: '未找到 presets.json，预设不可用' });
+  assert.deepEqual(loadPresets('/no/such/presets.json'), { presets: {}, warning: null }); // 没有预设的 marketplace 不提示
 });
 
 test('loadPresets formatVersion 过高', () => {

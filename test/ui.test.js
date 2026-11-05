@@ -2,6 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SYMBOLS, box, brief, colorEnabled, setColor, strip, table, width } from '../src/ui.js';
 import { summarize } from '../src/flow.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 test('width：中文/全角算 2 列，ANSI 不计', () => {
   assert.equal(width('abc'), 3);

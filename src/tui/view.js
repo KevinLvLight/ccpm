@@ -1,3 +1,4 @@
+import { MARKETPLACE } from '../claude.js';
 // 交互界面的纯函数部分：render(state, 尺寸) → 每行文字；reduce(state, 按键) → { state, effect }
 import { counterCells, memberText, pluginCells, pluginNotes, presetCells } from '../render.js';
 import { SECRET_HINT } from '../prompt.js';
@@ -165,7 +166,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
   const rule = (txt) => dim(txt ? `── ${txt} ${'─'.repeat(Math.max(0, W - width(txt) - 4))}` : '─'.repeat(W));
   const lines = [];
 
-  const left = `${bold('ccpm')} · acme-plugins · ${state.scope === 'project' ? '本项目' : '全局'}${state.dryRun ? ` · ${yellow('预览模式，不做改动')}` : ''}`;
+  const left = `${bold('ccpm')} · ${MARKETPLACE} · ${state.scope === 'project' ? '本项目' : '全局'}${state.dryRun ? ` · ${yellow('预览模式，不做改动')}` : ''}`;
   const right = m ? counterCells(m).join('  ') : '';
   const gap = W - width(left) - width(right);
   lines.push(left + ' '.repeat(Math.max(2, gap)) + right);
@@ -192,7 +193,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
     const text = `${i === ci ? '▸' : ' '}${state.selected.includes(x.name) ? '[x]' : '   '} ${pad(c0, w0)}  ${pad(c1, w1)}  ${c2}`.trimEnd();
     lines.push(i === ci ? inverse(pad(truncate(text, W), W)) : text);
   }
-  if (!items.length) lines.push(dim(m ? '  acme-plugins 里还没有插件' : state.busy ? '  正在读取插件列表…' : '  没有读到插件列表，按 R 重新扫描'));
+  if (!items.length) lines.push(dim(m ? `  ${MARKETPLACE} 里还没有插件` : state.busy ? '  正在读取插件列表…' : '  没有读到插件列表，按 R 重新扫描'));
   while (lines.length < 2 + listH) lines.push('');
 
   const below = items.length - top - listH;

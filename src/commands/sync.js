@@ -13,8 +13,13 @@ async function adopt(ctx, plan) {
   const { out } = ctx;
   const rec = plan.inferredPresets;
   const why = 'ccpm 会记住你选的预设，以后 ccpm sync 会自动补装预设里缺的插件。';
+  ctx.state = { presets: [], excluded: [] };
+  if (!Object.keys(ctx.presets ?? {}).length) { // 没有预设：只记下开始管理，不解释预设
+    if (!ctx.dryRun) saveState(ctx.state, ctx.stateFile);
+    return;
+  }
   out('');
-  out(`  ${dim('第一次运行 ccpm sync，开始用 ccpm 管理你的 acme-plugins 插件。')}`);
+  out(`  ${dim(`第一次运行 ccpm sync，开始用 ccpm 管理你的 ${MARKETPLACE} 插件。`)}`);
   let chosen = rec;
   if (!rec.length) out(`  ${dim(`${why}根据你已装的插件，暂无推荐的预设（全部预设见 ccpm status）`)}`);
   else {
@@ -46,7 +51,7 @@ export async function run(ctx, _pos, _flags) {
     const cells = issueCells(it);
     rows.push(it.cmd ? [...cells.slice(0, -1), `${cells.at(-1)}  ${dim(it.cmd)}`] : cells);
   }
-  // 只清理 acme-plugins 的，逐个 uninstall（不跑全局 prune -y）
+  // 只清理当前 marketplace 的，逐个 uninstall（不跑全局 prune -y）
   const ids = prune.note ? [] : prune.ids.filter((id) => id.endsWith(`@${MARKETPLACE}`));
   const version = (n) => ctx.installed.find((p) => p.name === n && p.marketplace === MARKETPLACE)?.version;
 

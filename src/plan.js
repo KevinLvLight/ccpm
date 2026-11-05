@@ -1,6 +1,6 @@
+import { MARKETPLACE } from './claude.js';
 import { expandPreset } from './presets.js';
 
-const MKT = 'acme-plugins';
 export const USER_MCP = '你自己配置的 MCP';
 
 export function compareVersions(a, b) {
@@ -44,7 +44,7 @@ export const unknownPlugin = (n) => ({ msg: `插件 ${n} 已从 marketplace 下�
 const byName = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
 export function computePlan({ installed, catalog, state, presets, unconfigured, userMcp }) {
-  const mine = installed.filter((p) => p.marketplace === MKT);
+  const mine = installed.filter((p) => p.marketplace === MARKETPLACE);
   const have = new Set(mine.map((p) => p.name));
   const warnings = [];
   const desired = new Set();
@@ -53,7 +53,7 @@ export function computePlan({ installed, catalog, state, presets, unconfigured, 
       expandPreset(presets, name).forEach((n) => desired.add(n));
     } catch (e) {
       warnings.push(Object.hasOwn(presets, name)
-        ? { msg: e.message, fix: '联系 acme-plugins 维护者修复 presets.json' }
+        ? { msg: e.message, fix: `联系 ${MARKETPLACE} 的维护者修复 presets.json` }
         : { msg: `预设 ${name} 已不存在，已跳过`, fix: `从 ~/.claude/ccpm.json 的 presets 里删掉 ${name}` });
     }
   }

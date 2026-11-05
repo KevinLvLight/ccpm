@@ -83,7 +83,7 @@ export function buildModel(ctx, plan) {
       if (!chosen.includes(n)) issues.push({ title: n, detail: '预设插件的依赖，还没装' }); // 预设里的缺口在“预设”一节里标出
       next('ccpm sync', '补装预设里的插件');
     }
-  } else if (user) {
+  } else if (user && Object.keys(presets).length) { // 没有预设的 marketplace 不需要“开始管理”
     issues.push({ title: '还没开始用 ccpm 管理', detail: `推荐预设：${plan.inferredPresets?.join('、') || '暂无（可选的预设见上方）'}`, line: true, strong: true });
     next('ccpm sync', '开始用 ccpm 管理');
   }

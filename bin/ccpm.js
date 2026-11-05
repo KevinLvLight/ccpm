@@ -2,6 +2,9 @@
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { failLines, loadContext, PreconditionError } from '../src/context.js';
+import { createClaude } from '../src/claude.js';
+import { createPrompter } from '../src/prompt.js';
+import { createProgress } from '../src/progress.js';
 import { createLogger } from '../src/log.js';
 import { helpText } from '../src/help.js';
 import { bold, dim, error } from '../src/ui.js';
@@ -9,6 +12,7 @@ import { bold, dim, error } from '../src/ui.js';
 const READ_ONLY = ['status', 'list'];
 const COMMANDS = [...READ_ONLY, 'install', 'config', 'enable', 'disable', 'remove', 'update', 'sync'];
 const LOCAL = ['help', 'log']; // 不调用 claude
+const SETUP = ['use']; // 不需要先选定 marketplace
 
 async function main(argv, deps = {}) {
   const print = deps.out ?? ((l) => console.log(l));
@@ -21,6 +25,8 @@ async function main(argv, deps = {}) {
         'dry-run': { type: 'boolean' },
         yes: { type: 'boolean', short: 'y' },
         scope: { type: 'string', default: 'user' },
+        marketplace: { type: 'string' },
+        show: { type: 'boolean' },
         verbose: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' },
       },
@@ -46,7 +52,7 @@ async function main(argv, deps = {}) {
     error('预设已经并入 ccpm status', '运行 ccpm status 查看全部预设、里面的插件和装齐没有').forEach(print);
     return 1;
   }
-  if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && cmd !== 'ui') {
+  if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && !SETUP.includes(cmd) && cmd !== 'ui') {
     error(`未知命令：${cmd}`, '运行 ccpm help 查看所有命令').forEach(print);
     return 1;
   }
@@ -82,13 +88,28 @@ async function main(argv, deps = {}) {
     log(`退出码 ${code}`);
     return code;
   }
-  out(`${bold('ccpm')} ${dim(`${version} · acme-plugins · ${flags.scope === 'project' ? '当前项目' : '全局'}`)}`);
+  out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? '当前项目' : '全局'}`)}`);
+
+  if (cmd === 'use') {
+    try {
+      const claude = deps.context?.claude ?? createClaude({ log });
+      const prompter = deps.context?.prompter ?? createPrompter({ input: process.stdin, output: process.stdout, interactive, log });
+      const progress = createProgress({ out, animate: Boolean(process.stdout.isTTY) && !flags.yes });
+      const code = await (await import('../src/commands/use.js')).run({ claude, prompter, out, progress, stateFile: deps.context?.stateFile }, rest, flags);
+      log(`exit code ${code}`);
+      return code;
+    } catch (e) {
+      log(`exception: ${e.stack ?? e}`);
+      failLines(e).forEach(out);
+      return e instanceof PreconditionError ? 2 : 1;
+    }
+  }
 
   const code = await (async () => {
     try {
       const mod = await import(`../src/commands/${cmd}.js`);
       const ctx = await loadContext(
-        { scope: flags.scope, yes: Boolean(flags.yes), dryRun: Boolean(flags['dry-run']), readOnly: READ_ONLY.includes(cmd) },
+        { scope: flags.scope, marketplace: flags.marketplace, yes: Boolean(flags.yes), dryRun: Boolean(flags['dry-run']), readOnly: READ_ONLY.includes(cmd) },
         { ...deps.context, out, log, logFile: logger.file },
       );
       return await mod.run(ctx, rest, flags);

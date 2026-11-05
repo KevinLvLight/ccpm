@@ -12,6 +12,8 @@ import * as remove from '../src/commands/remove.js';
 import * as update from '../src/commands/update.js';
 import * as sync from '../src/commands/sync.js';
 import { SYMBOLS, setColor } from '../src/ui.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 setColor(false);
 // 输出里不能有 emoji（单宽符号白名单除外）
@@ -31,7 +33,7 @@ const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace:
 // 返回 { ctx, calls, lines, stateFile }；state 为 ccpm.json 初始内容（可选）
 async function setup({ installed = [], state, opts = {}, failInstall, prune = { ids: [] }, prompter = {} } = {}) {
   const stateFile = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
-  if (state) writeFileSync(stateFile, JSON.stringify(state));
+  if (state) writeFileSync(stateFile, JSON.stringify({ current: 'acme-plugins', marketplaces: { 'acme-plugins': state } }));
   const calls = [];
   const lines = [];
   const rec = (n, f) => async (...a) => { calls.push([n, ...a]); return f?.(...a); };
@@ -56,7 +58,7 @@ async function setup({ installed = [], state, opts = {}, failInstall, prune = { 
   return { ctx, calls, lines, stateFile };
 }
 const names = (calls) => calls.map((c) => c[0]);
-const stateOf = (f) => JSON.parse(readFileSync(f, 'utf8'));
+const stateOf = (f) => JSON.parse(readFileSync(f, 'utf8')).marketplaces['acme-plugins'];
 const MUTATING = ['install', 'configure', 'enable', 'update', 'uninstall'];
 
 test('install data：依赖在前，预设写入 state', async () => {

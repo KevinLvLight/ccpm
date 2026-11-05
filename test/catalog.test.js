@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCatalog, checkManifest, readChangelogEntry } from '../src/catalog.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fx = join(here, 'fixtures/marketplace');

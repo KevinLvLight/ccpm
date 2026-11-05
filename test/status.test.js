@@ -10,6 +10,8 @@ import { ClaudeError } from '../src/claude.js';
 import * as status from '../src/commands/status.js';
 import * as list from '../src/commands/list.js';
 import { SYMBOLS, setColor } from '../src/ui.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 setColor(false);
 const EMOJI = new RegExp(`(?![${SYMBOLS}])\\p{Extended_Pictographic}|\\uFE0F`, 'u');
@@ -48,7 +50,7 @@ test('status 输出各分组', async () => {
   assert.equal(ctx.installed.length, 3); // project 条目被过滤
   assert.equal(await status.run(ctx, [], {}), 0);
   const t = lines.join('\n');
-  assert.match(t, /^✔ 准备就绪  Claude Code · 插件列表已更新 · 2 个已装 +[\d.]+s\n\n  ● 2 已装   ↑ 1 可更新   ▲ 1 需配置   ○ 3 未装\n/);
+  assert.match(t, /^✔ 准备就绪  acme-plugins · 插件列表已更新 · 2 个已装 +[\d.]+s\n正在使用 acme-plugins（ccpm use 可以切换）\n\n  ● 2 已装   ↑ 1 可更新   ▲ 1 需配置   ○ 3 未装\n/);
   assert.doesNotMatch(t, /zzz|其他来源/);
   // 每个已装插件一行，问题合并在说明里；未装的折成一行
   assert.match(t, /\n  已安装\n  ▲ a    1\.0\.0 → 1\.1\.0  可更新 · 缺少配置：Token · 缺少依赖 b\n  ▲ old  1\.0\.0          marketplace 里已下架\n\n  还没装的  可选，按需安装\n  ○ b、c、d\n  › ccpm install <插件名>   安装，依赖会一起装\n/);
@@ -71,7 +73,7 @@ test('重复 MCP', async () => {
 test('刷新失败：status 提示并继续；非只读抛 PreconditionError', async () => {
   const ctx = await ctxOf({ updateFails: true });
   await status.run(ctx, [], {});
-  assert.match(lines[0], /^▲ 准备就绪  Claude Code · 插件列表更新失败，使用本地副本 · 2 个已装/);
+  assert.match(lines[0], /^▲ 准备就绪  acme-plugins · 插件列表更新失败，使用本地副本 · 2 个已装/);
   assert.match(lines.join('\n'), /▲ 插件列表更新失败  结果来自上次的本地副本/);
   await assert.rejects(ctxOf({ updateFails: true }, { readOnly: false }), PreconditionError);
 });
@@ -82,9 +84,9 @@ test('claude 缺失 / 能力不足', async () => {
   await assert.rejects(bad(['--values-stdin']), /请升级 Claude Code/);
 });
 
-test('添加 marketplace 认证失败带提示', async () => {
-  const claude = { ...fake(), listMarketplaces: async () => [], addMarketplace: async () => { throw new ClaudeError(['x'], 1, 'Authentication failed'); } };
-  await assert.rejects(loadContext({}, { claude, prompter: {}, out() {} }), /credential helper/);
+test('还没添加任何 marketplace：提示 ccpm use', async () => {
+  const claude = { ...fake(), listMarketplaces: async () => [] };
+  await assert.rejects(loadContext({}, { claude, prompter: {}, out() {}, stateFile }), (e) => e.code === 'NO_MARKETPLACE' && /ccpm use/.test(e.message));
 });
 
 test('准备阶段某步失败：那一行变成 ✖ 步骤名，不打“准备就绪”', async () => {
@@ -106,7 +108,7 @@ test('bin --help 与未知命令；失败打印详细日志路径', () => {
   const s = spawnSync(process.execPath, [bin, 'sync'], { env: { ...env, PATH: '/nonexistent' } }); // 无 claude → 前置失败
   assert.equal(s.status, 2);
   const so = s.stdout.toString();
-  assert.match(so, /^ccpm 0\.1\.0 · acme-plugins · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
+  assert.match(so, /^ccpm 0\.1\.0 · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
   const m = /\n  详细日志：(.+\.log)\n$/.exec(so);
   assert.ok(m, so);
   assert.match(readFileSync(m[1], 'utf8'), /==== ccpm [\s\S]*未找到 claude 命令[\s\S]*退出码 2/);
@@ -122,7 +124,7 @@ test('ccpm log 打印路径', () => {
 });
 
 test('已停用的插件：下一步给出启用命令', async () => {
-  const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0', enabled: false }), inst('b')] });
+  const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0', enabled: false }), inst('b')] }, { marketplace: 'acme-plugins' });
   ctx.claude.getUnconfigured = async () => [];
   ctx.claude.listUserMcp = async () => [];
   ctx.state = { presets: ['data'], excluded: [] };
@@ -134,7 +136,7 @@ test('已停用的插件：下一步给出启用命令', async () => {
 });
 
 test('status 无事可做 → 一切正常', async () => {
-  const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0' }), inst('b')] });
+  const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0' }), inst('b')] }, { marketplace: 'acme-plugins' });
   ctx.claude.getUnconfigured = async () => [];
   ctx.claude.listUserMcp = async () => [];
   ctx.state = { presets: ['data'], excluded: [] };

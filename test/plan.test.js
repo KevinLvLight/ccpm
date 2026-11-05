@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { compareVersions, resolveDeps, inferPresets, computePlan, USER_MCP } from '../src/plan.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const meta = (name, o = {}) => ({ name, version: '1.0.0', dependencies: [], userConfig: {}, mcpServers: [], ...o });
 const cat = (...ms) => new Map(ms.map((m) => [m.name, m]));

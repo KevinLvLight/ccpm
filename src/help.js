@@ -8,11 +8,11 @@ export const SCENARIOS = `常用场景:
   保持最新：        ccpm sync                 补装、更新、补配置，一条命令搞定
   改某个插件配置：  ccpm config <插件名>`;
 
-const OVERVIEW = `ccpm — 一键安装 / 配置 / 更新 acme-plugins 插件的工具
+const OVERVIEW = `ccpm — 一键安装 / 配置 / 更新 Claude Code 插件的工具
 
-ccpm 帮你管理 Claude Code 里来自 acme-plugins 插件市场（marketplace）的插件：
+ccpm 帮你管理 Claude Code 里来自你选定的插件市场（marketplace，用 ccpm use 选择）的插件：
 装插件时自动补上它依赖的插件、一项项问你要填的配置、提醒你更新。
-它只管 acme-plugins 的插件，其他来源的插件一概不碰。
+它只管选定的 marketplace 的插件，其他来源的插件一概不碰。
 
 用法: ccpm [命令] [选项]
 
@@ -24,7 +24,7 @@ ${SCENARIOS}
 命令:
   ui                     打开全屏交互界面（直接运行 ccpm 时默认进入）
   status                 查看插件和预设的完整状态（脚本里不写命令时默认就是它）
-  list                   列出 acme-plugins 的全部插件，标出已装 / 未装 / 可更新
+  list                   列出当前 marketplace 的全部插件，标出已装 / 未装 / 可更新
   install <插件或预设>   安装插件或预设，自动补装依赖、询问配置
   sync                   补装、更新、补配置，让环境和你选的预设保持一致
   update [插件...]       把插件更新到最新版
@@ -102,7 +102,7 @@ const COMMANDS = {
   答：运行 ccpm status。`,
   }),
   list: page({
-    name: 'list', summary: '列出 acme-plugins 的全部插件',
+    name: 'list', summary: '列出当前 marketplace 的全部插件',
     purpose: '  看看插件市场里有哪些插件、每个是干什么的、你装了哪些、哪些能更新。',
     usage: '  ccpm list',
     args: '  无',
@@ -110,11 +110,11 @@ const COMMANDS = {
     examples: `  ccpm list                     全部插件，已装的在前
   ccpm list --scope project     看当前项目装了哪些`,
     does: '  只读，打印插件清单：\n  ✔ 已装  ↑ 可更新（旧版本 → 新版本）  ⏸ 已停用  ○ 未装',
-    doesNot: '  - 不安装、不更新任何东西\n  - 不列出其他来源（非 acme-plugins）的插件',
+    doesNot: '  - 不安装、不更新任何东西\n  - 不列出其他来源（非当前 marketplace）的插件',
     faq: `  问：想装其中一个？
   答：运行 ccpm install <插件名>，它依赖的插件会一起装上。
   问：清单和 Claude Code 里的 /plugin 不一样？
-  答：ccpm list 只列 acme-plugins 的插件；其他来源的插件 ccpm 不管。`,
+  答：ccpm list 只列当前 marketplace 的插件；其他来源的插件 ccpm 不管。`,
   }),
   status: page({
     name: 'status', summary: '查看插件和预设的完整状态',
@@ -313,7 +313,7 @@ Claude Code 版本太旧，请升级 Claude Code
   原因：ccpm 需要较新的 claude plugin configure --values-stdin。
   解决：运行 claude update。
 
-无法添加 marketplace acme-plugins
+无法添加 marketplace <名字>
   原因：git 访问 marketplace 仓库没有凭证（报错含 unable to get password / Authentication failed），或网络不通。
   解决：macOS 运行 git config --global credential.helper osxkeychain，
         Windows 安装 Git Credential Manager；然后手动 git clone 一次

@@ -1,13 +1,14 @@
 import { join, resolve } from 'node:path';
-import { MARKETPLACE, MARKETPLACE_SOURCE, createClaude, toId } from './claude.js';
+import { MARKETPLACE, createClaude, setMarketplace, toId } from './claude.js';
+import { resolveMarketplace } from './marketplace.js';
 import { loadCatalog } from './catalog.js';
 import { loadPresets } from './presets.js';
-import { loadState } from './state.js';
+import { loadFile, loadState } from './state.js';
 import { computePlan, inferPresets } from './plan.js';
 import { createPrompter } from './prompt.js';
 import { createProgress } from './progress.js';
 import { requiredKeys } from './apply.js';
-import { error, fixLine } from './ui.js';
+import { dim, error, fixLine } from './ui.js';
 import { warn } from './render.js';
 
 export class PreconditionError extends Error {
@@ -17,9 +18,9 @@ export class PreconditionError extends Error {
   }
 }
 
-const GIT_AUTH = /unable to get password|could not read Username|Authentication failed/;
-const GIT_HINT = '先为 marketplace 所在的 git 服务器配置凭证（credential helper，或手动 git clone 一次该仓库），再重试';
-const NET_HINT = '检查网络 / VPN 能否访问 marketplace 所在的 git 服务器后重试';
+export const GIT_AUTH = /unable to get password|could not read Username|Authentication failed/;
+export const GIT_HINT = '先为 marketplace 所在的 git 服务器配置凭证（credential helper，或手动 git clone 一次该仓库），再重试';
+export const NET_HINT = '检查网络 / VPN 能否访问 marketplace 所在的 git 服务器后重试';
 
 export const samePath = (a, b, platform = process.platform) =>
   platform === 'win32' ? resolve(a).toLowerCase() === resolve(b).toLowerCase() : resolve(a) === resolve(b);
@@ -50,7 +51,7 @@ export async function loadContext(opts, deps = {}) {
   listingP.catch(() => {});
 
   // 能力检测与 marketplace 列表并发
-  let mkts = await progress.step('检查 Claude Code', async () => {
+  const mkts = await progress.step('检查 Claude Code', async () => {
     const [cap, list] = await Promise.all([claude.checkCapabilities(), Promise.resolve().then(() => claude.listMarketplaces()).catch((e) => e)]);
     if (!cap.ok) {
       throw cap.missing.includes('claude')
@@ -61,16 +62,12 @@ export async function loadContext(opts, deps = {}) {
     return list;
   });
 
+  const { name, note } = resolveMarketplace({ flag: opts.marketplace, file: loadFile(deps.stateFile, { readOnly: true }), list: mkts });
+  setMarketplace(name);
+  if (note) progress.note?.(dim(note));
   let refreshError = null;
   const pull = '拉取插件列表';
-  if (!mkts.some((m) => m.name === MARKETPLACE)) {
-    try {
-      await progress.step(pull, () => claude.addMarketplace(MARKETPLACE_SOURCE));
-    } catch (e) {
-      throw new PreconditionError(`无法添加 marketplace ${MARKETPLACE}: ${e.brief ?? e.message}`, GIT_AUTH.test(e.message) ? GIT_HINT : NET_HINT);
-    }
-    mkts = await claude.listMarketplaces();
-  } else {
+  {
     // 只读命令刷新失败不算失败（用本地副本继续），在转圈步骤内部吞掉
     try {
       await progress.step(pull, () => claude.updateMarketplace(MARKETPLACE).catch((e) => {
@@ -93,10 +90,10 @@ export async function loadContext(opts, deps = {}) {
   Object.assign(ctx, { claude, catalog, presets, state, prompter, progress, out, log, yes, dryRun, readOnly, refreshError, logFile: deps.logFile, stateFile: deps.stateFile });
   applyListing(ctx, await listing);
   const { installed } = ctx;
-  if (warning) warn(warning, warning.includes('升级') ? '升级 ccpm 到最新版本' : '联系 acme-plugins 维护者修复 presets.json').forEach((l) => progress.note?.(l));
+  if (warning) warn(warning, warning.includes('升级') ? '升级 ccpm 到最新版本' : `联系 ${MARKETPLACE} 的维护者修复 presets.json`).forEach((l) => progress.note?.(l));
   if (progress.summary) {
     const mineCount = installed.filter((p) => p.marketplace === MARKETPLACE).length;
-    const parts = ['Claude Code', refreshError ? '插件列表更新失败，使用本地副本' : '插件列表已更新'];
+    const parts = [MARKETPLACE, refreshError ? '插件列表更新失败，使用本地副本' : '插件列表已更新'];
     if (readOnly) parts.push(`${mineCount} 个已装`);
     Object.assign(progress.summary, { text: parts.join(' · '), warn: Boolean(refreshError) });
   }

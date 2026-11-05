@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { COMMAND_NAMES, helpText } from '../src/help.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const bin = fileURLToPath(new URL('../bin/ccpm.js', import.meta.url));
 // PATH 置空：任何 claude 调用都会失败（退出码 2），从而证明帮助不调用 claude
@@ -28,7 +30,7 @@ test('help 入口不调用 claude；未知主题退出 1', () => {
     assert.equal(r.status, 0, args.join(' '));
   }
   assert.match(ccpm('install', '--help').stdout, /^ccpm install — /);
-  assert.match(ccpm('help').stdout, /一键安装 \/ 配置 \/ 更新 acme-plugins 插件/);
+  assert.match(ccpm('help').stdout, /一键安装 \/ 配置 \/ 更新 Claude Code 插件/);
   assert.equal(ccpm('help', 'xyz').status, 1);
 });
 

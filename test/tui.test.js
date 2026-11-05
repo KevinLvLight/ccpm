@@ -12,6 +12,8 @@ import { initialState, reduce, render } from '../src/tui/view.js';
 import { createTuiPrompter } from '../src/tui/prompter.js';
 import { runTui } from '../src/tui/app.js';
 import { TERM, setColor, strip, width } from '../src/ui.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 setColor(false);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -43,7 +45,7 @@ function fakeClaude(installed, calls = []) {
 }
 const newState = () => {
   const f = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
-  writeFileSync(f, JSON.stringify({ presets: ['data'], excluded: [] }));
+  writeFileSync(f, JSON.stringify({ current: 'acme-plugins', marketplaces: { 'acme-plugins': { presets: ['data'], excluded: [] } } }));
   return f;
 };
 
@@ -236,7 +238,7 @@ test('冒烟：打开 → 移动 → 勾选 → i → 确认 → 填配置 → �
   assert.match(f, /╰─+╯/); // 结果卡片在记录区里
   assert.match(f, /✔ data +已选 · 已装齐/); // 列表已刷新
   assert.deepEqual(calls.map((c) => c[0]), ['install', 'install', 'configure']);
-  assert.deepEqual(JSON.parse(readFileSync(stateFile, 'utf8')).presets, ['data']);
+  assert.deepEqual(JSON.parse(readFileSync(stateFile, 'utf8')).marketplaces['acme-plugins'].presets, ['data']);
   assert.doesNotMatch(stdout.text + logged.join('\n'), /sekret/);
   stdin.write('?');
   assert.match(frame(), /╭─ 帮助/);

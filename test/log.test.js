@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createLogger, redact } from '../src/log.js';
 import { createClaude } from '../src/claude.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'ccpm-log-'));
 

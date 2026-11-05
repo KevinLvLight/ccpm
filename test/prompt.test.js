@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { PassThrough } from 'node:stream';
 import { createPrompter } from '../src/prompt.js';
 import { setColor, strip } from '../src/ui.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 test('confirm 后 readline 已关闭，stdin 无残留监听', async () => {
   const input = new PassThrough();

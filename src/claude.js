@@ -1,7 +1,8 @@
 import { spawn } from 'node:child_process';
 
-export const MARKETPLACE = 'acme-plugins';
-export const MARKETPLACE_SOURCE = 'https://git.example.com/acme/plugins.git';
+// 当前管理的 marketplace：启动时由 setMarketplace 设定（ESM 导出是实时绑定，引用方都能看到新值）
+export let MARKETPLACE = null;
+export function setMarketplace(name) { MARKETPLACE = name; }
 export const toId = (name) => name + '@' + MARKETPLACE;
 
 export class ClaudeError extends Error {
@@ -104,7 +105,7 @@ export function createClaude({ run: rawRun = defaultRun, log } = {}) {
     },
     async listMarketplaces() {
       const l = await json(['plugin', 'marketplace', 'list', '--json']);
-      return l.map((m) => ({ name: m.name, installLocation: m.installLocation }));
+      return l.map((m) => ({ name: m.name, installLocation: m.installLocation, source: m.source, url: m.url, repo: m.repo, path: m.path }));
     },
     async addMarketplace(source) { await exec(['plugin', 'marketplace', 'add', source]); },
     async updateMarketplace(name) { await exec(['plugin', 'marketplace', 'update', name]); },

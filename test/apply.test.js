@@ -7,6 +7,8 @@ import { applyPlan, postUpdate } from '../src/apply.js';
 import { ClaudeError } from '../src/claude.js';
 import { createProgress } from '../src/progress.js';
 import { setColor } from '../src/ui.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 setColor(false);
 

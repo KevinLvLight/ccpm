@@ -6,6 +6,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gatherPlan, loadContext, refreshInstalled, setScope } from '../src/context.js';
 import { buildModel } from '../src/model.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const here = dirname(fileURLToPath(import.meta.url));
 const mkt = mkdtempSync(join(tmpdir(), 'ccpm-mkt-'));
@@ -19,7 +21,7 @@ const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace:
 
 async function setup({ installed, state, scope = 'user' }) {
   const stateFile = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
-  if (state) writeFileSync(stateFile, JSON.stringify(state));
+  if (state) writeFileSync(stateFile, JSON.stringify({ current: 'acme-plugins', marketplaces: { 'acme-plugins': state } }));
   const calls = [];
   const list = { now: installed };
   const claude = {

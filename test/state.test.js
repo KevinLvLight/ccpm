@@ -4,6 +4,8 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { statePath, loadState, saveState } from '../src/state.js';
+import { setMarketplace as useMarketplace } from '../src/claude.js';
+useMarketplace('acme-plugins'); // 单元测试不走 loadContext，直接指定
 
 const tmpFile = () => join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
 

@@ -8,7 +8,7 @@ export function loadPresets(file) {
   try {
     raw = readFileSync(file, 'utf8');
   } catch {
-    return none('未找到 presets.json，预设不可用');
+    return none(null); // 没有 presets.json：这个 marketplace 不用预设
   }
   let data;
   try {

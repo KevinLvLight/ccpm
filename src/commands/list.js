@@ -1,8 +1,9 @@
+import { MARKETPLACE } from '../claude.js';
 import { scoped } from '../context.js';
 import { buildModel } from '../model.js';
 import { I, brief, dim, hints, table, yellow } from '../ui.js';
 
-// 列出 acme-plugins 里的全部插件：已装（含可更新/已停用）在前，未装在后（整行灰色）
+// 列出当前 marketplace 里的全部插件：已装（含可更新/已停用）在前，未装在后（整行灰色）
 export async function run(ctx) {
   const { out } = ctx;
   const all = buildModel(ctx).plugins.filter((p) => !p.delisted);
@@ -19,7 +20,7 @@ export async function run(ctx) {
   for (const p of not) rows.push([dim(`○  ${p.name}`), dim(p.latest ?? ''), dim(brief(p.description))]);
 
   out('');
-  out(`acme-plugins · ${all.length} 个插件 · ${where}已装 ${have.length}${glob.length ? ` · 全局已装 ${glob.length}` : ''} · 未装 ${not.length}`);
+  out(`${MARKETPLACE} · ${all.length} 个插件 · ${where}已装 ${have.length}${glob.length ? ` · 全局已装 ${glob.length}` : ''} · 未装 ${not.length}`);
   out('');
   table(rows, { gap: '   ' }).forEach(out);
 
