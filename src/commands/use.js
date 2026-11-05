@@ -1,6 +1,6 @@
 import { t } from '../i18n/index.js';
 import { GIT_AUTH, GIT_HINT, NET_HINT, PreconditionError } from '../context.js';
-import { findMarketplace } from '../marketplace.js';
+import { findMarketplace, looksLikePath } from '../marketplace.js';
 import { loadFile, setCurrent } from '../state.js';
 import { loadCatalog } from '../catalog.js';
 import { loadPresets } from '../presets.js';
@@ -46,7 +46,7 @@ export async function run(ctx, [source] = [], flags = {}) {
       } catch (e) {
         list = await claude.listMarketplaces().catch(() => list);
         target = findMarketplace(list, source); // 有的版本对已添加的会报错：以列表为准
-        if (!target) throw new PreconditionError(t('无法添加 marketplace {0}: {1}', source, e.brief ?? e.message), GIT_AUTH.test(e.message) ? GIT_HINT() : NET_HINT());
+        if (!target) throw new PreconditionError(t('无法添加 marketplace {0}: {1}', source, e.brief ?? e.message), GIT_AUTH.test(e.message) ? GIT_HINT() : looksLikePath(source) ? t('确认这个目录是有效的 marketplace（有 .claude-plugin/marketplace.json），可以先用 ccpm check 检查') : NET_HINT());
       }
       if (!target) {
         list = await claude.listMarketplaces();

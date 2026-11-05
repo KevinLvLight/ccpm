@@ -2,7 +2,7 @@ import { t } from './i18n/index.js';
 import { PreconditionError, samePath } from './context.js';
 
 const norm = (s) => String(s).trim().replace(/\/+$/, '').replace(/\.git$/, '').toLowerCase();
-const looksLikePath = (s) => /^([./~]|[A-Za-z]:[\\/])/.test(s);
+export const looksLikePath = (s) => /^([./~]|[A-Za-z]:[\\/])/.test(s);
 
 // 在 claude plugin marketplace list 的结果里找 source 指的那个：名字、git 地址、GitHub owner/repo 或本地路径
 export function findMarketplace(list, source) {

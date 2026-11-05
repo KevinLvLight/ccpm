@@ -130,3 +130,9 @@ test('没有 presets.json 的 marketplace：不提示、不显示预设，sync �
   await (await import('../src/commands/status.js')).run(ctx);
   assert.doesNotMatch(lines.join('\n'), /预设|presets\.json/);
 });
+
+test('use 本地目录添加失败：提示检查目录，而不是网络', async () => {
+  const claude = fakeClaude([], { addError: new ClaudeError(['x'], 1, 'Failed to parse marketplace file') });
+  const { ctx } = ctxOf(claude);
+  await assert.rejects(use(ctx, ['./my-marketplace']), (e) => /有效的 marketplace/.test(e.message) && !/VPN/.test(e.message));
+});

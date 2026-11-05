@@ -342,4 +342,5 @@ export const EN = {
   "用法：ccpm install <插件或预设>...（详见 ccpm help install）": "usage: ccpm install <plugin or preset>... (see ccpm help install)",
   "用法：ccpm remove <插件或预设>...（详见 ccpm help remove）": "usage: ccpm remove <plugin or preset>... (see ccpm help remove)",
   "反馈问题时，把日志文件发给维护者即可（里面不含 token、密码）。": "When reporting a problem, send the log file to the maintainers (it contains no tokens or passwords).",
+  "确认这个目录是有效的 marketplace（有 .claude-plugin/marketplace.json），可以先用 ccpm check 检查": "make sure the folder is a valid marketplace (with .claude-plugin/marketplace.json); ccpm check can help",
 };
