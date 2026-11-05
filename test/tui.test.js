@@ -293,3 +293,54 @@ test('卸载时回车 = 否：提示已取消，不卸载也不显示“完成�
   stdin.write('q');
   assert.equal(await done, 0);
 });
+
+// 两个 marketplace、没有 ccpm.json：先弹框选择
+const twoMarkets = (calls = []) => {
+  const list = [{ name: 'other', installLocation: mkt }, { name: 'third', installLocation: mkt }];
+  return {
+    ...fakeClaude([], calls),
+    listMarketplaces: async () => [...list],
+    addMarketplace: async (src) => { calls.push(['add', src]); list.push({ name: 'acme-plugins', source: 'github', repo: 'acme/plugins', installLocation: mkt }); },
+  };
+};
+const emptyState = () => join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
+
+test('还没选 marketplace：弹框选择已添加的，选完进入列表并记住', async () => {
+  const { stdin, stdout, frame } = fakeTerm();
+  const stateFile = emptyState();
+  const claude = twoMarkets();
+  claude.listMarketplaces = async () => [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }];
+  const done = runTui({ stdin, stdout, flags: { scope: 'user' }, context: { claude, stateFile } });
+  await until(() => /请选择/.test(frame()), '选择框');
+  assert.match(frame(), /other[\s\S]*acme-plugins[\s\S]*输入地址…/);
+  stdin.write('\x1b[B');
+  stdin.write('\r');
+  await until(() => /还没装的/.test(frame()), '列表');
+  assert.match(frame(), /^ccpm · acme-plugins · 全局/);
+  assert.equal(JSON.parse(readFileSync(stateFile, 'utf8')).current, 'acme-plugins');
+  stdin.write('q');
+  assert.equal(await done, 0);
+});
+
+test('还没选 marketplace：输入地址添加；Esc 直接退出', async () => {
+  const calls = [];
+  const a = fakeTerm();
+  const stateFile = emptyState();
+  const done = runTui({ stdin: a.stdin, stdout: a.stdout, flags: { scope: 'user' }, context: { claude: twoMarkets(calls), stateFile } });
+  await until(() => /请选择/.test(a.frame()), '选择框');
+  a.stdin.write('\x1b[A'); // 向上绕到最后一项“输入地址…”
+  a.stdin.write('\r');
+  await until(() => /请填写/.test(a.frame()), '输入框');
+  a.stdin.write('acme/plugins\r');
+  await until(() => /还没装的/.test(a.frame()), '列表');
+  assert.deepEqual(calls.filter((c) => c[0] === 'add'), [['add', 'acme/plugins']]);
+  a.stdin.write('q');
+  assert.equal(await done, 0);
+
+  const b = fakeTerm();
+  const done2 = runTui({ stdin: b.stdin, stdout: b.stdout, flags: { scope: 'user' }, context: { claude: twoMarkets(), stateFile: emptyState() } });
+  await until(() => /请选择/.test(b.frame()), '选择框');
+  b.stdin.write('\x1b');
+  assert.equal(await done2, 0);
+  assert.ok(b.stdout.text.endsWith(TERM.leave));
+});

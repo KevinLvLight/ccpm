@@ -6,6 +6,8 @@ import { createProgress } from '../progress.js';
 import { I, TERM } from '../ui.js';
 import { initialState, reduce, render, runTitle } from './view.js';
 import { createTuiPrompter } from './prompter.js';
+import { createClaude } from '../claude.js';
+import { run as useCmd } from '../commands/use.js';
 
 const MAX_LOG = 500;
 
@@ -34,7 +36,8 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
     // 转圈行：progress 写给“终端”的 \r 重写，改为更新记录区的最后一行
     const spinner = { write: (s) => { state = { ...state, spinner: String(s).replace(/^\r\x1b\[K/, '') }; draw(); } };
     const progress = createProgress({ out: append, stream: spinner, animate: true, prep: true });
-    const tuiPrompter = createTuiPrompter({ log, open: (dialog) => new Promise((resolve) => { pending = resolve; state = { ...state, dialog }; draw(); }) });
+    const openDialog = (dialog) => new Promise((resolve) => { pending = resolve; state = { ...state, dialog }; draw(); });
+    const tuiPrompter = createTuiPrompter({ log, open: openDialog });
     let declined = false; // 本次操作在确认框里选了“否”
     const prompter = { ...tuiPrompter, confirm: async (...a) => { const ok = await tuiPrompter.confirm(...a); if (!ok) declined = true; return ok; } };
     const deps = { ...context, out: append, log, logFile, progress, prompter };
@@ -59,11 +62,35 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
     };
     const load = async (title) => {
       const e = await task(title, async () => {
-        ctx = await loadContext(opts(), deps);
+        try {
+          ctx = await loadContext(opts(), deps);
+        } catch (err) {
+          if (err.code !== 'NO_MARKETPLACE') throw err;
+          const ok = await pickMarketplace();
+          if (quitting) return;
+          if (!ok) throw err;
+          ctx = await loadContext(opts(), deps);
+        }
         progress.ready(); // 第一次：打印“准备就绪”一行
         await rebuild();
       });
+      if (quitting) { restore(); done(0); return; }
       code = !e ? 0 : e instanceof PreconditionError ? 2 : 1;
+    };
+    // 还没选 marketplace：弹框选一个已添加的，或输入地址添加；Esc = 退出
+    const ENTER = '输入地址…';
+    let quitting = false;
+    const pickMarketplace = async () => {
+      const claude = context.claude ?? (ctx?.claude) ?? createClaude({ log });
+      const list = await claude.listMarketplaces();
+      const choice = await openDialog({ kind: 'choose', title: '要管理哪个 marketplace？', options: [...list.map((m) => m.name), ENTER], index: 0, cancel: null });
+      if (choice === null) { quitting = true; return false; }
+      const source = choice === ENTER
+        ? (await openDialog({ kind: 'ask', title: 'marketplace 地址', hint: 'GitHub owner/repo、git 地址或本地路径', text: '' })).trim()
+        : choice;
+      if (!source) { quitting = true; return false; }
+      const rc = await useCmd({ claude, prompter, out: append, progress, stateFile: context.stateFile }, [source]);
+      return rc === 0;
     };
     const run = (effect) => {
       const title = runTitle(effect);

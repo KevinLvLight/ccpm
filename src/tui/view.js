@@ -245,6 +245,7 @@ function dialogKey(s, id, key) {
     if (id === 'up' || id === 'k') return set({ index: (d.index + n - 1) % n });
     if (id === 'down' || id === 'j') return set({ index: (d.index + 1) % n });
     if (id === 'return') return answer(d.options[d.index]);
+    if (id === 'escape' && 'cancel' in d) return answer(d.cancel); // 可取消的选择框
     return { state: s };
   }
   if (id === 'return') return answer(d.text);
