@@ -19,14 +19,14 @@ const mkt = mkdtempSync(join(tmpdir(), 'ccpm-mkt-'));
 cpSync(join(here, 'fixtures/marketplace'), mkt, { recursive: true });
 writeFileSync(join(mkt, 'presets.json'), JSON.stringify({ formatVersion: 1, presets: {
   base: { description: '基础', plugins: ['b'] },
-  dsgp: { description: '全套', plugins: ['base', 'a'] },
+  data: { description: '全套', plugins: ['base', 'a'] },
 } }));
 const stateFile = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
 
-const inst = (name, o = {}) => ({ id: `${name}@ai-efficiency`, name, marketplace: 'ai-efficiency', version: '1.0.0', scope: 'user', enabled: true, ...o });
+const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace: 'acme-plugins', version: '1.0.0', scope: 'user', enabled: true, ...o });
 const fake = (o = {}) => ({
   checkCapabilities: async () => ({ ok: true, missing: [] }),
-  listMarketplaces: async () => [{ name: 'ai-efficiency', installLocation: mkt }],
+  listMarketplaces: async () => [{ name: 'acme-plugins', installLocation: mkt }],
   updateMarketplace: async () => { if (o.updateFails) throw new ClaudeError(['x'], 1, 'boom'); },
   addMarketplace: async () => {},
   listInstalled: async () => o.installed ?? [
@@ -99,14 +99,14 @@ test('bin --help 与未知命令；失败打印详细日志路径', () => {
   const env = { ...process.env, FORCE_COLOR: '0', CLAUDE_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'ccpm-cfg-')) };
   const h = spawnSync(process.execPath, [bin, '--help'], { env });
   assert.equal(h.status, 0);
-  assert.match(h.stdout.toString(), /常用场景[\s\S]*ccpm install dev-base/);
+  assert.match(h.stdout.toString(), /常用场景[\s\S]*ccpm install dev/);
   const u = spawnSync(process.execPath, [bin, 'bogus'], { env });
   assert.equal(u.status, 1);
   assert.match(u.stdout.toString(), /^✖ 未知命令：bogus\n  › 运行 ccpm help 查看所有命令\n$/);
   const s = spawnSync(process.execPath, [bin, 'sync'], { env: { ...env, PATH: '/nonexistent' } }); // 无 claude → 前置失败
   assert.equal(s.status, 2);
   const so = s.stdout.toString();
-  assert.match(so, /^ccpm 0\.1\.0 · ai-efficiency · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
+  assert.match(so, /^ccpm 0\.1\.0 · acme-plugins · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
   const m = /\n  详细日志：(.+\.log)\n$/.exec(so);
   assert.ok(m, so);
   assert.match(readFileSync(m[1], 'utf8'), /==== ccpm [\s\S]*未找到 claude 命令[\s\S]*退出码 2/);
@@ -125,7 +125,7 @@ test('已停用的插件：下一步给出启用命令', async () => {
   const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0', enabled: false }), inst('b')] });
   ctx.claude.getUnconfigured = async () => [];
   ctx.claude.listUserMcp = async () => [];
-  ctx.state = { presets: ['dsgp'], excluded: [] };
+  ctx.state = { presets: ['data'], excluded: [] };
   await status.run(ctx, [], {});
   const t = lines.join('\n');
   assert.match(t, /⏸ a  1\.1\.0  已停用/);
@@ -137,19 +137,19 @@ test('status 无事可做 → 一切正常', async () => {
   const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0' }), inst('b')] });
   ctx.claude.getUnconfigured = async () => [];
   ctx.claude.listUserMcp = async () => [];
-  ctx.state = { presets: ['dsgp'], excluded: [] };
+  ctx.state = { presets: ['data'], excluded: [] };
   await status.run(ctx, [], {});
   assert.deepEqual(lines.slice(1), ['', '  ● 2 已装   ○ 2 未装', '', '  已安装', '  ✔ a  1.1.0', '  ✔ b  1.0.0', '', '  还没装的  可选，按需安装', '  ○ c、d', '  › ccpm install <插件名>   安装，依赖会一起装',
     '', '  预设  一组常用插件 · 共 2 个，已选 1 个',
-    '  ✔ base  已选（dsgp 包含） · 已装齐  基础', '      ✔ b',
-    '  ✔ dsgp  已选 · 已装齐               全套', '      含 base 全部  ✔ a',
+    '  ✔ base  已选（data 包含） · 已装齐  基础', '      ✔ b',
+    '  ✔ data  已选 · 已装齐               全套', '      含 base 全部  ✔ a',
     '', '  ✔ 一切正常，无需操作']);
 });
 
 test('项目范围下建议的 ccpm 命令带 --scope project', async () => {
   const { withScope } = await import('../src/context.js');
   assert.equal(withScope('  ccpm update   # 更新插件'), '  ccpm update --scope project   # 更新插件');
-  assert.equal(withScope('运行 ccpm config sonarqube-mcp'), '运行 ccpm config sonarqube-mcp --scope project');
+  assert.equal(withScope('运行 ccpm config quality-mcp'), '运行 ccpm config quality-mcp --scope project');
   assert.equal(withScope('ccpm sync --scope project'), 'ccpm sync --scope project');
   assert.equal(withScope('claude mcp remove x -s user'), 'claude mcp remove x -s user');
 });
@@ -163,15 +163,15 @@ test('list：已装在前、可更新标出、未装整行在后', async () => {
     ['c', { name: 'c', version: '2.0.0', description: 'C 插件' }],
   ]);
   const installed = [
-    { name: 'a', marketplace: 'ai-efficiency', version: '1.0.0', enabled: true },
-    { name: 'b', marketplace: 'ai-efficiency', version: '1.0.0', enabled: false },
+    { name: 'a', marketplace: 'acme-plugins', version: '1.0.0', enabled: true },
+    { name: 'b', marketplace: 'acme-plugins', version: '1.0.0', enabled: false },
     { name: 'x', marketplace: 'other', version: '9.9.9', enabled: true },
   ];
   assert.equal(await run({ catalog, installed, scope: 'user', out: (l) => out.push(l) }), 0);
   const t = out.join('\n');
   assert.equal(t, [
     '',
-    'ai-efficiency · 3 个插件 · 全局已装 2 · 未装 1',
+    'acme-plugins · 3 个插件 · 全局已装 2 · 未装 1',
     '',
     '     插件   版本            说明',
     '  ↑  a      1.0.0 → 1.1.0   A 插件',
@@ -200,12 +200,12 @@ test('预设没装齐：标出缺几个', async () => {
   const ctx = await ctxOf({ installed: [inst('a', { version: '1.1.0' })] });
   ctx.claude.getUnconfigured = async () => [];
   ctx.claude.listUserMcp = async () => [];
-  ctx.state = { presets: ['dsgp'], excluded: [] };
+  ctx.state = { presets: ['data'], excluded: [] };
   await status.run(ctx, [], {});
   const t = lines.join('\n');
-  assert.match(t, /\n  ▲ dsgp  已选 · 缺 1 个 +全套\n      含 base 全部  ✔ a\n/);
-  assert.match(t, /▲ base  已选（dsgp 包含） · 缺 1 个 +基础\n      ○ b\n/);
+  assert.match(t, /\n  ▲ data  已选 · 缺 1 个 +全套\n      含 base 全部  ✔ a\n/);
+  assert.match(t, /▲ base  已选（data 包含） · 缺 1 个 +基础\n      ○ b\n/);
   assert.match(t, /› ccpm install <预设名>   装齐整个预设/);
-  assert.doesNotMatch(t, /预设 dsgp 里还没装/); // 缺口只在“预设”一节标出
+  assert.doesNotMatch(t, /预设 data 里还没装/); // 缺口只在“预设”一节标出
   assert.match(t, /下一步\n  › ccpm sync/);
 });

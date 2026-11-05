@@ -1,16 +1,16 @@
 {
-  "pluginId": "sonarqube-mcp@ai-efficiency",
-  "displayName": "sonarqube-mcp",
+  "pluginId": "quality-mcp@acme-plugins",
+  "displayName": "quality-mcp",
   "schema": {
     "url": {
       "type": "string",
-      "title": "SonarQube 地址",
-      "description": "例如 http://sonar.hillstonedev.com:9000/",
+      "title": "QualityHub 地址",
+      "description": "例如 http://quality.example.com:9000/",
       "required": true
     },
     "token": {
       "type": "string",
-      "title": "SonarQube Token",
+      "title": "QualityHub Token",
       "description": "在 My Account → Security 中生成",
       "required": true,
       "sensitive": true

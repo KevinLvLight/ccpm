@@ -1,48 +1,48 @@
 [
   {
-    "id": "ai-gateway-mcp@ai-efficiency",
+    "id": "gateway-mcp@acme-plugins",
     "version": "1.1.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\ai-gateway-mcp\\1.1.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\gateway-mcp\\1.1.0",
     "installedAt": "2026-11-04T07:13:59.489Z",
     "lastUpdated": "2026-11-04T07:13:59.489Z",
     "mcpServers": {
-      "ai-gateway-mcp": {
+      "gateway-mcp": {
         "type": "http",
-        "url": "https://token.hillstonenet.com:9443/mcp",
+        "url": "https://mcp.example.com:9443/mcp",
         "headersHelper": "\"${CLAUDE_PLUGIN_ROOT}/scripts/gateway-headers\""
       }
     },
     "projectEnabled": false
   },
   {
-    "id": "bugfix@ai-efficiency",
+    "id": "bugfix@acme-plugins",
     "version": "1.2.1",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\bugfix\\1.2.1",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\bugfix\\1.2.1",
     "installedAt": "2026-11-04T07:13:59.099Z",
     "lastUpdated": "2026-11-04T07:20:21.126Z",
     "projectEnabled": false,
     "hasUserConfig": true
   },
   {
-    "id": "cc-token-audit@ai-efficiency",
+    "id": "token-audit@acme-plugins",
     "version": "1.1.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\cc-token-audit\\1.1.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\token-audit\\1.1.0",
     "installedAt": "2026-09-01T01:50:32.329Z",
     "lastUpdated": "2026-11-04T07:51:38.535Z",
     "projectEnabled": false
   },
   {
-    "id": "chrome-devtools-mcp@ai-efficiency",
+    "id": "browser-mcp@acme-plugins",
     "version": "1.0.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\chrome-devtools-mcp\\1.0.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\browser-mcp\\1.0.0",
     "installedAt": "2026-07-21T09:51:48.928Z",
     "lastUpdated": "2026-09-01T00:59:39.930Z",
     "mcpServers": {
@@ -50,18 +50,18 @@
         "command": "npx",
         "args": [
           "-y",
-          "chrome-devtools-mcp@latest"
+          "browser-mcp@latest"
         ]
       }
     },
     "projectEnabled": false
   },
   {
-    "id": "claude-security@achu",
+    "id": "claude-security@community",
     "version": "0.12.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\achu\\claude-security\\0.12.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\community\\claude-security\\0.12.0",
     "readFromFolder": "E:\\software\\cc-plugin\\claude-plugins-official\\plugins\\claude-security",
     "folderVersion": "0.12.0",
     "installedAt": "2026-10-28T06:58:14.871Z",
@@ -69,21 +69,21 @@
     "projectEnabled": false
   },
   {
-    "id": "code-review@ai-efficiency",
+    "id": "code-review@acme-plugins",
     "version": "1.0.1",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\code-review\\1.0.1",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\code-review\\1.0.1",
     "installedAt": "2026-11-04T06:56:32.844Z",
     "lastUpdated": "2026-11-04T07:03:31.448Z",
     "projectEnabled": false
   },
   {
-    "id": "deps-src@ai-efficiency",
+    "id": "deps-src@acme-plugins",
     "version": "1.2.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\deps-src\\1.2.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\deps-src\\1.2.0",
     "installedAt": "2026-09-15T09:22:06.259Z",
     "lastUpdated": "2026-09-16T03:05:55.468Z",
     "projectEnabled": false
@@ -93,7 +93,7 @@
     "version": "2.6.115",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\diagram-design\\diagram-design\\2.6.115",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\diagram-design\\diagram-design\\2.6.115",
     "readFromFolder": "E:\\software\\cc-plugin\\diagram-design-main",
     "folderVersion": "2.6.115",
     "installedAt": "2026-10-21T02:57:08.952Z",
@@ -101,32 +101,32 @@
     "projectEnabled": false
   },
   {
-    "id": "dsgp-deploy@ai-efficiency",
+    "id": "data-deploy@acme-plugins",
     "version": "1.5.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\dsgp-deploy\\1.5.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\data-deploy\\1.5.0",
     "installedAt": "2026-07-16T06:04:22.601Z",
     "lastUpdated": "2026-11-04T02:59:39.937Z",
     "projectEnabled": false
   },
   {
-    "id": "dsgp-deploy@ai-efficiency",
+    "id": "data-deploy@acme-plugins",
     "version": "1.4.0",
     "scope": "project",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\dsgp-deploy\\1.4.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\data-deploy\\1.4.0",
     "installedAt": "2026-09-03T02:17:51.612Z",
     "lastUpdated": "2026-09-03T02:17:51.612Z",
     "projectPath": "E:\\cc-workspace",
     "projectEnabled": false
   },
   {
-    "id": "envmgr-mcp-server@ai-efficiency",
+    "id": "env-mcp@acme-plugins",
     "version": "1.0.2",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\envmgr-mcp-server\\1.0.2",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\env-mcp\\1.0.2",
     "installedAt": "2026-07-21T06:43:48.631Z",
     "lastUpdated": "2026-09-01T00:59:39.930Z",
     "mcpServers": {
@@ -134,19 +134,19 @@
         "command": "npx",
         "args": [
           "-y",
-          "@cloud-ai-efficiency/envmgr-mcp-server@latest"
+          "@acme/env-mcp@latest"
         ]
       }
     },
     "projectEnabled": false
   },
   {
-    "id": "hs-function-design@corock-sdd-cli-ui",
+    "id": "function-design@team-tools",
     "version": "1.0.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-function-design",
-    "readFromFolder": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-function-design",
+    "installPath": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\function-design",
+    "readFromFolder": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\function-design",
     "folderVersion": "1.0.0",
     "installedAt": "2026-10-14T09:31:15.040Z",
     "lastUpdated": "2026-10-14T09:31:15.040Z",
@@ -162,23 +162,23 @@
     "projectEnabled": false
   },
   {
-    "id": "hs-ui-aegis@corock-sdd-cli-ui",
+    "id": "ui-kit@team-tools",
     "version": "3.0.77",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-ui-aegis",
-    "readFromFolder": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-ui-aegis",
+    "installPath": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\ui-kit",
+    "readFromFolder": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\ui-kit",
     "folderVersion": "3.0.77",
     "installedAt": "2026-09-14T08:22:56.089Z",
     "lastUpdated": "2026-10-14T09:30:51.690Z",
     "projectEnabled": false
   },
   {
-    "id": "jvm-heap-analyzer@ai-efficiency",
+    "id": "jvm-heap-analyzer@acme-plugins",
     "version": "1.0.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\jvm-heap-analyzer\\1.0.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\jvm-heap-analyzer\\1.0.0",
     "installedAt": "2026-10-12T07:26:39.361Z",
     "lastUpdated": "2026-10-12T07:26:39.361Z",
     "mcpServers": {
@@ -195,23 +195,23 @@
     "hasUserConfig": true
   },
   {
-    "id": "ponytail@corock-sdd-cli-ui",
+    "id": "ponytail@team-tools",
     "version": "5.0.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ponytail",
-    "readFromFolder": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ponytail",
+    "installPath": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\ponytail",
+    "readFromFolder": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\ponytail",
     "folderVersion": "5.0.0",
     "installedAt": "2026-09-23T09:41:44.748Z",
     "lastUpdated": "2026-10-14T09:30:51.720Z",
     "projectEnabled": false
   },
   {
-    "id": "security-guidance@achu",
+    "id": "security-guidance@community",
     "version": "2.0.17",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\achu\\security-guidance\\2.0.17",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\community\\security-guidance\\2.0.17",
     "readFromFolder": "E:\\software\\cc-plugin\\claude-plugins-official\\plugins\\security-guidance",
     "folderVersion": "2.0.17",
     "installedAt": "2026-10-28T06:59:07.074Z",
@@ -219,34 +219,34 @@
     "projectEnabled": false
   },
   {
-    "id": "session-stats@ai-efficiency",
+    "id": "session-stats@acme-plugins",
     "version": "1.0.0",
     "scope": "project",
     "enabled": false,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\session-stats\\1.0.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\session-stats\\1.0.0",
     "installedAt": "2026-07-23T08:47:57.970Z",
     "lastUpdated": "2026-07-23T08:47:57.970Z",
-    "projectPath": "E:\\code\\dsgp-r8\\dsgp-main-r8",
+    "projectPath": "E:\\code\\data-r8\\data-main-r8",
     "projectEnabled": false
   },
   {
-    "id": "sonarqube-mcp@ai-efficiency",
+    "id": "quality-mcp@acme-plugins",
     "version": "1.1.0",
     "scope": "user",
     "enabled": false,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\sonarqube-mcp\\1.1.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\quality-mcp\\1.1.0",
     "installedAt": "2026-11-05T01:04:39.259Z",
     "lastUpdated": "2026-11-05T01:04:39.259Z",
     "mcpServers": {
-      "sonarqube": {
+      "quality": {
         "command": "npx",
         "args": [
           "-y",
-          "sonarqube-mcp-server@latest"
+          "quality-mcp-server@latest"
         ],
         "env": {
-          "SONARQUBE_URL": "${user_config.url}",
-          "SONARQUBE_TOKEN": "${user_config.token}"
+          "QUALITY_URL": "${user_config.url}",
+          "QUALITY_TOKEN": "${user_config.token}"
         }
       }
     },
@@ -258,7 +258,7 @@
     "version": "5.0.7",
     "scope": "user",
     "enabled": false,
-    "installPath": "C:/Users/cylv/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7",
+    "installPath": "C:/Users/dev/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7",
     "installedAt": "2026-03-26T02:37:02.363Z",
     "lastUpdated": "2026-04-14T08:19:36.771Z",
     "projectEnabled": false
@@ -268,7 +268,7 @@
     "version": "6.3.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\superpowers-dev\\superpowers\\6.3.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\superpowers-dev\\superpowers\\6.3.0",
     "readFromFolder": "E:\\software\\cc-plugin\\superpowers-6.3.0",
     "folderVersion": "6.3.0",
     "installedAt": "2026-09-04T03:06:32.576Z",
@@ -276,12 +276,12 @@
     "projectEnabled": false
   },
   {
-    "id": "ui-public-hs-playwright-docs@corock-sdd-cli-ui",
+    "id": "playwright-docs@team-tools",
     "version": "1.6.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ui-public-hs-playwright-docs",
-    "readFromFolder": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ui-public-hs-playwright-docs",
+    "installPath": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\playwright-docs",
+    "readFromFolder": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools\\plugins\\playwright-docs",
     "folderVersion": "1.6.0",
     "installedAt": "2026-09-22T08:57:52.629Z",
     "lastUpdated": "2026-10-14T09:30:51.713Z",
@@ -308,11 +308,11 @@
     "projectEnabled": false
   },
   {
-    "id": "verify-requirement@ai-efficiency",
+    "id": "verify-requirement@acme-plugins",
     "version": "1.10.0",
     "scope": "user",
     "enabled": true,
-    "installPath": "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\verify-requirement\\1.10.0",
+    "installPath": "C:\\Users\\dev\\.claude\\plugins\\cache\\acme-plugins\\verify-requirement\\1.10.0",
     "installedAt": "2026-10-09T03:25:40.539Z",
     "lastUpdated": "2026-10-09T03:25:40.539Z",
     "projectEnabled": false

@@ -1,1 +1,1 @@
-{"name":"a","version":"1.1.0","description":"plugin a","dependencies":["b@ai-efficiency"],"userConfig":{"token":{"title":"Token","type":"string","sensitive":true,"required":true}}}
+{"name":"a","version":"1.1.0","description":"plugin a","dependencies":["b@acme-plugins"],"userConfig":{"token":{"title":"Token","type":"string","sensitive":true,"required":true}}}

@@ -13,7 +13,7 @@ test('loadState 文件不存在返回 null', () => {
 
 test('saveState 后 loadState 读回相等，且自动创建目录', () => {
   const f = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'nested', 'ccpm.json');
-  const state = { presets: ['full'], excluded: ['a@ai-efficiency'] };
+  const state = { presets: ['full'], excluded: ['a@acme-plugins'] };
   saveState(state, f);
   assert.deepEqual(loadState(f), state);
 });

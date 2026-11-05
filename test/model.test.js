@@ -12,10 +12,10 @@ const mkt = mkdtempSync(join(tmpdir(), 'ccpm-mkt-'));
 cpSync(join(here, 'fixtures/marketplace'), mkt, { recursive: true });
 writeFileSync(join(mkt, 'presets.json'), JSON.stringify({ formatVersion: 1, presets: {
   base: { description: '基础', plugins: ['b'] },
-  dsgp: { description: '全套', plugins: ['base', 'a'] },
+  data: { description: '全套', plugins: ['base', 'a'] },
 } }));
 
-const inst = (name, o = {}) => ({ id: `${name}@ai-efficiency`, name, marketplace: 'ai-efficiency', version: '1.0.0', scope: 'user', enabled: true, ...o });
+const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace: 'acme-plugins', version: '1.0.0', scope: 'user', enabled: true, ...o });
 
 async function setup({ installed, state, scope = 'user' }) {
   const stateFile = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
@@ -24,7 +24,7 @@ async function setup({ installed, state, scope = 'user' }) {
   const list = { now: installed };
   const claude = {
     checkCapabilities: async () => ({ ok: true, missing: [] }),
-    listMarketplaces: async () => [{ name: 'ai-efficiency', installLocation: mkt }],
+    listMarketplaces: async () => [{ name: 'acme-plugins', installLocation: mkt }],
     updateMarketplace: async () => {},
     listInstalled: async () => list.now,
     getUnconfigured: async (id) => { calls.push(id); return id.startsWith('a@') ? ['token'] : []; },
@@ -35,7 +35,7 @@ async function setup({ installed, state, scope = 'user' }) {
 }
 
 test('buildModel 全局：插件、预设（via）、计数、下一步', async () => {
-  const { ctx } = await setup({ installed: [inst('a'), inst('old', { enabled: false })], state: { presets: ['dsgp'], excluded: [] } });
+  const { ctx } = await setup({ installed: [inst('a'), inst('old', { enabled: false })], state: { presets: ['data'], excluded: [] } });
   const m = buildModel(ctx, await gatherPlan(ctx));
   assert.equal(m.scope, 'user');
   assert.deepEqual(m.counters, { installed: 2, global: 0, notInstalled: 3, update: 1, configure: 1, disabled: 1, presets: 2, presetsChosen: 1 });
@@ -46,10 +46,10 @@ test('buildModel 全局：插件、预设（via）、计数、下一步', async 
   });
   assert.equal(m.plugins.find((p) => p.name === 'old').delisted, true);
   assert.equal(m.plugins.find((p) => p.name === 'c').where, 'none');
-  const [base, dsgp] = m.presets;
-  assert.deepEqual([base.name, base.chosen, base.via, base.got, base.want], ['base', false, 'dsgp', 0, 1]);
-  assert.deepEqual([dsgp.chosen, dsgp.got, dsgp.want], [true, 1, 2]);
-  assert.deepEqual(dsgp.members, [
+  const [base, data] = m.presets;
+  assert.deepEqual([base.name, base.chosen, base.via, base.got, base.want], ['base', false, 'data', 0, 1]);
+  assert.deepEqual([data.chosen, data.got, data.want], [true, 1, 2]);
+  assert.deepEqual(data.members, [
     { name: 'base', kind: 'preset', installed: false, excluded: false, delisted: false },
     { name: 'a', kind: 'plugin', installed: true, excluded: false, delisted: false },
   ]);
@@ -73,12 +73,12 @@ test('refreshInstalled 只重查变化的插件；setScope 不重新拉取', asy
   list.now = [inst('a', { version: '1.1.0' }), inst('b')];
   await refreshInstalled(ctx, ['a']);
   const plan = await gatherPlan(ctx);
-  assert.deepEqual(calls, ['mcp', 'a@ai-efficiency']); // MCP 列表沿用
+  assert.deepEqual(calls, ['mcp', 'a@acme-plugins']); // MCP 列表沿用
   assert.deepEqual(plan.configure, [{ name: 'a', keys: ['token'] }]);
   list.now = [inst('b')]; // a 卸掉后不再算缺配置
   await refreshInstalled(ctx);
   assert.deepEqual((await gatherPlan(ctx)).configure, []);
-  assert.deepEqual(calls, ['mcp', 'a@ai-efficiency']);
+  assert.deepEqual(calls, ['mcp', 'a@acme-plugins']);
 
   list.now = [inst('a', { version: '1.1.0' }), inst('b', { scope: 'project', projectPath: process.cwd() })];
   await refreshInstalled(ctx);

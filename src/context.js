@@ -18,8 +18,8 @@ export class PreconditionError extends Error {
 }
 
 const GIT_AUTH = /unable to get password|could not read Username|Authentication failed/;
-const GIT_HINT = '先为 gitlab-sz 配置 git 凭证（credential helper，或手动 git clone 一次该仓库），再重试';
-const NET_HINT = '检查网络 / VPN 能否访问 gitlab-sz 后重试';
+const GIT_HINT = '先为 marketplace 所在的 git 服务器配置凭证（credential helper，或手动 git clone 一次该仓库），再重试';
+const NET_HINT = '检查网络 / VPN 能否访问 marketplace 所在的 git 服务器后重试';
 
 export const samePath = (a, b, platform = process.platform) =>
   platform === 'win32' ? resolve(a).toLowerCase() === resolve(b).toLowerCase() : resolve(a) === resolve(b);
@@ -93,7 +93,7 @@ export async function loadContext(opts, deps = {}) {
   Object.assign(ctx, { claude, catalog, presets, state, prompter, progress, out, log, yes, dryRun, readOnly, refreshError, logFile: deps.logFile, stateFile: deps.stateFile });
   applyListing(ctx, await listing);
   const { installed } = ctx;
-  if (warning) warn(warning, warning.includes('升级') ? '升级 ccpm 到最新版本' : '联系 ai-efficiency 维护者修复 presets.json').forEach((l) => progress.note?.(l));
+  if (warning) warn(warning, warning.includes('升级') ? '升级 ccpm 到最新版本' : '联系 acme-plugins 维护者修复 presets.json').forEach((l) => progress.note?.(l));
   if (progress.summary) {
     const mineCount = installed.filter((p) => p.marketplace === MARKETPLACE).length;
     const parts = ['Claude Code', refreshError ? '插件列表更新失败，使用本地副本' : '插件列表已更新'];

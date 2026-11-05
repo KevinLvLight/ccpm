@@ -10,13 +10,13 @@ const tmp = () => mkdtempSync(join(tmpdir(), 'ccpm-log-'));
 
 test('configure 只记 stdin 键名；输出里的 token 值被脱敏', async () => {
   const logger = createLogger({ dir: tmp() });
-  const run = async () => ({ code: 0, stdout: '{"SONARQUBE_TOKEN": "abc", "url": "http://x"} api_key=zzz', stderr: '' });
+  const run = async () => ({ code: 0, stdout: '{"QUALITY_TOKEN": "abc", "url": "http://x"} api_key=zzz', stderr: '' });
   const claude = createClaude({ run, log: logger.write });
-  await claude.configure('a@ai-efficiency', { url: 'http://u', token: 'sekret-value' });
+  await claude.configure('a@acme-plugins', { url: 'http://u', token: 'sekret-value' });
   const text = readFileSync(logger.file, 'utf8');
   assert.match(text, /stdin keys: url, token/);
   assert.doesNotMatch(text, /sekret-value|"abc"|zzz/);
-  assert.match(text, /"SONARQUBE_TOKEN": "REDACTED"/);
+  assert.match(text, /"QUALITY_TOKEN": "REDACTED"/);
   assert.match(text, /"url": "http:\/\/x"/);
   assert.match(text, /api_key=REDACTED/);
 });

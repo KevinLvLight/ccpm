@@ -28,7 +28,7 @@ test('help 入口不调用 claude；未知主题退出 1', () => {
     assert.equal(r.status, 0, args.join(' '));
   }
   assert.match(ccpm('install', '--help').stdout, /^ccpm install — /);
-  assert.match(ccpm('help').stdout, /一键安装 \/ 配置 \/ 更新 ai-efficiency 插件/);
+  assert.match(ccpm('help').stdout, /一键安装 \/ 配置 \/ 更新 acme-plugins 插件/);
   assert.equal(ccpm('help', 'xyz').status, 1);
 });
 

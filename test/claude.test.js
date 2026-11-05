@@ -26,19 +26,19 @@ test('listInstalled 返回全部条目', async () => {
   const raw = JSON.parse(fx('list.json'));
   assert.equal(r.length, raw.length);
   assert.deepEqual(Object.keys(r[0]).sort(), ['enabled', 'id', 'marketplace', 'name', 'projectPath', 'scope', 'version']);
-  assert.equal(r[0].name, 'ai-gateway-mcp');
-  assert.equal(r[0].marketplace, 'ai-efficiency');
+  assert.equal(r[0].name, 'gateway-mcp');
+  assert.equal(r[0].marketplace, 'acme-plugins');
   assert.ok(r.some((x) => x.projectPath));
 });
 
 test('listAvailable 过滤 marketplace', async () => {
   const { claude, calls } = fake(() => ok(fx('list-available.json')));
-  const r = await claude.listAvailable('ai-efficiency');
+  const r = await claude.listAvailable('acme-plugins');
   assert.deepEqual(calls[0].args, ['plugin', 'list', '--available', '--json']);
   assert.ok(r.length > 0);
   assert.ok(r.some((x) => x.name === 'mysql-mcp'));
   const all = JSON.parse(fx('list-available.json')).available;
-  assert.equal(r.length, all.filter((x) => x.marketplaceName === 'ai-efficiency').length);
+  assert.equal(r.length, all.filter((x) => x.marketplaceName === 'acme-plugins').length);
   assert.ok(r.length < all.length);
 });
 
@@ -46,7 +46,7 @@ test('listMarketplaces', async () => {
   const { claude, calls } = fake(() => ok(fx('marketplace-list.json')));
   const r = await claude.listMarketplaces();
   assert.deepEqual(calls[0].args, ['plugin', 'marketplace', 'list', '--json']);
-  assert.ok(r.find((m) => m.name === 'ai-efficiency').installLocation);
+  assert.ok(r.find((m) => m.name === 'acme-plugins').installLocation);
 });
 
 test('add/updateMarketplace', async () => {
@@ -59,20 +59,20 @@ test('add/updateMarketplace', async () => {
 
 test('getUnconfigured', async () => {
   const { claude, calls } = fake(() => ok(fx('configure-unset.json')));
-  assert.deepEqual(await claude.getUnconfigured('s@ai-efficiency'), ['url', 'token']);
-  assert.deepEqual(calls[0].args, ['plugin', 'configure', 's@ai-efficiency', '--json']);
+  assert.deepEqual(await claude.getUnconfigured('s@acme-plugins'), ['url', 'token']);
+  assert.deepEqual(calls[0].args, ['plugin', 'configure', 's@acme-plugins', '--json']);
 });
 
 test('install 参数', async () => {
   const { claude, calls } = fake(() => ok());
-  await claude.install('a@ai-efficiency', { scope: 'user' });
-  assert.deepEqual(calls[0].args, ['plugin', 'install', 'a@ai-efficiency', '-s', 'user', '-y']);
+  await claude.install('a@acme-plugins', { scope: 'user' });
+  assert.deepEqual(calls[0].args, ['plugin', 'install', 'a@acme-plugins', '-s', 'user', '-y']);
 });
 
 test('configure 值只走 stdin', async () => {
   const { claude, calls } = fake(() => ok());
-  await claude.configure('a@ai-efficiency', { token: 't' });
-  assert.deepEqual(calls[0].args, ['plugin', 'configure', 'a@ai-efficiency', '--values-stdin']);
+  await claude.configure('a@acme-plugins', { token: 't' });
+  assert.deepEqual(calls[0].args, ['plugin', 'configure', 'a@acme-plugins', '--values-stdin']);
   assert.equal(calls[0].opts.input, '{"token":"t"}');
 });
 
@@ -95,8 +95,8 @@ test('prune dryRun: Skipped', async () => {
 });
 
 test('prune dryRun: 解析 id', async () => {
-  const { claude } = fake(() => ok('Would remove:\n  a@ai-efficiency\n  b@other\n'));
-  assert.deepEqual((await claude.prune({ scope: 'user', dryRun: true })).ids, ['a@ai-efficiency', 'b@other']);
+  const { claude } = fake(() => ok('Would remove:\n  a@acme-plugins\n  b@other\n'));
+  assert.deepEqual((await claude.prune({ scope: 'user', dryRun: true })).ids, ['a@acme-plugins', 'b@other']);
 });
 
 test('prune 只做 dry-run，Skipped 在 stderr 也识别；非 0 抛 ClaudeError', async () => {
@@ -115,7 +115,7 @@ test('checkCapabilities: Windows 缺 claude（cmd 非 0 且无 configure）→ m
 test('listUserMcp', async () => {
   const { claude, calls } = fake(() => ok(fx('mcp-list.txt')));
   assert.deepEqual(await claude.listUserMcp(), [
-    'codegraph', 'drawio', 'sapientpants-sonarqube-mcp-server', 'sonar-mcp', 'chrome-devtools', 'envmgr-mcp-server',
+    'codegraph', 'drawio', 'quality-mcp-server', 'quality-mcp-legacy', 'chrome-devtools', 'env-mcp',
   ]);
   assert.deepEqual(calls[0].args, ['mcp', 'list']);
 });
@@ -149,6 +149,6 @@ test('checkCapabilities: claude 不存在', async () => {
 });
 
 test('assertSafeArgs', () => {
-  assert.doesNotThrow(() => assertSafeArgs(['sonarqube-mcp@ai-efficiency', '-s', 'user', 'a b']));
+  assert.doesNotThrow(() => assertSafeArgs(['quality-mcp@acme-plugins', '-s', 'user', 'a b']));
   for (const bad of ['a&b', '"x"', '%PATH%', 'a|b', '^']) assert.throws(() => assertSafeArgs(['ok', bad]), /参数含不安全字符/);
 });

@@ -82,7 +82,7 @@ async function main(argv, deps = {}) {
     log(`退出码 ${code}`);
     return code;
   }
-  out(`${bold('ccpm')} ${dim(`${version} · ai-efficiency · ${flags.scope === 'project' ? '当前项目' : '全局'}`)}`);
+  out(`${bold('ccpm')} ${dim(`${version} · acme-plugins · ${flags.scope === 'project' ? '当前项目' : '全局'}`)}`);
 
   const code = await (async () => {
     try {

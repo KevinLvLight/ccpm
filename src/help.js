@@ -2,17 +2,17 @@
 
 export const SCENARIOS = `常用场景:
   边看边操作：      ccpm                      直接运行 ccpm 进入交互界面，查看和操作都在一个界面里
-  第一次使用：      ccpm install dev-base     装好研发基础环境
+  第一次使用：      ccpm install dev     装好研发基础环境
   看有哪些插件：    ccpm list
   查看当前状态：    ccpm status
   保持最新：        ccpm sync                 补装、更新、补配置，一条命令搞定
   改某个插件配置：  ccpm config <插件名>`;
 
-const OVERVIEW = `ccpm — 一键安装 / 配置 / 更新 ai-efficiency 插件的工具
+const OVERVIEW = `ccpm — 一键安装 / 配置 / 更新 acme-plugins 插件的工具
 
-ccpm 帮你管理 Claude Code 里来自 ai-efficiency 插件市场（marketplace）的插件：
+ccpm 帮你管理 Claude Code 里来自 acme-plugins 插件市场（marketplace）的插件：
 装插件时自动补上它依赖的插件、一项项问你要填的配置、提醒你更新。
-它只管 ai-efficiency 的插件，其他来源的插件一概不碰。
+它只管 acme-plugins 的插件，其他来源的插件一概不碰。
 
 用法: ccpm [命令] [选项]
 
@@ -24,7 +24,7 @@ ${SCENARIOS}
 命令:
   ui                     打开全屏交互界面（直接运行 ccpm 时默认进入）
   status                 查看插件和预设的完整状态（脚本里不写命令时默认就是它）
-  list                   列出 ai-efficiency 的全部插件，标出已装 / 未装 / 可更新
+  list                   列出 acme-plugins 的全部插件，标出已装 / 未装 / 可更新
   install <插件或预设>   安装插件或预设，自动补装依赖、询问配置
   sync                   补装、更新、补配置，让环境和你选的预设保持一致
   update [插件...]       把插件更新到最新版
@@ -102,7 +102,7 @@ const COMMANDS = {
   答：运行 ccpm status。`,
   }),
   list: page({
-    name: 'list', summary: '列出 ai-efficiency 的全部插件',
+    name: 'list', summary: '列出 acme-plugins 的全部插件',
     purpose: '  看看插件市场里有哪些插件、每个是干什么的、你装了哪些、哪些能更新。',
     usage: '  ccpm list',
     args: '  无',
@@ -110,11 +110,11 @@ const COMMANDS = {
     examples: `  ccpm list                     全部插件，已装的在前
   ccpm list --scope project     看当前项目装了哪些`,
     does: '  只读，打印插件清单：\n  ✔ 已装  ↑ 可更新（旧版本 → 新版本）  ⏸ 已停用  ○ 未装',
-    doesNot: '  - 不安装、不更新任何东西\n  - 不列出其他来源（非 ai-efficiency）的插件',
+    doesNot: '  - 不安装、不更新任何东西\n  - 不列出其他来源（非 acme-plugins）的插件',
     faq: `  问：想装其中一个？
   答：运行 ccpm install <插件名>，它依赖的插件会一起装上。
   问：清单和 Claude Code 里的 /plugin 不一样？
-  答：ccpm list 只列 ai-efficiency 的插件；其他来源的插件 ccpm 不管。`,
+  答：ccpm list 只列 acme-plugins 的插件；其他来源的插件 ccpm 不管。`,
   }),
   status: page({
     name: 'status', summary: '查看插件和预设的完整状态',
@@ -136,13 +136,13 @@ const COMMANDS = {
     name: 'install', summary: '安装插件或预设',
     purpose: '  安装一个或多个插件，或者一整个预设。依赖的插件会自动一起装，\n  必填配置会一项项问你。',
     usage: '  ccpm install <插件或预设>...',
-    args: '  <插件或预设>   插件名（如 dsgp-sonar-scan）或预设名（如 dev-base），可写多个',
+    args: '  <插件或预设>   插件名（如 data-scan）或预设名（如 dev），可写多个',
     options: MUTATING_OPTS,
-    examples: `  ccpm install dev-base            第一次使用：装好研发基础环境
-  ccpm install dsgp-sonar-scan     只装一个插件（及它依赖的插件）
-  ccpm install dsgp --dry-run      先看看会装哪些，不真正安装
-  ccpm install dsgp-deploy verify-requirement   一次装多个插件
-  ccpm install sonarqube-mcp --scope project   只装到当前项目`,
+    examples: `  ccpm install dev            第一次使用：装好研发基础环境
+  ccpm install data-scan     只装一个插件（及它依赖的插件）
+  ccpm install data --dry-run      先看看会装哪些，不真正安装
+  ccpm install data-deploy verify-requirement   一次装多个插件
+  ccpm install quality-mcp --scope project   只装到当前项目`,
     does: '  1. 列出将安装的插件，问你“确认执行以上操作？”\n  2. 逐个询问必填配置（敏感信息输入时不显示）\n  3. 安装插件、写入配置\n  4. 装的是预设时，记到 ccpm.json，以后 ccpm sync 会自动补装\n  5. 打印“完成”汇总；重启 Claude Code 后生效',
     doesNot: '  - 不重装已经装好的插件\n  - 不把预设装到当前项目（预设只对全局生效）\n  - 敏感配置不会出现在命令行参数和日志里',
     faq: `  问：用了 --yes，有的插件被“跳过”了？
@@ -173,7 +173,7 @@ const COMMANDS = {
     args: '  [插件...]   要更新的插件名，可不写',
     options: MUTATING_OPTS,
     examples: `  ccpm update                    更新所有有新版本的插件
-  ccpm update dsgp-sonar-scan    只更新这一个
+  ccpm update data-scan    只更新这一个
   ccpm update --dry-run          看看哪些可以更新`,
     does: '  1. 列出可更新的插件和版本，问你确认\n  2. 逐个更新，显示更新内容\n  3. 新版本新增了依赖或必填配置时，补装 / 补问',
     doesNot: '  - 不安装新插件（用 ccpm install）\n  - 不降级',
@@ -186,8 +186,8 @@ const COMMANDS = {
     usage: '  ccpm config <插件名>',
     args: '  <插件名>   已安装的插件名',
     options: '  --dry-run              只显示会问哪些配置\n  --scope user|project   全局（默认）或当前项目\n  --verbose              同时把诊断日志打印到屏幕',
-    examples: `  ccpm config sonarqube-mcp    重新填 SonarQube 地址和 token
-  ccpm config dsgp-deploy      修改部署插件的配置`,
+    examples: `  ccpm config quality-mcp    重新填 QualityHub 地址和 token
+  ccpm config data-deploy      修改部署插件的配置`,
     does: '  1. 一项项问你（直接回车 = 保留原值）\n  2. 保存配置\n  3. 插件是停用状态时，问你要不要启用',
     doesNot: '  - 不能和 --yes 一起用（必须一问一答）\n  - 敏感信息输入时不显示，也不会写进日志',
     faq: `  问：粘贴 token 后屏幕上什么都没有？
@@ -199,9 +199,9 @@ const COMMANDS = {
     usage: '  ccpm enable <插件名...>',
     args: '  <插件名...>   一个或多个已安装的插件',
     options: MUTATING_OPTS,
-    examples: `  ccpm enable sonarqube-mcp                  启用这个插件
-  ccpm enable sonarqube-mcp mysql-mcp        一次启用多个
-  ccpm enable sonarqube-mcp --scope project  启用当前项目里装的那份`,
+    examples: `  ccpm enable quality-mcp                  启用这个插件
+  ccpm enable quality-mcp mysql-mcp        一次启用多个
+  ccpm enable quality-mcp --scope project  启用当前项目里装的那份`,
     does: '  1. 对停用的插件运行 claude plugin enable\n  2. 已经启用的跳过不动',
     doesNot: '  - 不安装插件（没装的先 ccpm install）\n  - 不改配置',
     faq: `  问：启用后没有效果？
@@ -213,7 +213,7 @@ const COMMANDS = {
     usage: '  ccpm disable <插件名...>',
     args: '  <插件名...>   一个或多个已安装的插件',
     options: MUTATING_OPTS,
-    examples: `  ccpm disable chrome-devtools-mcp   暂时不用这个插件
+    examples: `  ccpm disable browser-mcp   暂时不用这个插件
   ccpm disable a b                   一次停用多个`,
     does: '  1. 对启用中的插件运行 claude plugin disable\n  2. 已经停用的跳过不动',
     doesNot: '  - 不卸载、不删配置\n  - ccpm sync / update 不会自动把它重新启用',
@@ -226,10 +226,10 @@ const COMMANDS = {
     usage: '  ccpm remove <插件名或预设名...>',
     args: '  <插件名或预设名...>   一个或多个，可以混写；预设只对全局生效',
     options: MUTATING_OPTS,
-    examples: `  ccpm remove chrome-devtools-mcp     卸载这个插件
-  ccpm remove dsgp-deploy --dry-run   看看会发生什么
-  ccpm remove dsgp                    卸载整个 dsgp 预设
-  ccpm remove dsgp --dry-run          先看看预设里哪些会卸、哪些会保留
+    examples: `  ccpm remove browser-mcp     卸载这个插件
+  ccpm remove data-deploy --dry-run   看看会发生什么
+  ccpm remove data                    卸载整个 data 预设
+  ccpm remove data --dry-run          先看看预设里哪些会卸、哪些会保留
   ccpm remove mysql-mcp prd-builder   一次卸载多个，只确认一次`,
     does: '  卸载插件：\n  1. 提示有哪些插件依赖它，问你确认\n  2. 卸载\n  3. 属于预设时记到 ccpm.json，sync 不再装回\n  卸载预设：\n  1. 列出要卸载和要保留的插件，问你确认（默认否）\n  2. 卸载预设里的插件及其依赖\n  3. 把预设从 ccpm.json 里去掉',
     doesNot: '  - 不连带卸载依赖它的插件\n  - 卸载预设时，不卸你选的其他预设也包含的插件，也不卸还被其他插件依赖的插件\n  - 不碰其他来源的插件',
@@ -270,8 +270,8 @@ const COMMANDS = {
 const CONCEPTS = `ccpm 概念说明
 
 预设
-  预设 = 一组常用插件，如 dev-base（网关 + 浏览器调试）。
-  ccpm install dev-base 会把里面的插件一次装好，并记住你选了这个预设；
+  预设 = 一组常用插件，如 dev（网关 + 浏览器调试）。
+  ccpm install dev 会把里面的插件一次装好，并记住你选了这个预设；
   以后预设里加了新插件，ccpm sync 会自动补装。查看全部预设和装齐没有：ccpm status。
 
 全局 vs 当前项目（--scope）
@@ -313,11 +313,11 @@ Claude Code 版本太旧，请升级 Claude Code
   原因：ccpm 需要较新的 claude plugin configure --values-stdin。
   解决：运行 claude update。
 
-无法添加 marketplace ai-efficiency
-  原因：git 访问 gitlab-sz 没有凭证（报错含 unable to get password / Authentication failed），或网络不通。
+无法添加 marketplace acme-plugins
+  原因：git 访问 marketplace 仓库没有凭证（报错含 unable to get password / Authentication failed），或网络不通。
   解决：macOS 运行 git config --global credential.helper osxkeychain，
         Windows 安装 Git Credential Manager；然后手动 git clone 一次
-        https://gitlab-sz.hillstonedev.com:4433/cloudservice/AI-Efficiency.git
+        https://git.example.com/acme/plugins.git
         输入账号密码后重试。网络问题请检查 VPN。
 
 拉取最新插件列表失败

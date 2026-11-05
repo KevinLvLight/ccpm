@@ -1,18 +1,18 @@
 # Task 0 (Windows): record real `claude` output as ccpm test fixtures.
 # ASCII-only on purpose: Windows PowerShell 5.1 misreads BOM-less UTF-8 scripts.
-# Prereq: marketplace "ai-efficiency" already added (check: claude plugin marketplace list).
-# NOTE: uninstalls and reinstalls <Plugin>@ai-efficiency (default sonarqube-mcp, which has a required sensitive "token") with that config left empty.
-#       Afterwards restore it: claude plugin configure sonarqube-mcp@ai-efficiency
-# Usage: powershell -ExecutionPolicy Bypass -File record.ps1 [-Plugin name]
+# Prereq: the marketplace is already added (check: claude plugin marketplace list).
+# NOTE: uninstalls and reinstalls <Plugin>@<Marketplace> (a plugin with a required sensitive option) with that config left empty.
+#       Afterwards restore it: claude plugin configure <Plugin>@<Marketplace>
+# Usage: powershell -ExecutionPolicy Bypass -File record.ps1 -Marketplace name -Plugin name
 # Run it from an EMPTY folder: the redaction check scans every file in that folder.
 # Output files are written next to this script.
 
-param([string]$Plugin = "sonarqube-mcp")
+param([Parameter(Mandatory)][string]$Marketplace, [Parameter(Mandatory)][string]$Plugin)
 
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $OutputEncoding = [Text.Encoding]::UTF8
 Set-Location $PSScriptRoot
-$M = 'ai-efficiency'
+$M = $Marketplace
 $P = "$Plugin@$M"
 $utf8 = New-Object Text.UTF8Encoding($false)   # no BOM, so JSON.parse works
 

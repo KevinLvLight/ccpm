@@ -4,7 +4,7 @@ import { compareVersions, resolveDeps, inferPresets, computePlan, USER_MCP } fro
 
 const meta = (name, o = {}) => ({ name, version: '1.0.0', dependencies: [], userConfig: {}, mcpServers: [], ...o });
 const cat = (...ms) => new Map(ms.map((m) => [m.name, m]));
-const inst = (name, o = {}) => ({ id: `${name}@ai-efficiency`, name, marketplace: 'ai-efficiency', version: '1.0.0', scope: 'user', enabled: true, ...o });
+const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace: 'acme-plugins', version: '1.0.0', scope: 'user', enabled: true, ...o });
 const run = (o) => computePlan({ installed: [], catalog: new Map(), state: null, presets: {}, unconfigured: new Map(), userMcp: [], ...o });
 
 test('compareVersions', () => {
@@ -22,9 +22,9 @@ test('resolveDeps 拓扑序、unknown、环', () => {
 });
 
 test('inferPresets', () => {
-  const p = { 'dev-base': { plugins: ['a'] }, dsgp: { plugins: ['dev-base', 'b'] } };
-  assert.deepEqual(inferPresets(p, new Set(['a'])), ['dev-base']);
-  assert.deepEqual(inferPresets(p, new Set(['a', 'b'])), ['dev-base', 'dsgp']);
+  const p = { 'dev': { plugins: ['a'] }, data: { plugins: ['dev', 'b'] } };
+  assert.deepEqual(inferPresets(p, new Set(['a'])), ['dev']);
+  assert.deepEqual(inferPresets(p, new Set(['a', 'b'])), ['dev', 'data']);
   assert.deepEqual(inferPresets({ x: { plugins: ['y'] }, y: { plugins: ['x'] } }, new Set(['x'])), []);
 });
 

@@ -7,7 +7,7 @@ export async function run(ctx, [arg]) {
   const { out, catalog } = ctx;
   const name = arg?.replace(`@${MARKETPLACE}`, '');
   if (!name) {
-    out('用法：ccpm config <插件名>（例如 ccpm config sonarqube-mcp；详见 ccpm help config）');
+    out('用法：ccpm config <插件名>（例如 ccpm config quality-mcp；详见 ccpm help config）');
     return 1;
   }
   if (!ctx.installed.some((p) => p.name === name && p.marketplace === MARKETPLACE)) {

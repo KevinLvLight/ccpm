@@ -31,12 +31,12 @@ test('敏感输入：每个字符回显为 •（退格生效），屏幕和日�
   const { output, text } = fakeTty();
   const logged = [];
   const p = createPrompter({ input, output, interactive: true, log: (l) => logged.push(l) });
-  const pending = p.ask('SonarQube Token', { secret: true, hint: '在 My Account 生成' });
+  const pending = p.ask('QualityHub Token', { secret: true, hint: '在 My Account 生成' });
   for (const ch of 'sekret-X') input.write(ch);
   input.write('\x7f'); // 退格
   input.write('\r');
   assert.equal(await pending, 'sekret-');
-  assert.match(strip(text()), /^\? SonarQube Token 输入内容已隐藏 · 在 My Account 生成\n  › ••••••••  › •••••••\r\n$/); // 退格后整行重绘
+  assert.match(strip(text()), /^\? QualityHub Token 输入内容已隐藏 · 在 My Account 生成\n  › ••••••••  › •••••••\r\n$/); // 退格后整行重绘
   assert.match(text(), /••••••••/);
   assert.doesNotMatch(text(), /sekret/);
   assert.doesNotMatch(logged.join('\n'), /sekret/);

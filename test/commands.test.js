@@ -23,10 +23,10 @@ const mkt = mkdtempSync(join(tmpdir(), 'ccpm-mkt-'));
 cpSync(join(here, 'fixtures/marketplace'), mkt, { recursive: true });
 writeFileSync(join(mkt, 'presets.json'), JSON.stringify({ formatVersion: 1, presets: {
   base: { description: '基础', plugins: ['b'] },
-  dsgp: { description: '全套', plugins: ['base', 'a'] },
+  data: { description: '全套', plugins: ['base', 'a'] },
 } }));
 
-const inst = (name, o = {}) => ({ id: `${name}@ai-efficiency`, name, marketplace: 'ai-efficiency', version: '1.0.0', scope: 'user', enabled: true, ...o });
+const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace: 'acme-plugins', version: '1.0.0', scope: 'user', enabled: true, ...o });
 
 // 返回 { ctx, calls, lines, stateFile }；state 为 ccpm.json 初始内容（可选）
 async function setup({ installed = [], state, opts = {}, failInstall, prune = { ids: [] }, prompter = {} } = {}) {
@@ -37,7 +37,7 @@ async function setup({ installed = [], state, opts = {}, failInstall, prune = { 
   const rec = (n, f) => async (...a) => { calls.push([n, ...a]); return f?.(...a); };
   const claude = {
     checkCapabilities: async () => ({ ok: true, missing: [] }),
-    listMarketplaces: async () => [{ name: 'ai-efficiency', installLocation: mkt }],
+    listMarketplaces: async () => [{ name: 'acme-plugins', installLocation: mkt }],
     updateMarketplace: async () => {},
     addMarketplace: async () => {},
     listInstalled: async () => installed,
@@ -59,22 +59,22 @@ const names = (calls) => calls.map((c) => c[0]);
 const stateOf = (f) => JSON.parse(readFileSync(f, 'utf8'));
 const MUTATING = ['install', 'configure', 'enable', 'update', 'uninstall'];
 
-test('install dsgp：依赖在前，预设写入 state', async () => {
+test('install data：依赖在前，预设写入 state', async () => {
   const { ctx, calls, stateFile } = await setup();
-  assert.equal(await install.run(ctx, ['dsgp'], {}), 0);
-  assert.deepEqual(calls.filter((c) => c[0] === 'install').map((c) => c[1]), ['b@ai-efficiency', 'a@ai-efficiency']);
-  assert.deepEqual(stateOf(stateFile).presets, ['dsgp']);
+  assert.equal(await install.run(ctx, ['data'], {}), 0);
+  assert.deepEqual(calls.filter((c) => c[0] === 'install').map((c) => c[1]), ['b@acme-plugins', 'a@acme-plugins']);
+  assert.deepEqual(stateOf(stateFile).presets, ['data']);
 });
 
 test('install --dry-run 不动环境也不写 state', async () => {
   const { ctx, calls, stateFile } = await setup({ opts: { dryRun: true } });
-  assert.equal(await install.run(ctx, ['dsgp'], {}), 0);
+  assert.equal(await install.run(ctx, ['data'], {}), 0);
   assert.deepEqual(calls, []);
   assert.equal(existsSync(stateFile), false);
 });
 
 test('任一插件安装失败 → 返回 1', async () => {
-  const { ctx, lines } = await setup({ failInstall: 'b@ai-efficiency' });
+  const { ctx, lines } = await setup({ failInstall: 'b@acme-plugins' });
   assert.equal(await install.run(ctx, ['b', 'a'], {}), 1);
   const t = lines.join('\n');
   assert.match(t, /✖ 安装失败 b  boom/);
@@ -88,7 +88,7 @@ test('remove 预设内插件 → excluded，之后 sync --yes 不再装回', asy
   const state = { presets: ['base'], excluded: [] };
   const r = await setup({ installed: [inst('b')], state });
   assert.equal(await remove.run(r.ctx, ['b'], {}), 0);
-  assert.deepEqual(r.calls[0], ['uninstall', 'b@ai-efficiency', { scope: 'user' }]);
+  assert.deepEqual(r.calls[0], ['uninstall', 'b@acme-plugins', { scope: 'user' }]);
   assert.deepEqual(stateOf(r.stateFile).excluded, ['b']);
   const s = await setup({ state: stateOf(r.stateFile), opts: { yes: true } });
   assert.equal(await sync.run(s.ctx, [], {}), 0);
@@ -111,16 +111,16 @@ test('sync --dry-run 不调用任何改动命令，也不写 state', async () =>
 test('sync --yes 无 ccpm.json → 写入推断预设', async () => {
   const { ctx, stateFile } = await setup({ installed: [inst('a', { version: '1.1.0' }), inst('b')], opts: { yes: true }, prompter: { interactive: false } });
   assert.equal(await sync.run(ctx, [], {}), 0);
-  assert.deepEqual(stateOf(stateFile).presets.sort(), ['base', 'dsgp']);
+  assert.deepEqual(stateOf(stateFile).presets.sort(), ['base', 'data']);
 });
 
 test('sync：prune note 静默跳过；ids 确认后清理', async () => {
   const n = await setup({ state: { presets: [], excluded: [] }, prune: { ids: [], note: 'Skipped: x' } });
   await sync.run(n.ctx, [], {});
   assert.doesNotMatch(n.lines.join('\n'), /Skipped|⚠️/);
-  const p = await setup({ state: { presets: [], excluded: [] }, prune: { ids: ['x@ai-efficiency', 'y@other'] } });
+  const p = await setup({ state: { presets: [], excluded: [] }, prune: { ids: ['x@acme-plugins', 'y@other'] } });
   assert.equal(await sync.run(p.ctx, [], {}), 0);
-  assert.deepEqual(p.calls.filter((c) => c[0] === 'uninstall'), [['uninstall', 'x@ai-efficiency', { scope: 'user' }]]);
+  assert.deepEqual(p.calls.filter((c) => c[0] === 'uninstall'), [['uninstall', 'x@acme-plugins', { scope: 'user' }]]);
 });
 
 test('sync：prune 抛错 → 静默，sync 继续不中断', async () => {
@@ -144,8 +144,8 @@ test('sync 重复 MCP：只提示 ccpm remove，不卸载', async () => {
 
 test('install 预设：全部已安装也写入 state；dry-run 不写', async () => {
   const r = await setup({ installed: [inst('a', { version: '1.1.0' }), inst('b')] });
-  assert.equal(await install.run(r.ctx, ['dsgp'], {}), 0);
-  assert.deepEqual(stateOf(r.stateFile).presets, ['dsgp']);
+  assert.equal(await install.run(r.ctx, ['data'], {}), 0);
+  assert.deepEqual(stateOf(r.stateFile).presets, ['data']);
   const d = await setup({ installed: [inst('b')], opts: { dryRun: true } });
   await install.run(d.ctx, ['base'], {});
   assert.equal(existsSync(d.stateFile), false);
@@ -196,7 +196,7 @@ test('config：留空保留原值；全空则未修改；--yes 报错', async ()
   const inst_ = [inst('a', { version: '1.1.0' })];
   const r = await setup({ installed: inst_ });
   assert.equal(await config.run(r.ctx, ['a'], {}), 0);
-  assert.deepEqual(r.calls, [['configure', 'a@ai-efficiency', { token: 'sekret' }]]);
+  assert.deepEqual(r.calls, [['configure', 'a@acme-plugins', { token: 'sekret' }]]);
   const e = await setup({ installed: inst_, prompter: { ask: async () => '' } });
   assert.equal(await config.run(e.ctx, ['a'], {}), 0);
   assert.deepEqual(e.calls, []);
@@ -212,16 +212,16 @@ test('A1/A3：只对有必填配置的插件查配置（并发），无 MCP 插�
   let mcp = 0;
   r.ctx.claude.listUserMcp = async () => { mcp++; return []; };
   await sync.run(r.ctx, [], {});
-  assert.deepEqual(asked, ['a@ai-efficiency']);
+  assert.deepEqual(asked, ['a@acme-plugins']);
   assert.equal(mcp, 0);
 });
 
 test('F：--scope project 不看预设；预设不能装到项目', async () => {
-  const r = await setup({ state: { presets: ['dsgp'], excluded: [] }, opts: { scope: 'project' } });
+  const r = await setup({ state: { presets: ['data'], excluded: [] }, opts: { scope: 'project' } });
   const { gatherPlan } = await import('../src/context.js');
   assert.deepEqual((await gatherPlan(r.ctx)).install, []);
-  assert.equal(await install.run(r.ctx, ['dsgp'], {}), 1);
-  assert.match(r.lines.join('\n'), /✖ 预设只能装到全局，去掉 --scope project\n  › 运行 ccpm install dsgp --scope user/);
+  assert.equal(await install.run(r.ctx, ['data'], {}), 1);
+  assert.match(r.lines.join('\n'), /✖ 预设只能装到全局，去掉 --scope project\n  › 运行 ccpm install data --scope user/);
   assert.deepEqual(r.calls, []);
 });
 
@@ -260,14 +260,14 @@ test('enable / disable：只动状态不同的插件，未装的跳过并返回 
   let r = await setup({ installed });
   r.ctx.claude.disable = async (...a) => r.calls.push(['disable', ...a]);
   assert.equal(await enable(r.ctx, ['a', 'b']), 0);
-  assert.deepEqual(r.calls, [['enable', 'a@ai-efficiency', { scope: 'user' }]]);
+  assert.deepEqual(r.calls, [['enable', 'a@acme-plugins', { scope: 'user' }]]);
   const t = r.lines.join('\n');
   assert.match(t, /✔ b  已经是启用状态/);
   assert.match(t, /✔ 1 个插件已启用/);
   r = await setup({ installed });
   r.ctx.claude.disable = async (...a) => r.calls.push(['disable', ...a]);
   assert.equal(await disable(r.ctx, ['b', 'zzz']), 1);
-  assert.deepEqual(r.calls, [['disable', 'b@ai-efficiency', { scope: 'user' }]]);
+  assert.deepEqual(r.calls, [['disable', 'b@acme-plugins', { scope: 'user' }]]);
   assert.match(r.lines.join('\n'), /▲ zzz  没有安装/);
   r = await setup({ installed, opts: { dryRun: true } });
   assert.equal(await enable(r.ctx, ['a']), 0);
@@ -275,18 +275,18 @@ test('enable / disable：只动状态不同的插件，未装的跳过并返回 
 });
 
 test('remove 预设：卸载预设里的插件（先卸依赖方），从 ccpm.json 去掉', async () => {
-  const r = await setup({ installed: [inst('a'), inst('b'), inst('c')], state: { presets: ['dsgp'], excluded: [] } });
-  assert.equal(await remove.run(r.ctx, ['dsgp'], {}), 0);
-  assert.deepEqual(r.calls.map((c) => c[1]), ['a@ai-efficiency', 'b@ai-efficiency']);
+  const r = await setup({ installed: [inst('a'), inst('b'), inst('c')], state: { presets: ['data'], excluded: [] } });
+  assert.equal(await remove.run(r.ctx, ['data'], {}), 0);
+  assert.deepEqual(r.calls.map((c) => c[1]), ['a@acme-plugins', 'b@acme-plugins']);
   assert.deepEqual(stateOf(r.stateFile).presets, []);
-  assert.match(r.lines.join('\n'), /卸载后 dsgp 不再算你选的预设，ccpm sync 不会再按它补装插件/);
+  assert.match(r.lines.join('\n'), /卸载后 data 不再算你选的预设，ccpm sync 不会再按它补装插件/);
   assert.match(r.lines.join('\n'), /2 个插件已卸载/);
 });
 
 test('remove 预设：别的预设也包含的、仍被依赖的保留', async () => {
-  let r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['dsgp', 'base'], excluded: [] } });
-  assert.equal(await remove.run(r.ctx, ['dsgp'], {}), 0);
-  assert.deepEqual(r.calls.map((c) => c[1]), ['a@ai-efficiency']);
+  let r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['data', 'base'], excluded: [] } });
+  assert.equal(await remove.run(r.ctx, ['data'], {}), 0);
+  assert.deepEqual(r.calls.map((c) => c[1]), ['a@acme-plugins']);
   assert.match(r.lines.join('\n'), /✔ b  保留：预设 base 也包含/);
   assert.deepEqual(stateOf(r.stateFile).presets, ['base']);
 
@@ -298,21 +298,21 @@ test('remove 预设：别的预设也包含的、仍被依赖的保留', async (
 });
 
 test('remove 预设：--scope project 报错，--dry-run 不动', async () => {
-  let r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['dsgp'], excluded: [] }, opts: { scope: 'project' } });
-  assert.equal(await remove.run(r.ctx, ['dsgp'], {}), 1);
-  r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['dsgp'], excluded: [] }, opts: { dryRun: true } });
-  assert.equal(await remove.run(r.ctx, ['dsgp'], {}), 0);
+  let r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['data'], excluded: [] }, opts: { scope: 'project' } });
+  assert.equal(await remove.run(r.ctx, ['data'], {}), 1);
+  r = await setup({ installed: [inst('a'), inst('b')], state: { presets: ['data'], excluded: [] }, opts: { dryRun: true } });
+  assert.equal(await remove.run(r.ctx, ['data'], {}), 0);
   assert.deepEqual(r.calls, []);
-  assert.deepEqual(stateOf(r.stateFile).presets, ['dsgp']);
+  assert.deepEqual(stateOf(r.stateFile).presets, ['data']);
 });
 
 test('remove 多个：插件和预设混写，一次确认', async () => {
   let confirms = 0;
-  const r = await setup({ installed: [inst('a'), inst('b'), inst('c')], state: { presets: ['dsgp'], excluded: [] }, prompter: { confirm: async () => { confirms++; return true; } } });
-  assert.equal(await remove.run(r.ctx, ['c', 'dsgp'], {}), 0);
+  const r = await setup({ installed: [inst('a'), inst('b'), inst('c')], state: { presets: ['data'], excluded: [] }, prompter: { confirm: async () => { confirms++; return true; } } });
+  assert.equal(await remove.run(r.ctx, ['c', 'data'], {}), 0);
   assert.equal(confirms, 1);
-  assert.deepEqual(r.calls.map((c) => c[1]).sort(), ['a@ai-efficiency', 'b@ai-efficiency', 'c@ai-efficiency']);
-  assert.ok(r.calls.findIndex((c) => c[1] === 'a@ai-efficiency') < r.calls.findIndex((c) => c[1] === 'b@ai-efficiency')); // a 依赖 b，先卸 a
+  assert.deepEqual(r.calls.map((c) => c[1]).sort(), ['a@acme-plugins', 'b@acme-plugins', 'c@acme-plugins']);
+  assert.ok(r.calls.findIndex((c) => c[1] === 'a@acme-plugins') < r.calls.findIndex((c) => c[1] === 'b@acme-plugins')); // a 依赖 b，先卸 a
   assert.deepEqual(stateOf(r.stateFile).presets, []);
   assert.match(r.lines.join('\n'), /确认卸载这 3 个插件|3 个插件已卸载/);
 });

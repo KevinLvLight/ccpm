@@ -19,15 +19,15 @@ const mkt = mkdtempSync(join(tmpdir(), 'ccpm-mkt-'));
 cpSync(join(here, 'fixtures/marketplace'), mkt, { recursive: true });
 writeFileSync(join(mkt, 'presets.json'), JSON.stringify({ formatVersion: 1, presets: {
   base: { description: '基础', plugins: ['b'] },
-  dsgp: { description: '全套', plugins: ['base', 'a'] },
+  data: { description: '全套', plugins: ['base', 'a'] },
 } }));
-const inst = (name, o = {}) => ({ id: `${name}@ai-efficiency`, name, marketplace: 'ai-efficiency', version: '1.0.0', scope: 'user', enabled: true, ...o });
+const inst = (name, o = {}) => ({ id: `${name}@acme-plugins`, name, marketplace: 'acme-plugins', version: '1.0.0', scope: 'user', enabled: true, ...o });
 
 function fakeClaude(installed, calls = []) {
   const rec = (n, f) => async (...a) => { calls.push([n, ...a]); return f?.(...a); };
   return {
     checkCapabilities: async () => ({ ok: true, missing: [] }),
-    listMarketplaces: async () => [{ name: 'ai-efficiency', installLocation: mkt }],
+    listMarketplaces: async () => [{ name: 'acme-plugins', installLocation: mkt }],
     updateMarketplace: async () => {},
     listInstalled: async () => [...installed],
     getUnconfigured: async (id) => (id.startsWith('a@') ? ['token'] : []),
@@ -43,11 +43,11 @@ function fakeClaude(installed, calls = []) {
 }
 const newState = () => {
   const f = join(mkdtempSync(join(tmpdir(), 'ccpm-state-')), 'ccpm.json');
-  writeFileSync(f, JSON.stringify({ presets: ['dsgp'], excluded: [] }));
+  writeFileSync(f, JSON.stringify({ presets: ['data'], excluded: [] }));
   return f;
 };
 
-// a 已装（可更新、缺配置、缺依赖 b），选了 dsgp
+// a 已装（可更新、缺配置、缺依赖 b），选了 data
 async function model(scope = 'user') {
   const installed = [inst('a'), inst('b', { scope: 'project', projectPath: process.cwd() })];
   const ctx = await loadContext({ scope, readOnly: true }, { claude: fakeClaude(installed), prompter: {}, out() {}, stateFile: newState() });
@@ -61,9 +61,9 @@ test('render：分组、光标、勾选、详情、按键栏', async () => {
   const s = { ...initialState(), model: await model(), cursor: 'a', selected: ['c'] };
   const lines = screen(s);
   assert.equal(lines.length, 24);
-  assert.match(lines[0], /^ccpm · ai-efficiency · 全局 +● 1 已装  ↑ 1 可更新  ▲ 1 需配置  ○ 3 未装$/);
+  assert.match(lines[0], /^ccpm · acme-plugins · 全局 +● 1 已装  ↑ 1 可更新  ▲ 1 需配置  ○ 3 未装$/);
   const t = lines.join('\n');
-  assert.match(t, /\n 预设  一组常用插件\n +▲ base +已选（dsgp 包含） · 缺 1 个 +基础\n +▲ dsgp +已选 · 缺 1 个 +全套\n 已安装\n▸ +▲ a +1\.0\.0 → 1\.1\.0 +可更新 · 缺少配置：Token · 缺少依赖 b/);
+  assert.match(t, /\n 预设  一组常用插件\n +▲ base +已选（data 包含） · 缺 1 个 +基础\n +▲ data +已选 · 缺 1 个 +全套\n 已安装\n▸ +▲ a +1\.0\.0 → 1\.1\.0 +可更新 · 缺少配置：Token · 缺少依赖 b/);
   assert.match(t, /\n 还没装的  可选，按需安装\n +○ b +1\.0\.0 +plugin b\n \[x\] ○ c/);
   assert.match(t, /\na  已装 1\.0\.0 · 最新 1\.1\.0 · 依赖 b\n  plugin a\n  可更新 · 缺少配置：Token · 缺少依赖 b\n/);
   assert.match(lines.at(-1), /^ i 安装 u 更新 .*\? 帮助 q 退出$/); // 100 列放不下完整按键栏，用短版
@@ -106,7 +106,7 @@ test('render：确认弹窗、敏感输入只显示 •、操作记录区', asyn
 test('reduce：移动跳过分组标题、勾选、Esc 先关弹窗', async () => {
   let s = { ...initialState(), model: await model() };
   s = press(s, 'down');
-  assert.equal(s.cursor, 'dsgp');
+  assert.equal(s.cursor, 'data');
   s = press(s, 'down');
   assert.equal(s.cursor, 'a'); // 跳过“已安装”标题
   s = press(s, 'end');
@@ -114,7 +114,7 @@ test('reduce：移动跳过分组标题、勾选、Esc 先关弹窗', async () =
   s = press(s, 'home', 'j', 'k');
   assert.equal(s.cursor, 'base');
   s = press(s, 'space', 'down', 'space');
-  assert.deepEqual(s.selected, ['base', 'dsgp']);
+  assert.deepEqual(s.selected, ['base', 'data']);
   s = press(s, 'space');
   assert.deepEqual(s.selected, ['base']);
   assert.deepEqual(press(s, 'a').selected, []);
@@ -136,15 +136,15 @@ test('reduce：动作键 → 运行命令；不适用时给出说明', async () 
   assert.deepEqual(eff('a', 'c').effect, { type: 'run', cmd: 'config', names: ['a'] });
   assert.deepEqual(eff('a', 'e').effect, { type: 'run', cmd: 'disable', names: ['a'] });
   assert.deepEqual(eff('a', 'r').effect, { type: 'run', cmd: 'remove', names: ['a'] });
-  assert.deepEqual(eff('dsgp', 'i').effect, { type: 'run', cmd: 'install', names: ['dsgp'] });
-  assert.deepEqual(eff('dsgp', 'r').effect, { type: 'run', cmd: 'remove', names: ['dsgp'] });
+  assert.deepEqual(eff('data', 'i').effect, { type: 'run', cmd: 'install', names: ['data'] });
+  assert.deepEqual(eff('data', 'r').effect, { type: 'run', cmd: 'remove', names: ['data'] });
   assert.deepEqual(eff('a', 'i', ['b', 'c']).effect, { type: 'run', cmd: 'install', names: ['b', 'c'] });
   assert.deepEqual(eff('a', 's').effect, { type: 'run', cmd: 'sync', names: [] });
   assert.deepEqual(eff('a', 'p').effect, { type: 'scope' });
   assert.deepEqual(eff('a', 'R').effect, { type: 'rescan' });
   assert.match(eff('a', 'i').state.message, /a 已经装好了/);
   assert.match(eff('b', 'e').state.message, /b 还没装，按 i 安装/);
-  assert.match(eff('dsgp', 'c').state.message, /dsgp 是预设/);
+  assert.match(eff('data', 'c').state.message, /data 是预设/);
   assert.match(eff('a', 'c', ['a', 'b']).state.message, /一次只能配置一个插件/);
   assert.equal(eff('b', 'e').effect, undefined);
   // 项目范围：全局装的只能再装一份到本项目
@@ -222,21 +222,21 @@ test('冒烟：打开 → 移动 → 勾选 → i → 确认 → 填配置 → �
   assert.ok(stdout.text.startsWith(TERM.enter));
   await until(() => /还没装的/.test(frame()), '列表');
   assert.match(frame(), /── 准备 ─+\n✔ 准备就绪/);
-  stdin.write('\x1b[B'); // ↓ 到 dsgp
+  stdin.write('\x1b[B'); // ↓ 到 data
   stdin.write(' ');
-  assert.match(frame(), /▸\[x\] ▲ dsgp/);
+  assert.match(frame(), /▸\[x\] ▲ data/);
   stdin.write('i');
   await until(() => /\(Y\/n\)/.test(frame()), '确认弹窗');
-  assert.match(frame(), /── 安装 dsgp ─+\n[\s\S]*将要执行/);
+  assert.match(frame(), /── 安装 data ─+\n[\s\S]*将要执行/);
   stdin.write('y');
   await until(() => /请填写/.test(frame()), '配置弹窗');
   stdin.write('sekret\r');
-  await until(() => /安装 dsgp：完成/.test(frame()), '结果');
+  await until(() => /安装 data：完成/.test(frame()), '结果');
   const f = frame();
   assert.match(f, /╰─+╯/); // 结果卡片在记录区里
-  assert.match(f, /✔ dsgp +已选 · 已装齐/); // 列表已刷新
+  assert.match(f, /✔ data +已选 · 已装齐/); // 列表已刷新
   assert.deepEqual(calls.map((c) => c[0]), ['install', 'install', 'configure']);
-  assert.deepEqual(JSON.parse(readFileSync(stateFile, 'utf8')).presets, ['dsgp']);
+  assert.deepEqual(JSON.parse(readFileSync(stateFile, 'utf8')).presets, ['data']);
   assert.doesNotMatch(stdout.text + logged.join('\n'), /sekret/);
   stdin.write('?');
   assert.match(frame(), /╭─ 帮助/);
@@ -267,8 +267,8 @@ test('插件列表更新失败：不在旧数据上执行改动，提示按 R', 
 test('render：详情区写全描述和预设成员，按窗口宽度折行', async () => {
   const m = await model();
   m.plugins.find((p) => p.name === 'c').description = '很长的说明'.repeat(12);
-  const preset = screen({ ...initialState(), model: m, cursor: 'dsgp' }).join('\n');
-  assert.match(preset, /\ndsgp  已选 · 已装 1\/2\n  全套\n  包含：\n    含 base 全部  ✔ a\n  i 装齐整个预设 · r 卸掉整个预设\n/);
+  const preset = screen({ ...initialState(), model: m, cursor: 'data' }).join('\n');
+  assert.match(preset, /\ndata  已选 · 已装 1\/2\n  全套\n  包含：\n    含 base 全部  ✔ a\n  i 装齐整个预设 · r 卸掉整个预设\n/);
   const lines = screen({ ...initialState(), model: m, cursor: 'c' }, { cols: 40, rows: 30 });
   const body = lines.slice(lines.findIndex((l) => /^c$|^c  /.test(l)) + 1);
   assert.ok(body.filter((l) => l.includes('很长的说明')).length >= 3, '长描述折成多行');

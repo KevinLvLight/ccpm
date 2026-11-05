@@ -38,8 +38,8 @@ test('install 后 configure(stdin)，参数不含值', async () => {
   const c = fakeClaude();
   const r = await applyPlan(mk(c, [aMeta], prompter({ url: 'http://u', token: 'sekret' })), plan({ install: ['a'] }));
   assert.deepEqual(c.calls, [
-    ['install', 'a@ai-efficiency', { scope: 'user' }],
-    ['configure', 'a@ai-efficiency', { url: 'http://u', token: 'sekret' }],
+    ['install', 'a@acme-plugins', { scope: 'user' }],
+    ['configure', 'a@acme-plugins', { url: 'http://u', token: 'sekret' }],
   ]);
   assert.ok(!JSON.stringify(c.calls[0]).includes('sekret'));
   assert.deepEqual(r.ok, ['a']);
@@ -81,7 +81,7 @@ test('依赖被跳过 → 依赖方也跳过且不调用 install', async () => {
 test('configure 条目只收集所列键', async () => {
   const c = fakeClaude();
   await applyPlan(mk(c, [aMeta], prompter({ token: 't' })), plan({ configure: [{ name: 'a', keys: ['token'] }] }));
-  assert.deepEqual(c.calls, [['configure', 'a@ai-efficiency', { token: 't' }]]);
+  assert.deepEqual(c.calls, [['configure', 'a@acme-plugins', { token: 't' }]]);
 });
 
 test('postUpdate: 新依赖被安装，提示含版本变化与 changelog', async () => {
@@ -93,7 +93,7 @@ test('postUpdate: 新依赖被安装，提示含版本变化与 changelog', asyn
     previous: new Map([['a', meta('a', { dependencies: ['old'] })]]),
   });
   const lines = await postUpdate(ctx, 'a', '1.2.0', '1.3.0');
-  assert.ok(c.calls.some((x) => x[0] === 'install' && x[1] === 'd@ai-efficiency'));
+  assert.ok(c.calls.some((x) => x[0] === 'install' && x[1] === 'd@acme-plugins'));
   assert.ok(lines.includes('    - 新功能'));
   assert.ok(lines.some((l) => l.includes('不再需要 old')));
   assert.ok(lines.some((l) => l.includes('不再需要 old')));
@@ -130,12 +130,12 @@ test('配置：答案去首尾空白；必填留空再问一次仍空 → 跳过
   const c2 = fakeClaude();
   const p2 = { interactive: true, ask: async (q) => (q.includes('url') ? ' http://u ' : ' t ') };
   await applyPlan(mk(c2, [aMeta], p2), plan({ install: ['a'] }));
-  assert.deepEqual(c2.calls[1], ['configure', 'a@ai-efficiency', { url: 'http://u', token: 't' }]);
+  assert.deepEqual(c2.calls[1], ['configure', 'a@acme-plugins', { url: 'http://u', token: 't' }]);
 });
 
 test('配置已停用插件：交互 → 问后启用；--yes → 只提示 怎么办', async () => {
   const m = meta('a', { userConfig: { url: { required: true, default: 'x' } } });
-  const disabled = () => [{ name: 'a', marketplace: 'ai-efficiency', enabled: false }];
+  const disabled = () => [{ name: 'a', marketplace: 'acme-plugins', enabled: false }];
   const c = fakeClaude();
   const asked = [];
   const p = { interactive: true, ask: async () => 'v', confirm: async (q, o) => { asked.push([q, o]); return true; } };

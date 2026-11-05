@@ -1,6 +1,6 @@
 import { expandPreset } from './presets.js';
 
-const MKT = 'ai-efficiency';
+const MKT = 'acme-plugins';
 export const USER_MCP = '你自己配置的 MCP';
 
 export function compareVersions(a, b) {
@@ -53,7 +53,7 @@ export function computePlan({ installed, catalog, state, presets, unconfigured, 
       expandPreset(presets, name).forEach((n) => desired.add(n));
     } catch (e) {
       warnings.push(Object.hasOwn(presets, name)
-        ? { msg: e.message, fix: '联系 ai-efficiency 维护者修复 presets.json' }
+        ? { msg: e.message, fix: '联系 acme-plugins 维护者修复 presets.json' }
         : { msg: `预设 ${name} 已不存在，已跳过`, fix: `从 ~/.claude/ccpm.json 的 presets 里删掉 ${name}` });
     }
   }

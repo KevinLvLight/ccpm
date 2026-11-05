@@ -1,21 +1,21 @@
 [
   {
-    "name": "achu",
+    "name": "community",
     "source": "directory",
     "path": "E:\\software\\cc-plugin\\claude-plugins-official",
     "installLocation": "E:\\software\\cc-plugin\\claude-plugins-official"
   },
   {
-    "name": "ai-efficiency",
+    "name": "acme-plugins",
     "source": "git",
-    "url": "https://gitlab-sz.hillstonedev.com:4433/cloudservice/AI-Efficiency.git",
-    "installLocation": "C:\\Users\\cylv\\.claude\\plugins\\marketplaces\\ai-efficiency"
+    "url": "https://git.example.com/acme/plugins.git",
+    "installLocation": "C:\\Users\\dev\\.claude\\plugins\\marketplaces\\acme-plugins"
   },
   {
-    "name": "corock-sdd-cli-ui",
+    "name": "team-tools",
     "source": "directory",
-    "path": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui",
-    "installLocation": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui"
+    "path": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools",
+    "installLocation": "C:\\Users\\dev\\AppData\\Roaming\\npm\\node_modules\\team-tools"
   },
   {
     "name": "diagram-design",

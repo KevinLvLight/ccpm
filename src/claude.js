@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 
-export const MARKETPLACE = 'ai-efficiency';
-export const MARKETPLACE_SOURCE = 'https://gitlab-sz.hillstonedev.com:4433/cloudservice/AI-Efficiency.git';
+export const MARKETPLACE = 'acme-plugins';
+export const MARKETPLACE_SOURCE = 'https://git.example.com/acme/plugins.git';
 export const toId = (name) => name + '@' + MARKETPLACE;
 
 export class ClaudeError extends Error {

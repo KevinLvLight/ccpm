@@ -10,7 +10,7 @@ const short = (n) => n.replace(`@${MARKETPLACE}`, '');
 export async function run(ctx, positionals) {
   const { out, presets, catalog } = ctx;
   if (!positionals.length) {
-    out('用法：ccpm install <插件或预设>...（例如 ccpm install dev-base；详见 ccpm help install）');
+    out('用法：ccpm install <插件或预设>...（例如 ccpm install dev；详见 ccpm help install）');
     return 1;
   }
   const state = { presets: [...(ctx.state?.presets ?? [])], excluded: [...(ctx.state?.excluded ?? [])] };

@@ -8,7 +8,7 @@ const KEYS_SHORT = 'i 安装 u 更新 c 配置 e 启停 r 卸载 s 同步 p 范�
 const VERB = { install: '安装', update: '更新', config: '配置', enable: '启用', disable: '停用', remove: '卸载', sync: '同步' };
 const PAGE = 10;
 
-// 操作的标题，例如“安装 dsgp”
+// 操作的标题，例如“安装 data”
 export const runTitle = ({ cmd, names }) => [VERB[cmd], ...(names.length ? names : cmd === 'update' ? ['全部'] : [])].join(' ');
 
 export const initialState = ({ scope = 'user', dryRun = false } = {}) => ({
@@ -165,7 +165,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
   const rule = (txt) => dim(txt ? `── ${txt} ${'─'.repeat(Math.max(0, W - width(txt) - 4))}` : '─'.repeat(W));
   const lines = [];
 
-  const left = `${bold('ccpm')} · ai-efficiency · ${state.scope === 'project' ? '本项目' : '全局'}${state.dryRun ? ` · ${yellow('预览模式，不做改动')}` : ''}`;
+  const left = `${bold('ccpm')} · acme-plugins · ${state.scope === 'project' ? '本项目' : '全局'}${state.dryRun ? ` · ${yellow('预览模式，不做改动')}` : ''}`;
   const right = m ? counterCells(m).join('  ') : '';
   const gap = W - width(left) - width(right);
   lines.push(left + ' '.repeat(Math.max(2, gap)) + right);
@@ -192,7 +192,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
     const text = `${i === ci ? '▸' : ' '}${state.selected.includes(x.name) ? '[x]' : '   '} ${pad(c0, w0)}  ${pad(c1, w1)}  ${c2}`.trimEnd();
     lines.push(i === ci ? inverse(pad(truncate(text, W), W)) : text);
   }
-  if (!items.length) lines.push(dim(m ? '  ai-efficiency 里还没有插件' : state.busy ? '  正在读取插件列表…' : '  没有读到插件列表，按 R 重新扫描'));
+  if (!items.length) lines.push(dim(m ? '  acme-plugins 里还没有插件' : state.busy ? '  正在读取插件列表…' : '  没有读到插件列表，按 R 重新扫描'));
   while (lines.length < 2 + listH) lines.push('');
 
   const below = items.length - top - listH;

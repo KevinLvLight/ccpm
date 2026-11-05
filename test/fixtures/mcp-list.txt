@@ -1,15 +1,15 @@
 Checking MCP server health…
 
-plugin:chrome-devtools-mcp:chrome-devtools: npx -y chrome-devtools-mcp@latest - ✔ Connected
-plugin:envmgr-mcp-server:envmgr: npx -y @cloud-ai-efficiency/envmgr-mcp-server@latest - ✔ Connected
-plugin:ui-public-hs-playwright-docs:playwright-mcp: node C:/Users/cylv/AppData/Roaming/npm/node_modules/corock-sdd-cli-ui/plugins/ui-public-hs-playwright-docs/scripts/launch-mcp.mjs - ✔ Connected
-plugin:ui-public-hs-playwright-docs:llm-wiki-mcp: node C:/Users/cylv/AppData/Roaming/npm/node_modules/corock-sdd-cli-ui/plugins/ui-public-hs-playwright-docs/scripts/launch-llm-wiki-mcp.mjs - ✔ Connected
-plugin:jvm-heap-analyzer:jvm-heap-analyzer: E:\software\jdk-21_windows-x64_bin\jdk-21.0.12.1/bin/java -Xmx4g -jar C:/Users/cylv/.claude/plugins/cache/ai-efficiency/jvm-heap-analyzer/1.0.0/jvm-heap-dump-mcp-0.2.0-all.jar - ✔ Connected
-plugin:hs-function-design:playwright-mcp: node C:/Users/cylv/AppData/Roaming/npm/node_modules/corock-sdd-cli-ui/plugins/hs-function-design/scripts/launch-mcp.mjs - ✔ Connected
-plugin:ai-gateway-mcp:ai-gateway-mcp: https://token.hillstonenet.com:[REDACTED] (HTTP) - ✔ Connected
+plugin:browser-mcp:chrome-devtools: npx -y browser-mcp@latest - ✔ Connected
+plugin:env-mcp:envmgr: npx -y @acme/env-mcp@latest - ✔ Connected
+plugin:playwright-docs:playwright-mcp: node C:/Users/dev/AppData/Roaming/npm/node_modules/team-tools/plugins/playwright-docs/scripts/launch-mcp.mjs - ✔ Connected
+plugin:playwright-docs:llm-wiki-mcp: node C:/Users/dev/AppData/Roaming/npm/node_modules/team-tools/plugins/playwright-docs/scripts/launch-llm-wiki-mcp.mjs - ✔ Connected
+plugin:jvm-heap-analyzer:jvm-heap-analyzer: E:\software\jdk-21_windows-x64_bin\jdk-21.0.12.1/bin/java -Xmx4g -jar C:/Users/dev/.claude/plugins/cache/acme-plugins/jvm-heap-analyzer/1.0.0/jvm-heap-dump-mcp-0.2.0-all.jar - ✔ Connected
+plugin:function-design:playwright-mcp: node C:/Users/dev/AppData/Roaming/npm/node_modules/team-tools/plugins/function-design/scripts/launch-mcp.mjs - ✔ Connected
+plugin:gateway-mcp:gateway-mcp: https://mcp.example.com:[REDACTED] (HTTP) - ✔ Connected
 codegraph: codegraph serve --mcp - ✔ Connected
 drawio: cmd /c npx -y @drawio/mcp - ✔ Connected
-sapientpants-sonarqube-mcp-server: cmd /c npx -y sonarqube-mcp-server@latest - ✔ Connected
-sonar-mcp: sonar-mcp  - ✔ Connected
-chrome-devtools: cmd /c npx chrome-devtools-mcp@latest - ✔ Connected
-envmgr-mcp-server: envmgr-mcp-server  - ✔ Connected
+quality-mcp-server: cmd /c npx -y quality-mcp-server@latest - ✔ Connected
+quality-mcp-legacy: quality-mcp-legacy  - ✔ Connected
+chrome-devtools: cmd /c npx browser-mcp@latest - ✔ Connected
+env-mcp: env-mcp  - ✔ Connected

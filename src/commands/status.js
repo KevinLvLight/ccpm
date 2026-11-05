@@ -18,7 +18,7 @@ export async function run(ctx) {
   out('');
   out(`  ${bold(user ? '已安装' : '本项目安装的')}`);
   if (of('here').length) table(of('here').map(pluginCells)).forEach(out);
-  else out(`  ${dim(user ? '还没有安装任何 ai-efficiency 插件' : '这个项目里还没有单独安装插件')}`);
+  else out(`  ${dim(user ? '还没有安装任何 acme-plugins 插件' : '这个项目里还没有单独安装插件')}`);
   if (of('global').length) {
     out('');
     out(`  ${bold('全局安装的')}  ${dim('本项目也能用')}`);

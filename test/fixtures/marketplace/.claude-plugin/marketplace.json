@@ -1,4 +1,4 @@
-{"name":"ai-efficiency","plugins":[
+{"name":"acme-plugins","plugins":[
 {"name":"a","source":"./plugins/a"},
 {"name":"b","source":"./plugins/b"},
 {"name":"c","source":"./plugins/c"},
