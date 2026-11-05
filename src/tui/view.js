@@ -1,16 +1,17 @@
+import { t } from '../i18n/index.js';
 import { MARKETPLACE } from '../claude.js';
 // 交互界面的纯函数部分：render(state, 尺寸) → 每行文字；reduce(state, 按键) → { state, effect }
 import { counterCells, memberText, pluginCells, pluginNotes, presetCells } from '../render.js';
 import { SECRET_HINT } from '../prompt.js';
 import { I, bold, box, brief, dim, inverse, pad, truncate, width, yellow } from '../ui.js';
 
-export const KEYS = '↑↓ 移动  空格 勾选  i 安装  u 更新  c 配置  e 启用/停用  r 卸载  s 同步  p 全局/项目  R 重新扫描  ? 帮助  q 退出';
-const KEYS_SHORT = 'i 安装 u 更新 c 配置 e 启停 r 卸载 s 同步 p 范围 R 重扫 ? 帮助 q 退出'; // 窄窗口
-const VERB = { install: '安装', update: '更新', config: '配置', enable: '启用', disable: '停用', remove: '卸载', sync: '同步' };
+export const KEYS = () => t('↑↓ 移动  空格 勾选  i 安装  u 更新  c 配置  e 启用/停用  r 卸载  s 同步  p 全局/项目  R 重新扫描  ? 帮助  q 退出');
+const KEYS_SHORT = () => t('i 安装 u 更新 c 配置 e 启停 r 卸载 s 同步 p 范围 R 重扫 ? 帮助 q 退出'); // 窄窗口
+const VERB = () => ({ install: t('安装'), update: t('更新'), config: t('配置'), enable: t('启用'), disable: t('停用'), remove: t('卸载'), sync: t('同步') });
 const PAGE = 10;
 
 // 操作的标题，例如“安装 data”
-export const runTitle = ({ cmd, names }) => [VERB[cmd], ...(names.length ? names : cmd === 'update' ? ['全部'] : [])].join(' ');
+export const runTitle = ({ cmd, names }) => [VERB()[cmd], ...(names.length ? names : cmd === 'update' ? [t('全部')] : [])].join(' ');
 
 export const initialState = ({ scope = 'user', dryRun = false } = {}) => ({
   model: null, scope, dryRun,
@@ -31,10 +32,10 @@ export function itemsOf(model) {
   const out = [];
   const section = (head, sub, list) => { if (list.length) out.push({ head, sub }, ...list); };
   const of = (where) => model.plugins.filter((p) => p.where === where).map((p) => ({ kind: 'plugin', name: p.name, p }));
-  if (user) section('预设', '一组常用插件', model.presets.map((p) => ({ kind: 'preset', name: p.name, p })));
-  section(user ? '已安装' : '本项目安装的', '', of('here'));
-  section('全局安装的', '本项目也能用', of('global'));
-  section('还没装的', '可选，按需安装', of('none'));
+  if (user) section(t('预设'), t('一组常用插件'), model.presets.map((p) => ({ kind: 'preset', name: p.name, p })));
+  section(user ? t('已安装') : t('本项目安装的'), '', of('here'));
+  section(t('全局安装的'), t('本项目也能用'), of('global'));
+  section(t('还没装的'), t('可选，按需安装'), of('none'));
   return out;
 }
 
@@ -49,7 +50,7 @@ const cellsOf = (x) => {
   const p = x.p;
   if (x.kind === 'preset') return presetCells(p);
   if (p.where === 'here') return pluginCells(p);
-  if (p.where === 'global') return [dim(`${I.ok} ${p.name}`), dim(p.version ?? ''), dim('装在全局')];
+  if (p.where === 'global') return [dim(`${I.ok} ${p.name}`), dim(p.version ?? ''), dim(t('装在全局'))];
   return [`${I.none} ${dim(p.name)}`, dim(p.latest ?? ''), dim(brief(p.description))];
 };
 
@@ -74,20 +75,20 @@ function detail(x, W = 80) {
   if (x.kind === 'preset') {
     const want = p.members.filter((m) => m.kind !== 'preset');
     return [
-      `${bold(p.name)}  ${dim(`${p.chosen || p.via ? '已选' : '未选'} · 已装 ${p.got}/${p.want}`)}`,
+      `${bold(p.name)}  ${dim(t('{0} · 已装 {1}/{2}', p.chosen || p.via ? t('已选') : t('未选'), p.got, p.want))}`,
       ...para(p.description, W),
-      `  ${dim(want.length < p.members.length ? '包含：' : `包含 ${want.length} 个插件：`)}`,
+      `  ${dim(want.length < p.members.length ? t('包含：') : t('包含 {0} 个插件：', want.length))}`,
       ...flow(p.members.map(memberText), W, '    '),
-      dim('  i 装齐整个预设 · r 卸掉整个预设'),
+      dim(t('  i 装齐整个预设 · r 卸掉整个预设')),
     ];
   }
-  const ver = p.where === 'none' ? `最新 ${p.latest ?? '-'}`
-    : `已装 ${p.version ?? '-'}${p.latest && p.latest !== p.version ? ` · 最新 ${p.latest}` : ''}`;
-  const deps = p.dependencies.length ? ` · 依赖 ${p.dependencies.join('、')}` : '';
+  const ver = p.where === 'none' ? t('最新 {0}', p.latest ?? '-')
+    : t('已装 {0}{1}', p.version ?? '-', p.latest && p.latest !== p.version ? t(' · 最新 {0}', p.latest) : '');
+  const deps = p.dependencies.length ? t(' · 依赖 {0}', p.dependencies.join(t('、'))) : '';
   const notes = pluginNotes(p);
-  const last = p.where === 'global' ? dim('  装在全局，本项目也能用；按 i 可以再装一份到本项目')
-    : p.where === 'none' ? dim('  按 i 安装，依赖会一起装')
-      : notes.length ? `  ${notes.join(' · ')}` : dim(`  一切正常${p.hasConfig ? ' · c 修改配置' : ''}`);
+  const last = p.where === 'global' ? dim(t('  装在全局，本项目也能用；按 i 可以再装一份到本项目'))
+    : p.where === 'none' ? dim(t('  按 i 安装，依赖会一起装'))
+      : notes.length ? `  ${notes.join(' · ')}` : dim(t('  一切正常{0}', p.hasConfig ? t(' · c 修改配置') : ''));
   return [`${bold(p.name)}  ${dim(`${ver}${deps}`)}`, ...para(p.description, W), last];
 }
 
@@ -118,39 +119,39 @@ const tail = (s, w) => {
 function dialogBox(d, cols) {
   const w = Math.max(20, Math.min(64, cols - 8));
   if (d.kind === 'confirm') {
-    return box('确认', [...wrap(d.title, w).map(bold), '', `${d.def ? '(Y/n)' : '(y/N)'}  ${dim('y 是 · n 否 · 回车 = 默认 · Esc = 否')}`], 'yellow');
+    return box(t('确认'), [...wrap(d.title, w).map(bold), '', `${d.def ? '(Y/n)' : '(y/N)'}  ${dim(t('y 是 · n 否 · 回车 = 默认 · Esc = 否'))}`], 'yellow');
   }
   if (d.kind === 'choose') {
     const opts = d.options.map((o, i) => (i === d.index ? inverse(`▸ ${o}`) : `  ${o}`));
-    return box('请选择', [...wrap(d.title, w).map(bold), '', ...opts, '', dim('↑↓ 选择 · 回车确认')], 'yellow');
+    return box(t('请选择'), [...wrap(d.title, w).map(bold), '', ...opts, '', dim(t('↑↓ 选择 · 回车确认'))], 'yellow');
   }
-  const tips = [d.secret && SECRET_HINT, d.hint, d.def !== undefined && `直接回车使用 ${d.def}`].filter(Boolean).join(' · ');
+  const tips = [d.secret && SECRET_HINT(), d.hint, d.def !== undefined && t('直接回车使用 {0}', d.def)].filter(Boolean).join(' · ');
   const shown = d.secret ? '•'.repeat([...d.text].length) : d.text;
-  return box('请填写', [
+  return box(t('请填写'), [
     ...wrap(d.title, w).map(bold),
     ...(tips ? wrap(tips, w).map(dim) : []),
     '',
     `${I.cmd} ${tail(shown, w - 4)}${inverse(' ')}`,
     '',
-    dim('回车确认 · Esc 跳过'),
+    dim(t('回车确认 · Esc 跳过')),
   ], 'yellow');
 }
 
-const HELP = [
-  '↑↓ / j k   移动        PgUp PgDn Home End  翻页',
-  '空格       勾选        a  取消全部勾选',
-  'i  安装插件或预设，依赖会一起装',
-  'u  更新（光标处没有可更新的插件时 = 全部更新）',
-  'c  重新填写配置',
-  'e  启用 / 停用',
-  'r  卸载插件或整个预设',
-  's  同步：补装、更新、补配置',
-  'p  切换 全局 / 本项目',
-  'R  重新扫描（重新拉取插件列表）',
-  'q  退出    Esc  关闭弹窗',
+const HELP = () => [
+  t('↑↓ / j k   移动        PgUp PgDn Home End  翻页'),
+  t('空格       勾选        a  取消全部勾选'),
+  t('i  安装插件或预设，依赖会一起装'),
+  t('u  更新（光标处没有可更新的插件时 = 全部更新）'),
+  t('c  重新填写配置'),
+  t('e  启用 / 停用'),
+  t('r  卸载插件或整个预设'),
+  t('s  同步：补装、更新、补配置'),
+  t('p  切换 全局 / 本项目'),
+  t('R  重新扫描（重新拉取插件列表）'),
+  t('q  退出    Esc  关闭弹窗'),
   '',
-  '操作对象：勾选的项；没有勾选时是光标所在的项',
-  '图例：✔ 正常  ↑ 可更新  ▲ 需要处理  ⏸ 已停用  ○ 未安装  [x] 已勾选',
+  t('操作对象：勾选的项；没有勾选时是光标所在的项'),
+  t('图例：✔ 正常  ↑ 可更新  ▲ 需要处理  ⏸ 已停用  ○ 未安装  [x] 已勾选'),
   '',
 ];
 
@@ -166,7 +167,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
   const rule = (txt) => dim(txt ? `── ${txt} ${'─'.repeat(Math.max(0, W - width(txt) - 4))}` : '─'.repeat(W));
   const lines = [];
 
-  const left = `${bold('ccpm')} · ${MARKETPLACE} · ${state.scope === 'project' ? '本项目' : '全局'}${state.dryRun ? ` · ${yellow('预览模式，不做改动')}` : ''}`;
+  const left = `${bold('ccpm')} · ${MARKETPLACE} · ${state.scope === 'project' ? t('本项目') : t('全局')}${state.dryRun ? ` · ${yellow(t('预览模式，不做改动'))}` : ''}`;
   const right = m ? counterCells(m).join('  ') : '';
   const gap = W - width(left) - width(right);
   lines.push(left + ' '.repeat(Math.max(2, gap)) + right);
@@ -193,7 +194,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
     const text = `${i === ci ? '▸' : ' '}${state.selected.includes(x.name) ? '[x]' : '   '} ${pad(c0, w0)}  ${pad(c1, w1)}  ${c2}`.trimEnd();
     lines.push(i === ci ? inverse(pad(truncate(text, W), W)) : text);
   }
-  if (!items.length) lines.push(dim(m ? `  ${MARKETPLACE} 里还没有插件` : state.busy ? '  正在读取插件列表…' : '  没有读到插件列表，按 R 重新扫描'));
+  if (!items.length) lines.push(dim(m ? t('  {0} 里还没有插件', MARKETPLACE) : state.busy ? t('  正在读取插件列表…') : t('  没有读到插件列表，按 R 重新扫描')));
   while (lines.length < 2 + listH) lines.push('');
 
   const below = items.length - top - listH;
@@ -202,16 +203,16 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
     const body = [...state.log.lines, ...(state.log.running && state.spinner ? [state.spinner] : [])].slice(-panel);
     lines.push(...body, ...Array(panel - body.length).fill(''));
   } else {
-    lines.push(rule(items.length > listH ? `${top + 1}-${top + listH} / ${items.length}${below > 0 ? ' · 下面还有' : ''}` : ''));
+    lines.push(rule(items.length > listH ? `${top + 1}-${top + listH} / ${items.length}${below > 0 ? t(' · 下面还有') : ''}` : ''));
     const d = detail(items[ci], W).slice(0, panel);
     lines.push(...d, ...Array(panel - d.length).fill(''));
   }
   lines.push(` ${state.message}`);
-  lines.push(dim(` ${width(KEYS) < W ? KEYS : KEYS_SHORT}`));
+  lines.push(dim(` ${width(KEYS()) < W ? KEYS() : KEYS_SHORT()}`));
 
   const out = lines.slice(0, rows).map((l) => truncate(l, W));
   while (out.length < rows) out.push('');
-  const over = state.dialog ? dialogBox(state.dialog, cols) : state.overlay === 'help' ? box('帮助', [...HELP, dim('按 Esc 或 ? 关闭')]) : null;
+  const over = state.dialog ? dialogBox(state.dialog, cols) : state.overlay === 'help' ? box(t('帮助'), [...HELP(), dim(t('按 Esc 或 ? 关闭'))]) : null;
   if (over) {
     // 有操作记录时弹窗放在列表区，不挡住“将要执行”等内容
     const t = state.log && over.length <= listH ? 2 + Math.floor((listH - over.length) / 2) : Math.max(0, Math.floor((rows - over.length) / 2));
@@ -257,13 +258,13 @@ function dialogKey(s, id, key) {
 }
 
 // 按键不适用于这一项时的说明
-const why = (x) => (!x ? '这里没有插件'
-  : x.kind === 'preset' ? `${x.name} 是预设，只能安装（i）或卸载（r）`
-    : x.p.where === 'global' ? `${x.name} 装在全局，按 p 切到全局再操作`
-      : x.p.where === 'none' ? `${x.name} 还没装，按 i 安装` : null);
+const why = (x) => (!x ? t('这里没有插件')
+  : x.kind === 'preset' ? t('{0} 是预设，只能安装（i）或卸载（r）', x.name)
+    : x.p.where === 'global' ? t('{0} 装在全局，按 p 切到全局再操作', x.name)
+      : x.p.where === 'none' ? t('{0} 还没装，按 i 安装', x.name) : null);
 
 function action(s, id) {
-  if (!s.model) return note(s, '还没有读到插件列表，按 R 重新扫描');
+  if (!s.model) return note(s, t('还没有读到插件列表，按 R 重新扫描'));
   const items = itemsOf(s.model);
   const cur = items[cursorIndex(items, s.cursor)];
   const picked = s.selected.length ? items.filter((x) => !x.head && s.selected.includes(x.name)) : cur ? [cur] : [];
@@ -273,30 +274,30 @@ function action(s, id) {
   switch (id) {
     case 'i': {
       const list = picked.filter((x) => (x.kind === 'preset' ? user : x.p.where !== 'here'));
-      return list.length ? run('install', list) : note(s, picked.length > 1 ? '勾选的都已经装好了' : `${picked[0]?.name ?? '这一项'} 已经装好了`);
+      return list.length ? run('install', list) : note(s, picked.length > 1 ? t('勾选的都已经装好了') : t('{0} 已经装好了', picked[0]?.name ?? t('这一项')));
     }
     case 'u': {
       if (s.selected.length) {
         const list = here.filter((x) => x.p.update);
-        return list.length ? run('update', list) : note(s, why(picked.find((x) => why(x))) ?? '勾选的插件都已是最新');
+        return list.length ? run('update', list) : note(s, why(picked.find((x) => why(x))) ?? t('勾选的插件都已是最新'));
       }
       if (cur?.p?.update) return run('update', [cur]);
-      return s.model.counters.update ? run('update', []) : note(s, '没有可更新的插件');
+      return s.model.counters.update ? run('update', []) : note(s, t('没有可更新的插件'));
     }
     case 'c': {
-      if (picked.length > 1) return note(s, '一次只能配置一个插件，先按 a 取消勾选');
+      if (picked.length > 1) return note(s, t('一次只能配置一个插件，先按 a 取消勾选'));
       const x = picked[0];
       if (why(x)) return note(s, why(x));
-      return x.p.hasConfig ? run('config', [x]) : note(s, `${x.name} 没有需要填写的配置`);
+      return x.p.hasConfig ? run('config', [x]) : note(s, t('{0} 没有需要填写的配置', x.name));
     }
     case 'e': {
-      if (!here.length) return note(s, why(picked[0]) ?? '没有可启用 / 停用的插件');
+      if (!here.length) return note(s, why(picked[0]) ?? t('没有可启用 / 停用的插件'));
       const off = here.filter((x) => !x.p.enabled);
       return off.length ? run('enable', off) : run('disable', here);
     }
     case 'r': {
       const list = picked.filter((x) => x.kind === 'preset' || x.p.where === 'here');
-      return list.length ? run('remove', list) : note(s, why(picked[0]) ?? '没有可卸载的插件');
+      return list.length ? run('remove', list) : note(s, why(picked[0]) ?? t('没有可卸载的插件'));
     }
     default:
       return { state: s };
@@ -308,7 +309,7 @@ export function reduce(state, key) {
   if (id === 'C-c') return { state, effect: { type: 'quit', force: true } };
   if (state.dialog) return dialogKey(state, id, key);
   if (state.overlay) return { state: ['escape', '?', 'q'].includes(id) ? { ...state, overlay: null } : state };
-  if (state.busy) return note(state, '正在执行，请稍候（Ctrl+C 强制退出）');
+  if (state.busy) return note(state, t('正在执行，请稍候（Ctrl+C 强制退出）'));
   let s = { ...state, message: '' };
   if (s.log && s.model) { // 上一次操作的记录留到按下一个键（没读到列表时一直留着报错）
     s = { ...s, log: null };
@@ -337,10 +338,10 @@ export function reduce(state, key) {
     case 'a': return { state: { ...s, selected: [] } };
     case '?': return { state: { ...s, overlay: 'help' } };
     case 'q': case 'escape': return { state: s, effect: { type: 'quit' } };
-    case 'p': return s.model ? { state: s, effect: { type: 'scope' } } : note(s, '还没有读到插件列表，按 R 重新扫描');
+    case 'p': return s.model ? { state: s, effect: { type: 'scope' } } : note(s, t('还没有读到插件列表，按 R 重新扫描'));
     case 'R': return { state: s, effect: { type: 'rescan' } };
     case 's': return { state: s, effect: { type: 'run', cmd: 'sync', names: [] } };
     case 'i': case 'u': case 'c': case 'e': case 'r': return action(s, id);
-    default: return id && id.length === 1 ? note(s, `${id} 没有对应的操作，按 ? 查看帮助`) : { state: s };
+    default: return id && id.length === 1 ? note(s, t('{0} 没有对应的操作，按 ? 查看帮助', id)) : { state: s };
   }
 }

@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { blue, dim, green, red, yellow } from './ui.js';
 
 const FRAMES = '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏';
@@ -48,7 +49,7 @@ export function createProgress({ out, stream = process.stdout, animate = false, 
       prepping = false;
       pause();
       const tail = summary.text ? `  ${summary.text}${GAP}${secs(born)}` : `${GAP}${secs(born)}`;
-      print(`${summary.warn ? yellow('▲') : green('✔')} 准备就绪${dim(tail)}`);
+      print(t('{0} 准备就绪{1}', summary.warn ? yellow('▲') : green('✔'), dim(tail)));
       notes.splice(0).forEach(print);
     },
     async step(label, fn, { done = label, fail = label, detail } = {}) {

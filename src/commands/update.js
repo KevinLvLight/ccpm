@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { MARKETPLACE } from '../claude.js';
 import { gatherPlan } from '../context.js';
 import { execute } from '../flow.js';
@@ -11,14 +12,14 @@ export async function run(ctx, positionals) {
   let code = 0;
   for (const n of names) {
     if (update.some((u) => u.name === n)) continue;
-    if (ctx.installed.some((p) => p.name === n && p.marketplace === MARKETPLACE)) out(`  ${I.ok} ${n} ${dim('已是最新')}`);
+    if (ctx.installed.some((p) => p.name === n && p.marketplace === MARKETPLACE)) out(`  ${I.ok} ${n} ${dim(t('已是最新'))}`);
     else {
-      error(`${n} 没有安装`, `运行 ccpm install ${n}`).forEach(out);
+      error(t('{0} 没有安装', n), t('运行 ccpm install {0}', n)).forEach(out);
       code = 1;
     }
   }
   if (!update.length) {
-    if (!names.length) out(`  ${I.ok} 已是最新，无需操作`);
+    if (!names.length) out(t('  {0} 已是最新，无需操作', I.ok));
     return code;
   }
   const plan = { install: [], update, configure: [], warnings: [], duplicateMcp: [], orphans: [] };

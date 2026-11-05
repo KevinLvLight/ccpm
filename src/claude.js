@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { spawn } from 'node:child_process';
 
 // 当前管理的 marketplace：启动时由 setMarketplace 设定（ESM 导出是实时绑定，引用方都能看到新值）
@@ -7,7 +8,7 @@ export const toId = (name) => name + '@' + MARKETPLACE;
 
 export class ClaudeError extends Error {
   constructor(args, code, stderr) {
-    super(`claude ${args.join(' ')} 失败 (exit ${code}): ${stderr}`);
+    super(t('claude {0} 失败 (exit {1}): {2}', args.join(' '), code, stderr));
     this.name = 'ClaudeError';
     this.args = args;
     this.code = code;
@@ -21,7 +22,7 @@ export class ClaudeError extends Error {
   }
 }
 
-const cap = (s) => (s.length > 4096 ? s.slice(0, 4096) + '…(截断)' : s);
+const cap = (s) => (s.length > 4096 ? s.slice(0, 4096) + t('…(截断)') : s);
 
 // Windows 上 claude 是 .cmd/.ps1 包装，必须经 shell 解析。
 export function spawnSpec(platform) {
@@ -31,7 +32,7 @@ export function spawnSpec(platform) {
 // shell 模式下参数会被 cmd 解析，只放行白名单字符（空格会被加引号）
 export function assertSafeArgs(args) {
   for (const a of args) {
-    if (!/^[A-Za-z0-9@._:/= -]*$/.test(a)) throw new Error(`参数含不安全字符: ${a}`);
+    if (!/^[A-Za-z0-9@._:/= -]*$/.test(a)) throw new Error(t('参数含不安全字符: {0}', a));
   }
 }
 
@@ -59,14 +60,14 @@ export function createClaude({ run: rawRun = defaultRun, log } = {}) {
     const t0 = Date.now();
     let keys = '';
     if (opts?.input) {
-      try { keys = ` stdin keys: ${Object.keys(JSON.parse(opts.input)).join(', ')}`; } catch { keys = ' stdin: (非 JSON，未记录)'; }
+      try { keys = ` stdin keys: ${Object.keys(JSON.parse(opts.input)).join(', ')}`; } catch { keys = t(' stdin: (非 JSON，未记录)'); }
     }
     try {
       const r = await rawRun(args, opts);
       log(`claude ${args.join(' ')}${keys} → exit ${r.code} ${Date.now() - t0}ms\nstdout: ${cap(r.stdout ?? '')}\nstderr: ${cap(r.stderr ?? '')}`);
       return r;
     } catch (e) {
-      log(`claude ${args.join(' ')}${keys} → 启动失败 ${Date.now() - t0}ms: ${e.message}`);
+      log(`claude ${args.join(' ')}${keys} → spawn failed ${Date.now() - t0}ms: ${e.message}`);
       throw e;
     }
   };

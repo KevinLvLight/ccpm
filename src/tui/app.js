@@ -1,4 +1,5 @@
 // 全屏交互界面：读按键、画屏幕、调用现有命令。界面怎么画、按键怎么处理见 view.js。
+import { t } from '../i18n/index.js';
 import { emitKeypressEvents } from 'node:readline';
 import { PreconditionError, failLines, gatherPlan, loadContext, refreshInstalled, setScope } from '../context.js';
 import { buildModel } from '../model.js';
@@ -50,9 +51,9 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
       try {
         await fn();
       } catch (e) {
-        log(`异常: ${e?.stack ?? e}`);
+        log(`exception: ${e?.stack ?? e}`);
         failLines(e).forEach(append);
-        state = { ...state, message: `${I.fail} ${title}没有完成 · R 重新扫描 · q 退出` };
+        state = { ...state, message: t('{0} {1}没有完成 · R 重新扫描 · q 退出', I.fail, title) };
         return e;
       } finally {
         progress.pause();
@@ -78,15 +79,15 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
       code = !e ? 0 : e instanceof PreconditionError ? 2 : 1;
     };
     // 还没选 marketplace：弹框选一个已添加的，或输入地址添加；Esc = 退出
-    const ENTER = '输入地址…';
+    const ENTER = t('输入地址…');
     let quitting = false;
     const pickMarketplace = async () => {
       const claude = context.claude ?? (ctx?.claude) ?? createClaude({ log });
       const list = await claude.listMarketplaces();
-      const choice = await openDialog({ kind: 'choose', title: '要管理哪个 marketplace？', options: [...list.map((m) => m.name), ENTER], index: 0, cancel: null });
+      const choice = await openDialog({ kind: 'choose', title: t('要管理哪个 marketplace？'), options: [...list.map((m) => m.name), ENTER], index: 0, cancel: null });
       if (choice === null) { quitting = true; return false; }
       const source = choice === ENTER
-        ? (await openDialog({ kind: 'ask', title: 'marketplace 地址', hint: 'GitHub owner/repo、git 地址或本地路径', text: '' })).trim()
+        ? (await openDialog({ kind: 'ask', title: t('marketplace 地址'), hint: t('GitHub owner/repo、git 地址或本地路径'), text: '' })).trim()
         : choice;
       if (!source) { quitting = true; return false; }
       const rc = await useCmd({ claude, prompter, out: append, progress, stateFile: context.stateFile }, [source]);
@@ -96,7 +97,7 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
       const title = runTitle(effect);
       // 和命令行一致：插件列表没更新成功时，不在旧数据上改动环境
       if (ctx?.refreshError && !state.dryRun) {
-        state = { ...state, message: `${I.warn} 插件列表没有更新成功（检查网络 / VPN），按 R 重新扫描后再${title}` };
+        state = { ...state, message: t('{0} 插件列表没有更新成功（检查网络 / VPN），按 R 重新扫描后再{1}', I.warn, title) };
         draw();
         return;
       }
@@ -113,7 +114,7 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
             await rebuild();
           }
         }
-        state = { ...state, message: declined ? `${title}：已取消，没有改动` : rc ? `${I.warn} ${title}：没有全部完成，详见上方记录` : `${I.ok} ${title}：${state.dryRun ? '预览完成，没有改动' : '完成'}` };
+        state = { ...state, message: declined ? t('{0}：已取消，没有改动', title) : rc ? t('{0} {1}：没有全部完成，详见上方记录', I.warn, title) : t('{0} {1}：{2}', I.ok, title, state.dryRun ? t('预览完成，没有改动') : t('完成')) };
       });
     };
 
@@ -127,10 +128,10 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
         restore();
         if (busy) exit(130); // 操作进行中强制退出：不等 claude 子进程
         else done(code);
-      } else if (e.type === 'rescan') load('重新扫描');
+      } else if (e.type === 'rescan') load(t('重新扫描'));
       else if (e.type === 'scope') {
         const to = state.scope === 'project' ? 'user' : 'project';
-        task(to === 'project' ? '切换到本项目' : '切换到全局', async () => {
+        task(to === 'project' ? t('切换到本项目') : t('切换到全局'), async () => {
           await setScope(ctx, to);
           await rebuild();
         });
@@ -160,7 +161,7 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
     }
     function fatal(e) {
       restore();
-      log(`异常: ${e?.stack ?? e}`);
+      log(`exception: ${e?.stack ?? e}`);
       process.stderr.write(`${e?.stack ?? e}\n`);
       exit(1);
     }
@@ -175,6 +176,6 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
     stdout.on('resize', onResize);
     stdout.write(TERM.enter);
     draw();
-    load('准备');
+    load(t('准备'));
   });
 }

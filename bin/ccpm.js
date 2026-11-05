@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { t } from '../src/i18n/index.js';
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { failLines, loadContext, PreconditionError } from '../src/context.js';
@@ -32,7 +33,7 @@ async function main(argv, deps = {}) {
       },
     });
   } catch (e) {
-    error(e.message, '运行 ccpm help 查看所有命令和选项').forEach(print);
+    error(e.message, t('运行 ccpm help 查看所有命令和选项')).forEach(print);
     return 1;
   }
   const { values: flags, positionals } = parsed;
@@ -42,31 +43,31 @@ async function main(argv, deps = {}) {
     const topic = cmd === 'help' ? rest[0] : positionals.length ? cmd : undefined;
     const text = helpText(topic);
     if (text === null) {
-      error(`没有“${topic}”的帮助`, '运行 ccpm help 查看所有命令').forEach(print);
+      error(t('没有“{0}”的帮助', topic), t('运行 ccpm help 查看所有命令')).forEach(print);
       return 1;
     }
     print(text);
     return 0;
   }
   if (cmd === 'preset') {
-    error('预设已经并入 ccpm status', '运行 ccpm status 查看全部预设、里面的插件和装齐没有').forEach(print);
+    error(t('预设已经并入 ccpm status'), t('运行 ccpm status 查看全部预设、里面的插件和装齐没有')).forEach(print);
     return 1;
   }
   if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && !SETUP.includes(cmd) && cmd !== 'ui') {
-    error(`未知命令：${cmd}`, '运行 ccpm help 查看所有命令').forEach(print);
+    error(t('未知命令：{0}', cmd), t('运行 ccpm help 查看所有命令')).forEach(print);
     return 1;
   }
   if (!['user', 'project'].includes(flags.scope)) {
-    error(`--scope 只能是 user（全局）或 project（当前项目），收到：${flags.scope}`, '去掉 --scope，或写成 --scope project').forEach(print);
+    error(t('--scope 只能是 user（全局）或 project（当前项目），收到：{0}', flags.scope), t('去掉 --scope，或写成 --scope project')).forEach(print);
     return 1;
   }
 
   const logger = deps.logger ?? createLogger({ mirror: flags.verbose ? (l) => process.stderr.write(l + '\n') : undefined });
   if (cmd === 'check') return (await import('../src/commands/check.js')).run({ out: print }, rest);
   if (cmd === 'log') {
-    print(`今天的日志：${logger.file}`);
-    print(`日志目录：  ${logger.dir}`);
-    print('反馈问题时，把日志文件发给维护者即可（里面不含 token、密码）。');
+    print(t('今天的日志：{0}', logger.file));
+    print(t('日志目录：  {0}', logger.dir));
+    print(t('反馈问题时，把日志文件发给维护者即可（里面不含 token、密码）。'));
     return 0;
   }
   const log = logger.write;
@@ -81,15 +82,15 @@ async function main(argv, deps = {}) {
   log(`==== ccpm ${version} node ${process.version} ${process.platform}/${process.arch} cwd=${process.cwd()} argv=${JSON.stringify(argv)} scope=${flags.scope} interactive=${interactive ? 'yes' : 'no'}${tui ? ' ui' : ''}`);
   if (tui) {
     if (!tty) {
-      error('ccpm ui 需要在命令行窗口里运行', '在脚本里请用 ccpm status 查看状态').forEach(print);
+      error(t('ccpm ui 需要在命令行窗口里运行'), t('在脚本里请用 ccpm status 查看状态')).forEach(print);
       return 1;
     }
     const { runTui } = await import('../src/tui/app.js');
     const code = await runTui({ flags, log, logFile: logger.file, context: deps.context });
-    log(`退出码 ${code}`);
+    log(`exit code ${code}`);
     return code;
   }
-  out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? '当前项目' : '全局'}`)}`);
+  out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? t('当前项目') : t('全局')}`)}`);
 
   if (cmd === 'use') {
     try {
@@ -115,13 +116,13 @@ async function main(argv, deps = {}) {
       );
       return await mod.run(ctx, rest, flags);
     } catch (e) {
-      log(`异常: ${e.stack ?? e}`);
+      log(`exception: ${e.stack ?? e}`);
       failLines(e).forEach(out);
       return e instanceof PreconditionError ? 2 : 1;
     }
   })();
-  log(`退出码 ${code}`);
-  if (code !== 0 && !logShown) print(`  ${dim(`详细日志：${logger.file}`)}`);
+  log(`exit code ${code}`);
+  if (code !== 0 && !logShown) print(`  ${dim(t('详细日志：{0}', logger.file))}`);
   return code;
 }
 

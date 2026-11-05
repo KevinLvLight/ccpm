@@ -1,3 +1,4 @@
+process.env.CCPM_LANG ??= 'zh'; // 断言按中文文案写
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -111,7 +112,7 @@ test('bin --help 与未知命令；失败打印详细日志路径', () => {
   assert.match(so, /^ccpm 0\.1\.0 · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
   const m = /\n  详细日志：(.+\.log)\n$/.exec(so);
   assert.ok(m, so);
-  assert.match(readFileSync(m[1], 'utf8'), /==== ccpm [\s\S]*未找到 claude 命令[\s\S]*退出码 2/);
+  assert.match(readFileSync(m[1], 'utf8'), /==== ccpm [\s\S]*未找到 claude 命令[\s\S]*exit code 2/);
 });
 
 test('ccpm log 打印路径', () => {

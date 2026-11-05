@@ -1,3 +1,4 @@
+process.env.CCPM_LANG ??= 'zh'; // 断言按中文文案写
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';

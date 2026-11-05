@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { join, resolve } from 'node:path';
 import { MARKETPLACE, createClaude, setMarketplace, toId } from './claude.js';
 import { resolveMarketplace } from './marketplace.js';
@@ -19,8 +20,8 @@ export class PreconditionError extends Error {
 }
 
 export const GIT_AUTH = /unable to get password|could not read Username|Authentication failed/;
-export const GIT_HINT = '先为 marketplace 所在的 git 服务器配置凭证（credential helper，或手动 git clone 一次该仓库），再重试';
-export const NET_HINT = '检查网络 / VPN 能否访问 marketplace 所在的 git 服务器后重试';
+export const GIT_HINT = () => t('先为 marketplace 所在的 git 服务器配置凭证（credential helper，或手动 git clone 一次该仓库），再重试');
+export const NET_HINT = () => t('检查网络 / VPN 能否访问 marketplace 所在的 git 服务器后重试');
 
 export const samePath = (a, b, platform = process.platform) =>
   platform === 'win32' ? resolve(a).toLowerCase() === resolve(b).toLowerCase() : resolve(a) === resolve(b);
@@ -51,12 +52,12 @@ export async function loadContext(opts, deps = {}) {
   listingP.catch(() => {});
 
   // 能力检测与 marketplace 列表并发
-  const mkts = await progress.step('检查 Claude Code', async () => {
+  const mkts = await progress.step(t('检查 Claude Code'), async () => {
     const [cap, list] = await Promise.all([claude.checkCapabilities(), Promise.resolve().then(() => claude.listMarketplaces()).catch((e) => e)]);
     if (!cap.ok) {
       throw cap.missing.includes('claude')
-        ? new PreconditionError('未找到 claude 命令', '安装 Claude Code 后，重新打开命令行窗口再试')
-        : new PreconditionError('Claude Code 版本太旧，请升级 Claude Code', '运行 claude update');
+        ? new PreconditionError(t('未找到 claude 命令'), t('安装 Claude Code 后，重新打开命令行窗口再试'))
+        : new PreconditionError(t('Claude Code 版本太旧，请升级 Claude Code'), t('运行 claude update'));
     }
     if (list instanceof Error) throw list;
     return list;
@@ -66,7 +67,7 @@ export async function loadContext(opts, deps = {}) {
   setMarketplace(name);
   if (note) progress.note?.(dim(note));
   let refreshError = null;
-  const pull = '拉取插件列表';
+  const pull = t('拉取插件列表');
   {
     // 只读命令刷新失败不算失败（用本地副本继续），在转圈步骤内部吞掉
     try {
@@ -75,14 +76,14 @@ export async function loadContext(opts, deps = {}) {
         refreshError = e.message;
       }));
     } catch (e) {
-      throw new PreconditionError(`拉取最新插件列表失败: ${e.brief ?? e.message}`, GIT_AUTH.test(e.message) ? GIT_HINT : NET_HINT);
+      throw new PreconditionError(t('拉取最新插件列表失败: {0}', e.brief ?? e.message), GIT_AUTH.test(e.message) ? GIT_HINT() : NET_HINT());
     }
   }
   const loc = mkts.find((m) => m.name === MARKETPLACE)?.installLocation;
-  if (!loc) throw new PreconditionError(`未找到 marketplace ${MARKETPLACE} 的本地副本`, `运行 claude plugin marketplace update ${MARKETPLACE} 后重试`);
+  if (!loc) throw new PreconditionError(t('未找到 marketplace {0} 的本地副本', MARKETPLACE), t('运行 claude plugin marketplace update {0} 后重试', MARKETPLACE));
 
   // listInstalled 与本地文件读取并发；转圈期间不输出其他内容
-  const listing = progress.step('读取已安装插件', () => listingP);
+  const listing = progress.step(t('读取已安装插件'), () => listingP);
   listing.catch(() => {});
   const catalog = loadCatalog(loc, log);
   const { presets, warning } = loadPresets(join(loc, 'presets.json'));
@@ -90,11 +91,11 @@ export async function loadContext(opts, deps = {}) {
   Object.assign(ctx, { claude, catalog, presets, state, prompter, progress, out, log, yes, dryRun, readOnly, refreshError, logFile: deps.logFile, stateFile: deps.stateFile });
   applyListing(ctx, await listing);
   const { installed } = ctx;
-  if (warning) warn(warning, warning.includes('升级') ? '升级 ccpm 到最新版本' : `联系 ${MARKETPLACE} 的维护者修复 presets.json`).forEach((l) => progress.note?.(l));
+  if (warning) warn(warning, warning.includes(t('升级')) ? t('升级 ccpm 到最新版本') : t('联系 {0} 的维护者修复 presets.json', MARKETPLACE)).forEach((l) => progress.note?.(l));
   if (progress.summary) {
     const mineCount = installed.filter((p) => p.marketplace === MARKETPLACE).length;
-    const parts = [MARKETPLACE, refreshError ? '插件列表更新失败，使用本地副本' : '插件列表已更新'];
-    if (readOnly) parts.push(`${mineCount} 个已装`);
+    const parts = [MARKETPLACE, refreshError ? t('插件列表更新失败，使用本地副本') : t('插件列表已更新')];
+    if (readOnly) parts.push(t('{0} 个已装', mineCount));
     Object.assign(progress.summary, { text: parts.join(' · '), warn: Boolean(refreshError) });
   }
   return ctx;
@@ -148,9 +149,9 @@ async function probe(ctx, prev = {}, step = ctx.progress.step) {
   const needMcp = !prev.userMcp && mine.some((p) => ctx.catalog.get(p.name).mcpServers.length);
   const [cfg, userMcp] = await Promise.all([
     needCfg.length
-      ? step('检查插件配置', () => Promise.all(needCfg.map((p) => ctx.claude.getUnconfigured(toId(p.name)).catch(() => null))))
+      ? step(t('检查插件配置'), () => Promise.all(needCfg.map((p) => ctx.claude.getUnconfigured(toId(p.name)).catch(() => null))))
       : [],
-    needMcp ? step('检查 MCP 配置', () => ctx.claude.listUserMcp().catch(() => [])) : prev.userMcp ?? null,
+    needMcp ? step(t('检查 MCP 配置'), () => ctx.claude.listUserMcp().catch(() => [])) : prev.userMcp ?? null,
   ]);
   const unconfigured = new Map([...(prev.unconfigured ?? []), ...needCfg.map((p, i) => [p.name, cfg[i]]).filter(([, k]) => k)]);
   return { unconfigured, checked: new Set([...(prev.checked ?? []), ...needCfg.map((p) => p.name)]), userMcp };
@@ -178,4 +179,4 @@ export const scoped = (ctx, cmd) => (ctx.scope === 'project' ? withScope(cmd) : 
 // 命令出错时给用户看的几行（命令行和交互界面共用）
 export const failLines = (e) => (e instanceof PreconditionError
   ? error(e.message)
-  : error(`出错了：${e.brief ?? e.message}`, '重试一次；仍失败请运行 ccpm log，把日志文件发给维护者'));
+  : error(t('出错了：{0}', e.brief ?? e.message), t('重试一次；仍失败请运行 ccpm log，把日志文件发给维护者')));

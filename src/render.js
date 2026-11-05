@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { I, bold, brief, dim, fixLine, table, yellow } from './ui.js';
 
 export { fixLine };
@@ -13,11 +14,11 @@ export const issueCells = (it) => (it.line
 export const pluginSym = (p) => (p.missingConfig.length || p.missingDeps.length || p.delisted ? I.warn
   : p.update ? I.up : p.enabled === false ? I.off : I.ok);
 export const pluginNotes = (p) => [
-  p.update && '可更新',
-  p.enabled === false && '已停用',
-  p.missingConfig.length && `缺少配置：${p.missingConfig.join('、')}`,
-  p.missingDeps.length && `缺少依赖 ${p.missingDeps.join('、')}`,
-  p.delisted && 'marketplace 里已下架',
+  p.update && t('可更新'),
+  p.enabled === false && t('已停用'),
+  p.missingConfig.length && t('缺少配置：{0}', p.missingConfig.join(t('、'))),
+  p.missingDeps.length && t('缺少依赖 {0}', p.missingDeps.join(t('、'))),
+  p.delisted && t('marketplace 里已下架'),
 ].filter(Boolean);
 // 已装插件一行：符号 名称 / 版本 / 状态说明
 export function pluginCells(p) {
@@ -25,7 +26,7 @@ export function pluginCells(p) {
   return [
     `${sym} ${sym !== I.ok ? bold(p.name) : p.name}`,
     dim(p.update ? `${p.update.from} → ${p.update.to}` : p.version ?? ''),
-    pluginNotes(p).map((n) => (n === '已停用' ? yellow(n) : n)).join(' · '),
+    pluginNotes(p).map((n) => (n === t('已停用') ? yellow(n) : n)).join(' · '),
   ];
 }
 
@@ -33,24 +34,24 @@ export function pluginCells(p) {
 export function presetCells(p) {
   const on = p.chosen || p.via;
   const short = p.got < p.want;
-  const how = p.chosen ? '已选' : `已选（${p.via} 包含）`;
-  const state = on ? (short ? `${how} · ${yellow(`缺 ${p.want - p.got} 个`)}` : `${how} · 已装齐`) : dim(`未选 · 已装 ${p.got}/${p.want}`);
+  const how = p.chosen ? t('已选') : t('已选（{0} 包含）', p.via);
+  const state = on ? (short ? `${how} · ${yellow(t('缺 {0} 个', p.want - p.got))}` : t('{0} · 已装齐', how)) : dim(t('未选 · 已装 {0}/{1}', p.got, p.want));
   return [`${on ? (short ? I.warn : I.ok) : I.none} ${on ? bold(p.name) : p.name}`, state, dim(p.description)];
 }
 // 预设成员：✔ 已装 / ○ 未装 / − 你卸掉的 / 含子预设
-export const memberText = (x) => (x.kind === 'preset' ? dim(`含 ${x.name} 全部`)
-  : x.delisted ? `${I.warn} ${x.name}${dim('（已下架）')}`
+export const memberText = (x) => (x.kind === 'preset' ? dim(t('含 {0} 全部', x.name))
+  : x.delisted ? `${I.warn} ${x.name}${dim(t('（已下架）'))}`
     : x.installed ? `${I.ok} ${x.name}`
-      : x.excluded ? dim(`− ${x.name}（你卸掉的）`) : `${I.none} ${dim(x.name)}`);
+      : x.excluded ? dim(t('− {0}（你卸掉的）', x.name)) : `${I.none} ${dim(x.name)}`);
 
 // ● 2 已装   ↑ 1 可更新 …
 export function counterCells({ scope, counters: c }) {
-  const out = [`${I.dot} ${c.installed} ${scope === 'project' ? '本项目已装' : '已装'}`];
-  if (c.global) out.push(`${I.dot} ${c.global} 全局已装`);
-  if (c.update) out.push(`${I.up} ${c.update} 可更新`);
-  if (c.configure) out.push(`${I.warn} ${c.configure} 需配置`);
-  if (c.disabled) out.push(`${I.off} ${c.disabled} 已停用`);
-  if (c.notInstalled) out.push(`${I.none} ${dim(`${c.notInstalled} 未装`)}`);
+  const out = [`${I.dot} ${c.installed} ${scope === 'project' ? t('本项目已装') : t('已装')}`];
+  if (c.global) out.push(t('{0} {1} 全局已装', I.dot, c.global));
+  if (c.update) out.push(t('{0} {1} 可更新', I.up, c.update));
+  if (c.configure) out.push(t('{0} {1} 需配置', I.warn, c.configure));
+  if (c.disabled) out.push(t('{0} {1} 已停用', I.off, c.disabled));
+  if (c.notInstalled) out.push(`${I.none} ${dim(t('{0} 未装', c.notInstalled))}`);
   return out;
 }
 
@@ -65,7 +66,7 @@ export function planRows(plan, catalog, remove = []) {
   for (const r of remove) rows.push([`${I.del} ${r.name}`, r.version ?? '', dim(r.note ?? '')]);
   for (const c of plan.configure) {
     const titles = c.keys.map((k) => catalog?.get(c.name)?.userConfig?.[k]?.title ?? k);
-    rows.push([`${I.warn} ${c.name}`, `需要填写：${titles.join('、')}`]);
+    rows.push([`${I.warn} ${c.name}`, t('需要填写：{0}', titles.join(t('、')))]);
   }
   return table(rows);
 }

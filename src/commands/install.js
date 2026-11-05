@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { MARKETPLACE } from '../claude.js';
 import { resolveDeps, unknownPlugin } from '../plan.js';
 import { expandPreset } from '../presets.js';
@@ -10,7 +11,7 @@ const short = (n) => n.replace(`@${MARKETPLACE}`, '');
 export async function run(ctx, positionals) {
   const { out, presets, catalog } = ctx;
   if (!positionals.length) {
-    out('用法：ccpm install <插件或预设>...（例如 ccpm install dev；详见 ccpm help install）');
+    out(t('用法：ccpm install <插件或预设>...（详见 ccpm help install）'));
     return 1;
   }
   const state = { presets: [...(ctx.state?.presets ?? [])], excluded: [...(ctx.state?.excluded ?? [])] };
@@ -19,7 +20,7 @@ export async function run(ctx, positionals) {
   let touched = false;
   for (const raw of positionals.map(short)) {
     if (Object.hasOwn(presets, raw) && ctx.scope === 'project') {
-      error('预设只能装到全局，去掉 --scope project', `运行 ccpm install ${raw} --scope user`).forEach(out);
+      error(t('预设只能装到全局，去掉 --scope project'), t('运行 ccpm install {0} --scope user', raw)).forEach(out);
       return 1;
     }
     if (Object.hasOwn(presets, raw)) {
@@ -29,7 +30,7 @@ export async function run(ctx, positionals) {
     } else if (catalog.has(raw)) {
       wanted.push(raw);
     } else {
-      error(`没有叫 ${raw} 的插件或预设`, '检查拼写；全部插件见 ccpm list，预设见 ccpm status').forEach(out);
+      error(t('没有叫 {0} 的插件或预设', raw), t('检查拼写；全部插件见 ccpm list，预设见 ccpm status')).forEach(out);
       return 1;
     }
   }
@@ -45,7 +46,7 @@ export async function run(ctx, positionals) {
   const save = () => touched && !ctx.dryRun && saveState(state, ctx.stateFile);
   if (!plan.install.length) save(); // 无需安装也要记录预设/取消排除
   return execute(ctx, plan, {
-    info: skip.length ? `已装好，跳过：${skip.join('、')}` : undefined,
+    info: skip.length ? t('已装好，跳过：{0}', skip.join(t('、'))) : undefined,
     before: save,
   });
 }

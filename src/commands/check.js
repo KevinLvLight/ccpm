@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { loadCatalog, checkManifest } from '../catalog.js';
@@ -9,7 +10,7 @@ export async function run(ctx, [dir = process.cwd()] = []) {
   const { out } = ctx;
   const root = resolve(dir);
   if (!existsSync(join(root, '.claude-plugin', 'marketplace.json'))) {
-    error(`${root} 不是 marketplace 目录`, '目录下要有 .claude-plugin/marketplace.json').forEach(out);
+    error(t('{0} 不是 marketplace 目录', root), t('目录下要有 .claude-plugin/marketplace.json')).forEach(out);
     return 1;
   }
   const catalog = loadCatalog(root, () => {});
@@ -20,10 +21,10 @@ export async function run(ctx, [dir = process.cwd()] = []) {
   for (const e of validatePresets(presets, new Set(catalog.keys()))) problems.push(`presets.json: ${e}`);
   if (problems.length) {
     problems.forEach((p) => out(`${I.fail} ${p}`));
-    out(dim(`共 ${problems.length} 个问题`));
+    out(dim(t('共 {0} 个问题', problems.length)));
     return 1;
   }
   const n = Object.keys(presets).length;
-  out(`${I.ok} ${bold('校验通过')} ${dim(`· ${catalog.size} 个插件${n ? ` · ${n} 个预设` : ''}`)}`);
+  out(`${I.ok} ${bold(t('校验通过'))} ${dim(t('· {0} 个插件{1}', catalog.size, n ? t(' · {0} 个预设', n) : ''))}`);
   return 0;
 }

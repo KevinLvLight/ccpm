@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -15,7 +16,7 @@ export function loadCatalog(marketplaceDir, warn = console.warn) {
     try {
       raw = readJson(join(dir, '.claude-plugin/plugin.json'));
     } catch {
-      warn(`跳过插件 ${entry.name}：缺少或无法解析 plugin.json`);
+      warn(t('跳过插件 {0}：缺少或无法解析 plugin.json', entry.name));
       continue;
     }
     let mcpServers = [];
@@ -23,7 +24,7 @@ export function loadCatalog(marketplaceDir, warn = console.warn) {
       mcpServers = Object.keys(readJson(join(dir, '.mcp.json')).mcpServers ?? {});
     } catch {}
     const name = entry.name;
-    if (raw.name && raw.name !== name) warn(`插件 ${name}：plugin.json 的 name 为 ${raw.name}，以 marketplace 条目名为准`);
+    if (raw.name && raw.name !== name) warn(t('插件 {0}：plugin.json 的 name 为 {1}，以 marketplace 条目名为准', name, raw.name));
     catalog.set(name, {
       name,
       version: raw.version,
@@ -42,12 +43,12 @@ export function checkManifest(raw) {
   const out = [];
   const deps = raw.dependencies;
   if (deps !== undefined) {
-    if (!Array.isArray(deps)) out.push('dependencies 不是数组');
-    else deps.forEach((d, i) => typeof d !== 'string' && out.push(`dependencies 第 ${i + 1} 项不是字符串`));
+    if (!Array.isArray(deps)) out.push(t('dependencies 不是数组'));
+    else deps.forEach((d, i) => typeof d !== 'string' && out.push(t('dependencies 第 {0} 项不是字符串', i + 1)));
   }
   for (const [key, def] of Object.entries(raw.userConfig ?? {})) {
-    for (const k of Object.keys(def)) if (!USER_KEYS.includes(k)) out.push(`userConfig.${key} 含未知属性 ${k}`);
-    if (def.type !== undefined && !TYPES.includes(def.type)) out.push(`userConfig.${key} 的 type 为 ${def.type}，ccpm 不支持`);
+    for (const k of Object.keys(def)) if (!USER_KEYS.includes(k)) out.push(t('userConfig.{0} 含未知属性 {1}', key, k));
+    if (def.type !== undefined && !TYPES.includes(def.type)) out.push(t('userConfig.{0} 的 type 为 {1}，ccpm 不支持', key, def.type));
   }
   return out;
 }

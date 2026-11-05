@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { ClaudeError, MARKETPLACE, toId } from './claude.js';
 import { readChangelogEntry } from './catalog.js';
 import { warn } from './render.js';
@@ -18,21 +19,21 @@ export async function collectConfig(ctx, meta, keys, { editing = false } = {}) {
   if (!keys.length) return values;
   if (isInteractive(ctx)) {
     out('');
-    out(`  ${bold(meta.name)} ${dim(`需要 ${keys.length} 项配置 · ${editing ? '直接回车 = 保留原值' : `以后可用 ccpm config ${meta.name} 修改`}`)}`);
+    out(`  ${bold(meta.name)} ${dim(t('需要 {0} 项配置 · {1}', keys.length, editing ? t('直接回车 = 保留原值') : t('以后可用 ccpm config {0} 修改', meta.name)))}`);
   }
   for (const key of keys) {
     const def = meta.userConfig?.[key] ?? {};
     const opts = {
       secret: def.sensitive === true,
       default: editing ? undefined : def.default,
-      hint: def.description ?? (def.type === 'directory' ? '填一个目录的完整路径' : undefined),
+      hint: def.description ?? (def.type === 'directory' ? t('填一个目录的完整路径') : undefined),
     };
     const ask = async () => String(await prompter.ask(def.title ?? key, opts)).trim(); // 粘贴常带空格/换行
     let v;
     try {
       v = await ask();
       if (v === '' && def.required === true && !editing) {
-        out(`  ${I.warn} 此项必填`);
+        out(t('  {0} 此项必填', I.warn));
         v = await ask();
       }
     } catch (e) {
@@ -51,12 +52,12 @@ async function offerEnable(ctx, name) {
   const p = (ctx.installed ?? []).find((x) => x.name === name && x.marketplace === MARKETPLACE);
   if (p?.enabled !== false) return;
   const id = toId(name);
-  if (isInteractive(ctx) && (await ctx.prompter.confirm(`${name} 目前是停用状态，现在启用吗？`, { default: true }))) {
-    await ctx.progress.step(`正在启用 ${name}`, () => ctx.claude.enable(id, { scope: ctx.scope }), { done: `已启用 ${name}`, fail: `启用失败 ${name}` });
+  if (isInteractive(ctx) && (await ctx.prompter.confirm(t('{0} 目前是停用状态，现在启用吗？', name), { default: true }))) {
+    await ctx.progress.step(t('正在启用 {0}', name), () => ctx.claude.enable(id, { scope: ctx.scope }), { done: t('已启用 {0}', name), fail: t('启用失败 {0}', name) });
     p.enabled = true;
   } else {
-    ctx.out(`  ${I.off} ${name} 目前是停用状态`);
-    ctx.out(fixLine(`运行 ccpm enable ${name}`));
+    ctx.out(t('  {0} {1} 目前是停用状态', I.off, name));
+    ctx.out(fixLine(t('运行 ccpm enable {0}', name)));
   }
 }
 
@@ -64,8 +65,8 @@ async function offerEnable(ctx, name) {
 export async function configureKeys(ctx, meta, keys, { tag = '', editing = false } = {}) {
   const values = await collectConfig(ctx, meta, keys, { editing });
   if (!Object.keys(values).length) return false;
-  await ctx.progress.step(`${tag}正在保存 ${meta.name} 的配置`, () => ctx.claude.configure(toId(meta.name), values), {
-    done: `已保存 ${meta.name} 的配置`, fail: `保存配置失败 ${meta.name}`,
+  await ctx.progress.step(t('{0}正在保存 {1} 的配置', tag, meta.name), () => ctx.claude.configure(toId(meta.name), values), {
+    done: t('已保存 {0} 的配置', meta.name), fail: t('保存配置失败 {0}', meta.name),
   });
   await offerEnable(ctx, meta.name);
   return true;
@@ -76,11 +77,11 @@ async function installOne(ctx, name, tag = '') {
   const id = toId(name);
   const values = await collectConfig(ctx, meta, requiredKeys(meta));
   const written = Object.keys(values).length > 0;
-  await ctx.progress.step(`${tag}正在安装 ${name}`, async () => {
+  await ctx.progress.step(t('{0}正在安装 {1}', tag, name), async () => {
     await ctx.claude.install(id, { scope: ctx.scope });
     if (written) await ctx.claude.configure(id, values);
     if (meta.raw?.defaultEnabled === false) await ctx.claude.enable(id, { scope: ctx.scope });
-  }, { done: `已安装 ${name}`, fail: `安装失败 ${name}`, detail: [written && '已写入配置', '已启用'].filter(Boolean).join(' · ') });
+  }, { done: t('已安装 {0}', name), fail: t('安装失败 {0}', name), detail: [written && t('已写入配置'), t('已启用')].filter(Boolean).join(' · ') });
 }
 
 export async function postUpdate(ctx, name, from, to) {
@@ -90,7 +91,7 @@ export async function postUpdate(ctx, name, from, to) {
   if (entry) {
     const log = entry.split('\n');
     lines.push(...log.slice(0, MAX_LOG).map((l) => (l.trim() ? `    ${dim(l)}` : '')));
-    if (log.length > MAX_LOG) lines.push(`    ${dim('… 完整更新记录见插件 CHANGELOG')}`);
+    if (log.length > MAX_LOG) lines.push(`    ${dim(t('… 完整更新记录见插件 CHANGELOG'))}`);
   }
 
   const req = new Set(requiredKeys(meta));
@@ -100,7 +101,7 @@ export async function postUpdate(ctx, name, from, to) {
       await configureKeys(ctx, meta, keys);
     } catch (e) {
       if (e.message !== 'NON_INTERACTIVE') throw e;
-      lines.push(...warn(`${name} 还缺必填配置 ${e.key}`, `运行 ccpm config ${name}`));
+      lines.push(...warn(t('{0} 还缺必填配置 {1}', name, e.key), t('运行 ccpm config {0}', name)));
     }
   }
 
@@ -110,16 +111,16 @@ export async function postUpdate(ctx, name, from, to) {
     try {
       await installOne(ctx, d);
       have.add(d);
-      lines.push(`    ${dim(`${name} 新增了依赖 ${d}，已一并安装`)}`);
+      lines.push(`    ${dim(t('{0} 新增了依赖 {1}，已一并安装', name, d))}`);
     } catch (e) {
       if (e.message !== 'NON_INTERACTIVE') throw e;
-      lines.push(...warn(`${name} 新增的依赖 ${d} 缺必填配置 ${e.key}，没装上`, `运行 ccpm install ${d}`));
+      lines.push(...warn(t('{0} 新增的依赖 {1} 缺必填配置 {2}，没装上', name, d, e.key), t('运行 ccpm install {0}', d)));
     }
   }
 
   // ctx.previous: 更新前的 catalog（可选），用于发现被去掉的依赖
   for (const d of ctx.previous?.get(name)?.dependencies ?? []) {
-    if (!meta.dependencies.includes(d)) lines.push(`    ${dim(`${name} 不再需要 ${d} · 运行 ccpm sync 可清理`)}`);
+    if (!meta.dependencies.includes(d)) lines.push(`    ${dim(t('{0} 不再需要 {1} · 运行 ccpm sync 可清理', name, d))}`);
   }
   return lines;
 }
@@ -132,7 +133,7 @@ export async function applyPlan(ctx, plan) {
   const skip = (name, reason) => {
     report.skipped.push({ name, reason });
     bad.add(name);
-    ctx.out(`${I.warn} 跳过 ${name}  ${dim(reason)}`);
+    ctx.out(t('{0} 跳过 {1}  {2}', I.warn, name, dim(reason)));
   };
   // fix：缺配置时提示用户运行的命令
   const step = async (name, fix, fn) => {
@@ -141,7 +142,7 @@ export async function applyPlan(ctx, plan) {
       await fn(tag);
       if (!report.ok.includes(name)) report.ok.push(name);
     } catch (e) {
-      if (e.message === 'NON_INTERACTIVE') return skip(name, `缺必填配置 ${e.key} → ${fix}`);
+      if (e.message === 'NON_INTERACTIVE') return skip(name, t('缺必填配置 {0} → {1}', e.key, fix));
       if (!(e instanceof ClaudeError)) throw e;
       report.failed.push({ name, error: e.brief });
       bad.add(name);
@@ -161,14 +162,14 @@ export async function applyPlan(ctx, plan) {
     const d = badDep(name);
     if (d) {
       n++;
-      skip(name, `依赖 ${d} 没装上`);
+      skip(name, t('依赖 {0} 没装上', d));
     }
     else await step(name, `ccpm install ${name}`, (tag) => installOne(ctx, name, tag));
   }
   for (const { name, from, to } of plan.update) {
     await step(name, `ccpm config ${name}`, async (tag) => {
-      await ctx.progress.step(`${tag}正在更新 ${name}`, () => ctx.claude.update(toId(name), { scope: ctx.scope }), {
-        done: `已更新 ${name}`, fail: `更新失败 ${name}`, detail: `${from} → ${to}`,
+      await ctx.progress.step(t('{0}正在更新 {1}', tag, name), () => ctx.claude.update(toId(name), { scope: ctx.scope }), {
+        done: t('已更新 {0}', name), fail: t('更新失败 {0}', name), detail: `${from} → ${to}`,
       });
       for (const l of await postUpdate(ctx, name, from, to)) ctx.out(l);
     });
