@@ -1,0 +1,353 @@
+{
+    "installed":  [
+                      {
+                          "id":  "ai-gateway-mcp@ai-efficiency",
+                          "version":  "1.1.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\ai-gateway-mcp\\1.1.0",
+                          "installedAt":  "2026-11-04T07:13:59.489Z",
+                          "lastUpdated":  "2026-11-04T07:13:59.489Z",
+                          "mcpServers":  {
+                                             "ai-gateway-mcp":  {
+                                                                    "type":  "http",
+                                                                    "url":  "https://token.hillstonenet.com:9443/mcp",
+                                                                    "headersHelper":  "\"${CLAUDE_PLUGIN_ROOT}/scripts/gateway-headers\""
+                                                                }
+                                         },
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "bugfix@ai-efficiency",
+                          "version":  "1.2.1",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\bugfix\\1.2.1",
+                          "installedAt":  "2026-11-04T07:13:59.099Z",
+                          "lastUpdated":  "2026-11-04T07:20:21.126Z",
+                          "projectEnabled":  false,
+                          "hasUserConfig":  true
+                      },
+                      {
+                          "id":  "cc-token-audit@ai-efficiency",
+                          "version":  "1.1.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\cc-token-audit\\1.1.0",
+                          "installedAt":  "2026-09-01T01:50:32.329Z",
+                          "lastUpdated":  "2026-11-04T07:51:38.535Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "chrome-devtools-mcp@ai-efficiency",
+                          "version":  "1.0.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\chrome-devtools-mcp\\1.0.0",
+                          "installedAt":  "2026-07-21T09:51:48.928Z",
+                          "lastUpdated":  "2026-09-01T00:59:39.930Z",
+                          "mcpServers":  {
+                                             "chrome-devtools":  {
+                                                                     "command":  "npx",
+                                                                     "args":  [
+                                                                                  "-y",
+                                                                                  "chrome-devtools-mcp@latest"
+                                                                              ]
+                                                                 }
+                                         },
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "claude-security@achu",
+                          "version":  "0.12.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\achu\\claude-security\\0.12.0",
+                          "readFromFolder":  "E:\\software\\cc-plugin\\claude-plugins-official\\plugins\\claude-security",
+                          "folderVersion":  "0.12.0",
+                          "installedAt":  "2026-10-28T06:58:14.871Z",
+                          "lastUpdated":  "2026-10-28T06:58:14.871Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "code-review@ai-efficiency",
+                          "version":  "1.0.1",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\code-review\\1.0.1",
+                          "installedAt":  "2026-11-04T06:56:32.844Z",
+                          "lastUpdated":  "2026-11-04T07:03:31.448Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "deps-src@ai-efficiency",
+                          "version":  "1.2.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\deps-src\\1.2.0",
+                          "installedAt":  "2026-09-15T09:22:06.259Z",
+                          "lastUpdated":  "2026-09-16T03:05:55.468Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "diagram-design@diagram-design",
+                          "version":  "2.6.115",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\diagram-design\\diagram-design\\2.6.115",
+                          "readFromFolder":  "E:\\software\\cc-plugin\\diagram-design-main",
+                          "folderVersion":  "2.6.115",
+                          "installedAt":  "2026-10-21T02:57:08.952Z",
+                          "lastUpdated":  "2026-10-21T02:57:08.952Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "dsgp-deploy@ai-efficiency",
+                          "version":  "1.5.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\dsgp-deploy\\1.5.0",
+                          "installedAt":  "2026-07-16T06:04:22.601Z",
+                          "lastUpdated":  "2026-11-04T02:59:39.937Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "dsgp-deploy@ai-efficiency",
+                          "version":  "1.4.0",
+                          "scope":  "project",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\dsgp-deploy\\1.4.0",
+                          "installedAt":  "2026-09-03T02:17:51.612Z",
+                          "lastUpdated":  "2026-09-03T02:17:51.612Z",
+                          "projectPath":  "E:\\cc-workspace",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "envmgr-mcp-server@ai-efficiency",
+                          "version":  "1.0.2",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\envmgr-mcp-server\\1.0.2",
+                          "installedAt":  "2026-07-21T06:43:48.631Z",
+                          "lastUpdated":  "2026-09-01T00:59:39.930Z",
+                          "mcpServers":  {
+                                             "envmgr":  {
+                                                            "command":  "npx",
+                                                            "args":  [
+                                                                         "-y",
+                                                                         "@cloud-ai-efficiency/envmgr-mcp-server@latest"
+                                                                     ]
+                                                        }
+                                         },
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "hs-function-design@corock-sdd-cli-ui",
+                          "version":  "1.0.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-function-design",
+                          "readFromFolder":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-function-design",
+                          "folderVersion":  "1.0.0",
+                          "installedAt":  "2026-10-14T09:31:15.040Z",
+                          "lastUpdated":  "2026-10-14T09:31:15.040Z",
+                          "mcpServers":  {
+                                             "playwright-mcp":  {
+                                                                    "type":  "stdio",
+                                                                    "command":  "node",
+                                                                    "args":  [
+                                                                                 "${CLAUDE_PLUGIN_ROOT}/scripts/launch-mcp.mjs"
+                                                                             ]
+                                                                }
+                                         },
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "hs-ui-aegis@corock-sdd-cli-ui",
+                          "version":  "3.0.77",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-ui-aegis",
+                          "readFromFolder":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\hs-ui-aegis",
+                          "folderVersion":  "3.0.77",
+                          "installedAt":  "2026-09-14T08:22:56.089Z",
+                          "lastUpdated":  "2026-10-14T09:30:51.690Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "jvm-heap-analyzer@ai-efficiency",
+                          "version":  "1.0.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\jvm-heap-analyzer\\1.0.0",
+                          "installedAt":  "2026-10-12T07:26:39.361Z",
+                          "lastUpdated":  "2026-10-12T07:26:39.361Z",
+                          "mcpServers":  {
+                                             "jvm-heap-analyzer":  {
+                                                                       "command":  "${user_config.java_home}/bin/java",
+                                                                       "args":  [
+                                                                                    "-Xmx4g",
+                                                                                    "-jar",
+                                                                                    "${CLAUDE_PLUGIN_ROOT}/jvm-heap-dump-mcp-0.2.0-all.jar"
+                                                                                ]
+                                                                   }
+                                         },
+                          "projectEnabled":  false,
+                          "hasUserConfig":  true
+                      },
+                      {
+                          "id":  "ponytail@corock-sdd-cli-ui",
+                          "version":  "5.0.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ponytail",
+                          "readFromFolder":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ponytail",
+                          "folderVersion":  "5.0.0",
+                          "installedAt":  "2026-09-23T09:41:44.748Z",
+                          "lastUpdated":  "2026-10-14T09:30:51.720Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "security-guidance@achu",
+                          "version":  "2.0.17",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\achu\\security-guidance\\2.0.17",
+                          "readFromFolder":  "E:\\software\\cc-plugin\\claude-plugins-official\\plugins\\security-guidance",
+                          "folderVersion":  "2.0.17",
+                          "installedAt":  "2026-10-28T06:59:07.074Z",
+                          "lastUpdated":  "2026-10-28T06:59:07.074Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "session-stats@ai-efficiency",
+                          "version":  "1.0.0",
+                          "scope":  "project",
+                          "enabled":  false,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\session-stats\\1.0.0",
+                          "installedAt":  "2026-07-23T08:47:57.970Z",
+                          "lastUpdated":  "2026-07-23T08:47:57.970Z",
+                          "projectPath":  "E:\\code\\dsgp-r8\\dsgp-main-r8",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "sonarqube-mcp@ai-efficiency",
+                          "version":  "1.1.0",
+                          "scope":  "user",
+                          "enabled":  false,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\sonarqube-mcp\\1.1.0",
+                          "installedAt":  "2026-11-05T01:04:39.259Z",
+                          "lastUpdated":  "2026-11-05T01:04:39.259Z",
+                          "mcpServers":  {
+                                             "sonarqube":  {
+                                                               "command":  "npx",
+                                                               "args":  [
+                                                                            "-y",
+                                                                            "sonarqube-mcp-server@latest"
+                                                                        ],
+                                                               "env":  {
+                                                                           "SONARQUBE_URL":  "${user_config.url}",
+                                                                           "SONARQUBE_TOKEN":  "${user_config.token}"
+                                                                       }
+                                                           }
+                                         },
+                          "projectEnabled":  false,
+                          "hasUserConfig":  true
+                      },
+                      {
+                          "id":  "superpowers@claude-plugins-official",
+                          "version":  "5.0.7",
+                          "scope":  "user",
+                          "enabled":  false,
+                          "installPath":  "C:/Users/cylv/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7",
+                          "installedAt":  "2026-03-26T02:37:02.363Z",
+                          "lastUpdated":  "2026-04-14T08:19:36.771Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "superpowers@superpowers-dev",
+                          "version":  "6.3.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\superpowers-dev\\superpowers\\6.3.0",
+                          "readFromFolder":  "E:\\software\\cc-plugin\\superpowers-6.3.0",
+                          "folderVersion":  "6.3.0",
+                          "installedAt":  "2026-09-04T03:06:32.576Z",
+                          "lastUpdated":  "2026-09-04T03:06:32.576Z",
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "ui-public-hs-playwright-docs@corock-sdd-cli-ui",
+                          "version":  "1.6.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ui-public-hs-playwright-docs",
+                          "readFromFolder":  "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui\\plugins\\ui-public-hs-playwright-docs",
+                          "folderVersion":  "1.6.0",
+                          "installedAt":  "2026-09-22T08:57:52.629Z",
+                          "lastUpdated":  "2026-10-14T09:30:51.713Z",
+                          "mcpServers":  {
+                                             "playwright-mcp":  {
+                                                                    "type":  "stdio",
+                                                                    "command":  "node",
+                                                                    "args":  [
+                                                                                 "${CLAUDE_PLUGIN_ROOT}/scripts/launch-mcp.mjs"
+                                                                             ]
+                                                                },
+                                             "llm-wiki-mcp":  {
+                                                                  "type":  "stdio",
+                                                                  "command":  "node",
+                                                                  "args":  [
+                                                                               "${CLAUDE_PLUGIN_ROOT}/scripts/launch-llm-wiki-mcp.mjs"
+                                                                           ],
+                                                                  "env":  {
+                                                                              "LLM_WIKI_API_BASE_URL":  "http://10.200.2.61:19828",
+                                                                              "LLM_WIKI_API_TOKEN":  "REDACTED"
+                                                                          }
+                                                              }
+                                         },
+                          "projectEnabled":  false
+                      },
+                      {
+                          "id":  "verify-requirement@ai-efficiency",
+                          "version":  "1.10.0",
+                          "scope":  "user",
+                          "enabled":  true,
+                          "installPath":  "C:\\Users\\cylv\\.claude\\plugins\\cache\\ai-efficiency\\verify-requirement\\1.10.0",
+                          "installedAt":  "2026-10-09T03:25:40.539Z",
+                          "lastUpdated":  "2026-10-09T03:25:40.539Z",
+                          "projectEnabled":  false
+                      }
+                  ],
+    "available":  [
+                      {
+                          "pluginId":  "mysql-mcp@ai-efficiency",
+                          "name":  "mysql-mcp",
+                          "description":  "查询 MySQL 数据库表结构与只读数据（需自行设置 MYSQL_HOST/USER/PASSWORD 环境变量）",
+                          "marketplaceName":  "ai-efficiency",
+                          "source":  "./plugins/mysql-mcp"
+                      },
+                      {
+                          "pluginId":  "dsgp-sonar-scan@ai-efficiency",
+                          "name":  "dsgp-sonar-scan",
+                          "description":  "在 DSGP 项目上运行或排查 SonarQube 扫描——本地跑 sonar-scanner.sh、处理 git worktree SCM 错误、按模块/分支隔离扫描",
+                          "marketplaceName":  "ai-efficiency",
+                          "source":  "./plugins/dsgp-sonar-scan"
+                      },
+                      {
+                          "pluginId":  "prd-builder@ai-efficiency",
+                          "name":  "prd-builder",
+                          "description":  "通过渐进访谈将口述、产品文件或缺陷说明梳理为供研发与 AI 理解的 PRD（需先提供 FR/Bug ID 与名称），只描述需求不含实现逻辑",
+                          "marketplaceName":  "ai-efficiency",
+                          "source":  "./plugins/prd-builder"
+                      },
+                      {
+                          "pluginId":  "ui-public-ui-components-docs@corock-sdd-cli-ui",
+                          "name":  "ui-public-ui-components-docs",
+                          "description":  "UI 组件库相关文档知识检索插件",
+                          "marketplaceName":  "corock-sdd-cli-ui",
+                          "version":  "1.0.0",
+                          "source":  "./plugins/ui-public-ui-components-docs"
+                      }
+                  ]
+}

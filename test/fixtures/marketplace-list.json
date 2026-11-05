@@ -1,0 +1,32 @@
+[
+  {
+    "name": "achu",
+    "source": "directory",
+    "path": "E:\\software\\cc-plugin\\claude-plugins-official",
+    "installLocation": "E:\\software\\cc-plugin\\claude-plugins-official"
+  },
+  {
+    "name": "ai-efficiency",
+    "source": "git",
+    "url": "https://gitlab-sz.hillstonedev.com:4433/cloudservice/AI-Efficiency.git",
+    "installLocation": "C:\\Users\\cylv\\.claude\\plugins\\marketplaces\\ai-efficiency"
+  },
+  {
+    "name": "corock-sdd-cli-ui",
+    "source": "directory",
+    "path": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui",
+    "installLocation": "C:\\Users\\cylv\\AppData\\Roaming\\npm\\node_modules\\corock-sdd-cli-ui"
+  },
+  {
+    "name": "diagram-design",
+    "source": "directory",
+    "path": "E:\\software\\cc-plugin\\diagram-design-main",
+    "installLocation": "E:\\software\\cc-plugin\\diagram-design-main"
+  },
+  {
+    "name": "superpowers-dev",
+    "source": "directory",
+    "path": "E:\\software\\cc-plugin\\superpowers-6.3.0",
+    "installLocation": "E:\\software\\cc-plugin\\superpowers-6.3.0"
+  }
+]

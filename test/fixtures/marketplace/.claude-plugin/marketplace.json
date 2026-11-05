@@ -1,0 +1,6 @@
+{"name":"ai-efficiency","plugins":[
+{"name":"a","source":"./plugins/a"},
+{"name":"b","source":"./plugins/b"},
+{"name":"c","source":"./plugins/c"},
+{"name":"d","source":"./plugins/d"},
+{"name":"ghost","source":"./plugins/ghost"}]}

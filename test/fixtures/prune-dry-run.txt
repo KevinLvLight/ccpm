@@ -1,0 +1,1 @@
+Skipped — cannot determine orphans: superpowers@claude-plugins-official failed to load. Fix or uninstall, then retry.

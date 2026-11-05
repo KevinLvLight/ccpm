@@ -1,0 +1,29 @@
+{
+  "pluginId": "sonarqube-mcp@ai-efficiency",
+  "displayName": "sonarqube-mcp",
+  "schema": {
+    "url": {
+      "type": "string",
+      "title": "SonarQube 地址",
+      "description": "例如 http://sonar.hillstonedev.com:9000/",
+      "required": true
+    },
+    "token": {
+      "type": "string",
+      "title": "SonarQube Token",
+      "description": "在 My Account → Security 中生成",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "inputs": {
+    "url": "",
+    "token": ""
+  },
+  "choices": {},
+  "configured": [],
+  "unconfigured": [
+    "url",
+    "token"
+  ]
+}

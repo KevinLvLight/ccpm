@@ -1,0 +1,12 @@
+{
+  "name": "ccpm",
+  "version": "0.1.0",
+  "description": "Manage Claude Code plugins from a marketplace: presets, config, updates, TUI",
+  "type": "module",
+  "bin": { "ccpm": "bin/ccpm.js" },
+  "engines": { "node": ">=18.11" },
+  "files": ["bin", "src", "README.md", "README.zh-CN.md", "CHANGELOG.md", "LICENSE"],
+  "license": "MIT",
+  "dependencies": {},
+  "scripts": { "test": "node --test" }
+}
