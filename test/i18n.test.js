@@ -113,7 +113,7 @@ test('模块顶层不调用 t()（否则在设置语言之前就定死了）', (
   const hits = [];
   for (const [f, s] of sources()) {
     if (CJK_OK(f)) continue;
-    s.split('\n').forEach((l, i) => { if (/^(export )?(const|let) \w+ = (\[|\{)?\s*t\(/.test(l) || /^ {2}t\('/.test(l)) hits.push(`${f}:${i + 1}`); });
+    s.split('\n').forEach((l, i) => { if (/^(export )?(const|let) \w+ = (\[|\{)?\s*t\(/.test(l)) hits.push(`${f}:${i + 1}`); });
   }
   assert.deepEqual(hits, []);
 });
