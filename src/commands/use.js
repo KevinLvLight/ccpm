@@ -6,6 +6,7 @@ import { loadCatalog } from '../catalog.js';
 import { loadPresets } from '../presets.js';
 import { join } from 'node:path';
 import { I, bold, dim, error, hints } from '../ui.js';
+import { hideCredentials } from '../log.js';
 
 // ccpm use [source]：选定要管理的 marketplace（没添加过就先添加），记到 ccpm.json
 // ctx：{ claude, prompter, out, progress?, stateFile? }
@@ -42,17 +43,17 @@ export async function run(ctx, [source] = [], flags = {}) {
       const before = new Set(list.map((m) => m.name));
       const add = () => claude.addMarketplace(source);
       try {
-        await (ctx.progress ? ctx.progress.step(t('正在添加 marketplace {0}', source), add) : add());
+        await (ctx.progress ? ctx.progress.step(t('正在添加 marketplace {0}', hideCredentials(source)), add) : add());
       } catch (e) {
         list = await claude.listMarketplaces().catch(() => list);
         target = findMarketplace(list, source); // 有的版本对已添加的会报错：以列表为准
-        if (!target) throw new PreconditionError(t('无法添加 marketplace {0}: {1}', source, e.brief ?? e.message), GIT_AUTH.test(e.message) ? GIT_HINT() : looksLikePath(source) ? t('确认这个目录是有效的 marketplace（有 .claude-plugin/marketplace.json），可以先用 ccpm check 检查') : NET_HINT());
+        if (!target) throw new PreconditionError(t('无法添加 marketplace {0}: {1}', hideCredentials(source), hideCredentials(e.brief ?? e.message)), GIT_AUTH.test(e.message) ? GIT_HINT() : looksLikePath(source) ? t('确认这个目录是有效的 marketplace（有 .claude-plugin/marketplace.json），可以先用 ccpm check 检查') : NET_HINT());
       }
       if (!target) {
         list = await claude.listMarketplaces();
         target = list.find((m) => !before.has(m.name)) ?? findMarketplace(list, source);
       }
-      if (!target) throw new PreconditionError(t('添加后没有找到 marketplace {0}', source), t('运行 claude plugin marketplace list 查看'));
+      if (!target) throw new PreconditionError(t('添加后没有找到 marketplace {0}', hideCredentials(source)), t('运行 claude plugin marketplace list 查看'));
     }
   }
 

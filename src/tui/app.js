@@ -42,7 +42,7 @@ export function runTui({ stdin = process.stdin, stdout = process.stdout, flags =
     let declined = false; // 本次操作在确认框里选了“否”
     const prompter = { ...tuiPrompter, confirm: async (...a) => { const ok = await tuiPrompter.confirm(...a); if (!ok) declined = true; return ok; } };
     const deps = { ...context, out: append, log, logFile, progress, prompter };
-    const opts = () => ({ scope: state.scope, yes: Boolean(flags.yes), dryRun: state.dryRun, readOnly: true });
+    const opts = () => ({ scope: state.scope, marketplace: flags.marketplace, yes: Boolean(flags.yes), dryRun: state.dryRun, readOnly: true });
 
     const rebuild = async () => { state = { ...state, model: buildModel(ctx, await gatherPlan(ctx)), scope: ctx.scope }; };
     const task = async (title, fn) => {

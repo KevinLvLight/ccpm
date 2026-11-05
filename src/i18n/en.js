@@ -227,7 +227,7 @@ export const EN = {
   "插件 {0} 已从 marketplace 下架，已跳过": "plugin {0} was removed from the marketplace; skipped",
   "无需处理，其余插件照常安装": "nothing to do; the other plugins install as usual",
   "预设 {0} 已不存在，已跳过": "preset {0} no longer exists; skipped",
-  "从 ~/.claude/ccpm.json 的 presets 里删掉 {0}": "remove {0} from presets in ~/.claude/ccpm.json",
+  "从 {1} 的 marketplaces.{2}.presets 里删掉 {0}": "remove {0} from marketplaces.{2}.presets in {1}",
   "presets.json 格式无效": "presets.json is invalid",
   "预设格式已更新（formatVersion {0}），请升级 ccpm": "the preset format is newer (formatVersion {0}); upgrade ccpm",
   "未知预设: {0}": "unknown preset: {0}",

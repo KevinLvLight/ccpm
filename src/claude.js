@@ -29,10 +29,10 @@ export function spawnSpec(platform) {
   return { command: 'claude', shell: platform === 'win32' };
 }
 
-// shell 模式下参数会被 cmd 解析，只放行白名单字符（空格会被加引号）
+// shell 模式下参数会被 cmd 解析：放行字母（含中文）、数字和路径 / 地址里常见的符号，挡住 & | < > ^ % " ! 等 cmd 元字符
 export function assertSafeArgs(args) {
   for (const a of args) {
-    if (!/^[A-Za-z0-9@._:/= -]*$/.test(a)) throw new Error(t('参数含不安全字符: {0}', a));
+    if (!/^[\p{L}\p{N}@._:/\\=#~+ -]*$/u.test(a)) throw new Error(t('参数含不安全字符: {0}', a));
   }
 }
 

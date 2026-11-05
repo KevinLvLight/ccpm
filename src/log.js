@@ -12,7 +12,9 @@ export const logDir = () => join(process.env.CLAUDE_CONFIG_DIR || join(homedir()
 const day = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; // 本地日期
 export const logFile = (dir = logDir(), now = new Date()) => join(dir, `ccpm-${day(now)}.log`);
 
-export const redact = (s) => s.replace(JSONISH, '$1"REDACTED"').replace(KV, '$1=REDACTED');
+// URL 里的 user:token@ 部分换成 ***@（git 地址常把 token 写在这里）
+export const hideCredentials = (s) => String(s).replace(/(\b[a-z][a-z0-9+.-]*:\/\/)[^/\s@]+@/gi, '$1***@');
+export const redact = (s) => hideCredentials(s.replace(JSONISH, '$1"REDACTED"').replace(KV, '$1=REDACTED'));
 
 // 日志失败绝不影响命令本身：所有 fs 错误吞掉
 export function createLogger({ dir = logDir(), now = new Date(), mirror } = {}) {

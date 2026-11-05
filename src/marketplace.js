@@ -1,15 +1,20 @@
 import { t } from './i18n/index.js';
 import { PreconditionError, samePath } from './context.js';
 
-const norm = (s) => String(s).trim().replace(/\/+$/, '').replace(/\.git$/, '').toLowerCase();
-export const looksLikePath = (s) => /^([./~]|[A-Za-z]:[\\/])/.test(s);
+// 同一个仓库的不同写法归一成 host/owner/repo：https://、git@host:、末尾 .git 和 / 都去掉；owner/repo 视为 GitHub
+const norm = (s) => {
+  let v = String(s).trim().toLowerCase().replace(/\/+$/, '').replace(/\.git$/, '');
+  v = v.replace(/^[a-z][a-z0-9+.-]*:\/\/([^/@]*@)?/, '').replace(/^[^/@\s]+@([^:/]+):/, '$1/');
+  return /^[^/.:]+\/[^/]+$/.test(v) ? `github.com/${v}` : v;
+};
+export const looksLikePath = (s) => /^([./~]|[A-Za-z]:[\\/]|\\\\)/.test(s);
 
 // 在 claude plugin marketplace list 的结果里找 source 指的那个：名字、git 地址、GitHub owner/repo 或本地路径
 export function findMarketplace(list, source) {
   const s = String(source).trim();
   return list.find((m) => m.name === s)
     ?? list.find((m) => {
-      const ids = [m.url, m.repo, m.repo && `https://github.com/${m.repo}`].filter(Boolean).map(norm);
+      const ids = [m.url, m.repo].filter(Boolean).map(norm);
       if (ids.includes(norm(s))) return true;
       return Boolean(m.path && looksLikePath(s) && samePath(m.path, s));
     });

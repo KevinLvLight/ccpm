@@ -167,7 +167,7 @@ export function render(state, { cols = 80, rows = 24 } = {}) {
   const rule = (txt) => dim(txt ? `── ${txt} ${'─'.repeat(Math.max(0, W - width(txt) - 4))}` : '─'.repeat(W));
   const lines = [];
 
-  const left = `${bold('ccpm')} · ${MARKETPLACE} · ${state.scope === 'project' ? t('本项目') : t('全局')}${state.dryRun ? ` · ${yellow(t('预览模式，不做改动'))}` : ''}`;
+  const left = `${bold('ccpm')} · ${MARKETPLACE ? `${MARKETPLACE} · ` : ''}${state.scope === 'project' ? t('本项目') : t('全局')}${state.dryRun ? ` · ${yellow(t('预览模式，不做改动'))}` : ''}`;
   const right = m ? counterCells(m).join('  ') : '';
   const gap = W - width(left) - width(right);
   lines.push(left + ' '.repeat(Math.max(2, gap)) + right);
@@ -340,7 +340,7 @@ export function reduce(state, key) {
     case 'q': case 'escape': return { state: s, effect: { type: 'quit' } };
     case 'p': return s.model ? { state: s, effect: { type: 'scope' } } : note(s, t('还没有读到插件列表，按 R 重新扫描'));
     case 'R': return { state: s, effect: { type: 'rescan' } };
-    case 's': return { state: s, effect: { type: 'run', cmd: 'sync', names: [] } };
+    case 's': return s.model ? { state: s, effect: { type: 'run', cmd: 'sync', names: [] } } : note(s, t('还没有读到插件列表，按 R 重新扫描'));
     case 'i': case 'u': case 'c': case 'e': case 'r': return action(s, id);
     default: return id && id.length === 1 ? note(s, t('{0} 没有对应的操作，按 ? 查看帮助', id)) : { state: s };
   }

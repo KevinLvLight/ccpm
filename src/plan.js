@@ -1,3 +1,4 @@
+import { statePath } from './state.js';
 import { t } from './i18n/index.js';
 import { MARKETPLACE } from './claude.js';
 import { expandPreset } from './presets.js';
@@ -55,7 +56,7 @@ export function computePlan({ installed, catalog, state, presets, unconfigured, 
     } catch (e) {
       warnings.push(Object.hasOwn(presets, name)
         ? { msg: e.message, fix: t('联系 {0} 的维护者修复 presets.json', MARKETPLACE) }
-        : { msg: t('预设 {0} 已不存在，已跳过', name), fix: t('从 ~/.claude/ccpm.json 的 presets 里删掉 {0}', name) });
+        : { msg: t('预设 {0} 已不存在，已跳过', name), fix: t('从 {1} 的 marketplaces.{2}.presets 里删掉 {0}', name, statePath(), MARKETPLACE) });
     }
   }
   for (const n of state?.excluded ?? []) desired.delete(n);
