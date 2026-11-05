@@ -3,8 +3,6 @@ export const EN = {
   "运行 ccpm help 查看所有命令和选项": "run ccpm help to see all commands and options",
   "没有“{0}”的帮助": "no help for \"{0}\"",
   "运行 ccpm help 查看所有命令": "run ccpm help to see all commands",
-  "预设已经并入 ccpm status": "presets are now part of ccpm status",
-  "运行 ccpm status 查看全部预设、里面的插件和装齐没有": "run ccpm status to see every preset, its plugins and whether it is complete",
   "未知命令：{0}": "unknown command: {0}",
   "--scope 只能是 user（全局）或 project（当前项目），收到：{0}": "--scope must be user (global) or project (this project), got: {0}",
   "去掉 --scope，或写成 --scope project": "drop --scope, or use --scope project",

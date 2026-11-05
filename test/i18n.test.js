@@ -14,8 +14,8 @@ import { strip } from '../src/ui.js';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const fixture = join(root, 'test/fixtures/marketplace');
 const CJK_RE = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/;
-// 这些文件本身就是中文文案；help.js 在双语帮助完成前暂时例外
-const CJK_OK = (f) => /^src\/i18n\//.test(f) || f === 'src/help.js';
+// 这些文件本身就是中文文案
+const CJK_OK = (f) => /^src\/i18n\//.test(f);
 // 允许保留的中文（源码原样）：确认时可以回答“是”；按中英文句号截取第一句
 const ALLOWED = [String.raw`/^(y|yes|是)$/i`, String.raw`/[。！？；\n]|\. /`];
 

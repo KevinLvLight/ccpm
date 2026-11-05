@@ -102,7 +102,7 @@ test('bin --help 与未知命令；失败打印详细日志路径', () => {
   const env = { ...process.env, FORCE_COLOR: '0', CLAUDE_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'ccpm-cfg-')) };
   const h = spawnSync(process.execPath, [bin, '--help'], { env });
   assert.equal(h.status, 0);
-  assert.match(h.stdout.toString(), /常用场景[\s\S]*ccpm install dev/);
+  assert.match(h.stdout.toString(), /常用场景[\s\S]*ccpm use owner\/repo/);
   const u = spawnSync(process.execPath, [bin, 'bogus'], { env });
   assert.equal(u.status, 1);
   assert.match(u.stdout.toString(), /^✖ 未知命令：bogus\n  › 运行 ccpm help 查看所有命令\n$/);

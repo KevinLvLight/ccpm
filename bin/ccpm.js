@@ -49,10 +49,6 @@ async function main(argv, deps = {}) {
     print(text);
     return 0;
   }
-  if (cmd === 'preset') {
-    error(t('预设已经并入 ccpm status'), t('运行 ccpm status 查看全部预设、里面的插件和装齐没有')).forEach(print);
-    return 1;
-  }
   if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && !SETUP.includes(cmd) && cmd !== 'ui') {
     error(t('未知命令：{0}', cmd), t('运行 ccpm help 查看所有命令')).forEach(print);
     return 1;
