@@ -11,7 +11,7 @@ import { bold, dim, error } from '../src/ui.js';
 
 const READ_ONLY = ['status', 'list'];
 const COMMANDS = [...READ_ONLY, 'install', 'config', 'enable', 'disable', 'remove', 'update', 'sync'];
-const LOCAL = ['help', 'log']; // 不调用 claude
+const LOCAL = ['help', 'log', 'check']; // 不调用 claude
 const SETUP = ['use']; // 不需要先选定 marketplace
 
 async function main(argv, deps = {}) {
@@ -62,6 +62,7 @@ async function main(argv, deps = {}) {
   }
 
   const logger = deps.logger ?? createLogger({ mirror: flags.verbose ? (l) => process.stderr.write(l + '\n') : undefined });
+  if (cmd === 'check') return (await import('../src/commands/check.js')).run({ out: print }, rest);
   if (cmd === 'log') {
     print(`今天的日志：${logger.file}`);
     print(`日志目录：  ${logger.dir}`);
