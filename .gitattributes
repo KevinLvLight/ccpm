@@ -1,0 +1,2 @@
+# 所有系统统一用 LF 换行（Windows 上的 git 默认会转成 CRLF，测试按行比对文件内容时会出错）
+* text=auto eol=lf
