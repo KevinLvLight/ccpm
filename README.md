@@ -4,6 +4,8 @@
 
 [中文说明](README.zh-CN.md)
 
+![ccpm interactive view: presets, installed plugins with their state, and details of the selected plugin](https://raw.githubusercontent.com/KevinLvLight/ccpm/main/docs/images/tui.en.svg)
+
 Claude Code can install plugins from a plugin marketplace, one at a time. `ccpm` sits on top of the
 `claude plugin` commands and makes a whole marketplace easy to live with:
 
@@ -49,6 +51,10 @@ ccpm sync               # install missing, update, fill in settings
 ```
 
 If only one marketplace is added to Claude Code, ccpm uses it without `ccpm use`.
+
+![ccpm status: counters, installed plugins, presets and suggested next steps](https://raw.githubusercontent.com/KevinLvLight/ccpm/main/docs/images/status.en.svg)
+
+The screenshots come from a real run against a demo marketplace (`node scripts/screenshots.js` regenerates them).
 
 ## For marketplace authors
 

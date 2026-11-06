@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1137" height="524" viewBox="0 0 1137 524">
+<rect width="1137" height="524" rx="10" fill="#1a1b26"/>
+<rect width="1137" height="26" rx="10" fill="#24283b"/><rect y="16" width="1137" height="10" fill="#24283b"/>
+<circle cx="18" cy="13" r="5.5" fill="#ff5f57"/><circle cx="36" cy="13" r="5.5" fill="#febc2e"/><circle cx="54" cy="13" r="5.5" fill="#28c840"/>
+<text x="568.5" y="17" text-anchor="middle" fill="#6b7394" font-size="12">ccpm</text>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans Mono CJK SC', 'PingFang SC', monospace" font-size="14" xml:space="preserve">
+<text x="18.0" y="50" textLength="33.6" fill="#c0caf5" font-weight="bold">ccpm</text>
+<text x="60.0" y="50" fill="#c0caf5">·</text>
+<text x="76.8" y="50" textLength="100.8" fill="#c0caf5">demo-plugins</text>
+<text x="186.0" y="50" fill="#c0caf5">·</text>
+<text x="202.8" y="50" textLength="50.4" fill="#c0caf5">global</text>
+<text x="446.4" y="50" fill="#9ece6a">●</text>
+<text x="463.2" y="50" fill="#c0caf5">4</text>
+<text x="480.0" y="50" textLength="75.6" fill="#c0caf5">installed</text>
+<text x="572.4" y="50" fill="#7dcfff">↑</text>
+<text x="589.2" y="50" fill="#c0caf5">1</text>
+<text x="606.0" y="50" textLength="75.6" fill="#c0caf5">updatable</text>
+<text x="698.4" y="50" fill="#e0af68">▲</text>
+<text x="715.2" y="50" fill="#c0caf5">1</text>
+<text x="732.0" y="50" textLength="33.6" fill="#c0caf5">need</text>
+<text x="774.0" y="50" textLength="67.2" fill="#c0caf5">settings</text>
+<text x="858.0" y="50" fill="#e0af68">⏸</text>
+<text x="874.8" y="50" fill="#c0caf5">1</text>
+<text x="891.6" y="50" textLength="67.2" fill="#c0caf5">disabled</text>
+<text x="975.6" y="50" fill="#6b7394">○</text>
+<text x="992.4" y="50" fill="#6b7394">4</text>
+<text x="1009.2" y="50" textLength="25.2" fill="#6b7394">not</text>
+<text x="1042.8" y="50" textLength="75.6" fill="#6b7394">installed</text>
+<text x="18.0" y="69" fill="#6b7394">───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+<text x="26.4" y="88" textLength="58.8" fill="#c0caf5" font-weight="bold">Presets</text>
+<text x="102.0" y="88" textLength="50.4" fill="#6b7394">groups</text>
+<text x="160.8" y="88" textLength="16.8" fill="#6b7394">of</text>
+<text x="186.0" y="88" textLength="58.8" fill="#6b7394">plugins</text>
+<text x="60.0" y="107" fill="#9ece6a">✔</text>
+<text x="76.8" y="107" textLength="58.8" fill="#c0caf5" font-weight="bold">starter</text>
+<text x="169.2" y="107" textLength="50.4" fill="#c0caf5">chosen</text>
+<text x="228.0" y="107" fill="#c0caf5">·</text>
+<text x="244.8" y="107" textLength="67.2" fill="#c0caf5">complete</text>
+<text x="404.4" y="107" textLength="67.2" fill="#6b7394">Everyday</text>
+<text x="480.0" y="107" textLength="42.0" fill="#6b7394">tools</text>
+<text x="60.0" y="126" fill="#6b7394">○</text>
+<text x="76.8" y="126" textLength="75.6" fill="#c0caf5">fullstack</text>
+<text x="169.2" y="126" textLength="25.2" fill="#6b7394">not</text>
+<text x="202.8" y="126" textLength="50.4" fill="#6b7394">chosen</text>
+<text x="261.6" y="126" fill="#6b7394">·</text>
+<text x="278.4" y="126" textLength="25.2" fill="#6b7394">4/6</text>
+<text x="312.0" y="126" textLength="75.6" fill="#6b7394">installed</text>
+<text x="404.4" y="126" textLength="25.2" fill="#6b7394">Web</text>
+<text x="438.0" y="126" textLength="25.2" fill="#6b7394">app</text>
+<text x="471.6" y="126" textLength="92.4" fill="#6b7394">development</text>
+<text x="26.4" y="145" textLength="75.6" fill="#c0caf5" font-weight="bold">Installed</text>
+<text x="60.0" y="164" fill="#e0af68">⏸</text>
+<text x="76.8" y="164" textLength="92.4" fill="#c0caf5" font-weight="bold">code-review</text>
+<text x="202.8" y="164" textLength="42.0" fill="#6b7394">2.0.1</text>
+<text x="328.8" y="164" textLength="67.2" fill="#e0af68">disabled</text>
+<rect x="18" y="169" width="42" height="19" fill="#c0caf5"/>
+<text x="18.0" y="183" fill="#1a1b26">▸</text>
+<rect x="60" y="169" width="8.4" height="19" fill="#e0af68"/>
+<text x="60.0" y="183" fill="#1a1b26">▲</text>
+<rect x="68.4" y="169" width="8.4" height="19" fill="#c0caf5"/>
+<rect x="76.80000000000001" y="169" width="58.800000000000004" height="19" fill="#c0caf5"/>
+<text x="76.8" y="183" textLength="58.8" fill="#1a1b26" font-weight="bold">db-tool</text>
+<rect x="135.60000000000002" y="169" width="67.2" height="19" fill="#c0caf5"/>
+<rect x="202.8" y="169" width="42" height="19" fill="#6b7394"/>
+<text x="202.8" y="183" textLength="42.0" fill="#1a1b26">1.1.0</text>
+<rect x="244.8" y="169" width="873.6" height="19" fill="#c0caf5"/>
+<text x="328.8" y="183" textLength="58.8" fill="#1a1b26">missing</text>
+<text x="396.0" y="183" textLength="75.6" fill="#1a1b26">settings:</text>
+<text x="480.0" y="183" textLength="67.2" fill="#1a1b26">Database</text>
+<text x="555.6" y="183" textLength="33.6" fill="#1a1b26">URL,</text>
+<text x="597.6" y="183" textLength="67.2" fill="#1a1b26">Password</text>
+<text x="60.0" y="202" fill="#9ece6a">✔</text>
+<text x="76.8" y="202" textLength="92.4" fill="#c0caf5">docs-search</text>
+<text x="202.8" y="202" textLength="42.0" fill="#6b7394">1.0.0</text>
+<text x="60.0" y="221" fill="#7dcfff">↑</text>
+<text x="76.8" y="221" textLength="84.0" fill="#c0caf5" font-weight="bold">git-helper</text>
+<text x="202.8" y="221" textLength="42.0" fill="#6b7394">1.2.0</text>
+<text x="253.2" y="221" fill="#6b7394">→</text>
+<text x="270.0" y="221" textLength="42.0" fill="#6b7394">1.3.0</text>
+<text x="328.8" y="221" textLength="50.4" fill="#c0caf5">update</text>
+<text x="387.6" y="221" textLength="75.6" fill="#c0caf5">available</text>
+<text x="26.4" y="240" textLength="25.2" fill="#c0caf5" font-weight="bold">Not</text>
+<text x="60.0" y="240" textLength="75.6" fill="#c0caf5" font-weight="bold">installed</text>
+<text x="152.4" y="240" textLength="75.6" fill="#6b7394">optional,</text>
+<text x="236.4" y="240" textLength="58.8" fill="#6b7394">install</text>
+<text x="303.6" y="240" textLength="33.6" fill="#6b7394">what</text>
+<text x="345.6" y="240" textLength="25.2" fill="#6b7394">you</text>
+<text x="379.2" y="240" textLength="33.6" fill="#6b7394">need</text>
+<text x="60.0" y="259" fill="#6b7394">○</text>
+<text x="76.8" y="259" textLength="92.4" fill="#6b7394">browser-mcp</text>
+<text x="202.8" y="259" textLength="42.0" fill="#6b7394">1.0.0</text>
+<text x="328.8" y="259" textLength="42.0" fill="#6b7394">Drive</text>
+<text x="379.2" y="259" fill="#6b7394">a</text>
+<text x="396.0" y="259" textLength="67.2" fill="#6b7394">headless</text>
+<text x="471.6" y="259" textLength="58.8" fill="#6b7394">browser</text>
+<text x="538.8" y="259" textLength="33.6" fill="#6b7394">from</text>
+<text x="580.8" y="259" textLength="50.4" fill="#6b7394">Claude</text>
+<text x="60.0" y="278" fill="#6b7394">○</text>
+<text x="76.8" y="278" textLength="84.0" fill="#6b7394">deploy-kit</text>
+<text x="202.8" y="278" textLength="42.0" fill="#6b7394">0.3.0</text>
+<text x="328.8" y="278" textLength="50.4" fill="#6b7394">Deploy</text>
+<text x="387.6" y="278" textLength="16.8" fill="#6b7394">to</text>
+<text x="412.8" y="278" textLength="58.8" fill="#6b7394">staging</text>
+<text x="480.0" y="278" textLength="16.8" fill="#6b7394">in</text>
+<text x="505.2" y="278" textLength="25.2" fill="#6b7394">one</text>
+<text x="538.8" y="278" textLength="33.6" fill="#6b7394">step</text>
+<text x="60.0" y="297" fill="#6b7394">○</text>
+<text x="76.8" y="297" textLength="109.2" fill="#6b7394">issue-tracker</text>
+<text x="202.8" y="297" textLength="42.0" fill="#6b7394">1.4.0</text>
+<text x="328.8" y="297" textLength="33.6" fill="#6b7394">Look</text>
+<text x="370.8" y="297" textLength="16.8" fill="#6b7394">up</text>
+<text x="396.0" y="297" textLength="25.2" fill="#6b7394">and</text>
+<text x="429.6" y="297" textLength="50.4" fill="#6b7394">update</text>
+<text x="488.4" y="297" textLength="50.4" fill="#6b7394">issues</text>
+<text x="60.0" y="316" fill="#6b7394">○</text>
+<text x="76.8" y="316" textLength="92.4" fill="#6b7394">test-runner</text>
+<text x="202.8" y="316" textLength="42.0" fill="#6b7394">0.9.0</text>
+<text x="328.8" y="316" textLength="25.2" fill="#6b7394">Run</text>
+<text x="362.4" y="316" textLength="42.0" fill="#6b7394">tests</text>
+<text x="412.8" y="316" textLength="25.2" fill="#6b7394">and</text>
+<text x="446.4" y="316" textLength="58.8" fill="#6b7394">explain</text>
+<text x="513.6" y="316" textLength="67.2" fill="#6b7394">failures</text>
+<text x="18.0" y="354" fill="#6b7394">───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+<text x="18.0" y="373" textLength="58.8" fill="#c0caf5" font-weight="bold">db-tool</text>
+<text x="93.6" y="373" textLength="75.6" fill="#6b7394">installed</text>
+<text x="177.6" y="373" textLength="42.0" fill="#6b7394">1.1.0</text>
+<text x="34.8" y="392" textLength="75.6" fill="#c0caf5">Read-only</text>
+<text x="118.8" y="392" textLength="25.2" fill="#c0caf5">SQL</text>
+<text x="152.4" y="392" textLength="16.8" fill="#c0caf5">on</text>
+<text x="177.6" y="392" textLength="33.6" fill="#c0caf5">your</text>
+<text x="219.6" y="392" textLength="25.2" fill="#c0caf5">dev</text>
+<text x="253.2" y="392" textLength="67.2" fill="#c0caf5">database</text>
+<text x="34.8" y="411" textLength="58.8" fill="#c0caf5">missing</text>
+<text x="102.0" y="411" textLength="75.6" fill="#c0caf5">settings:</text>
+<text x="186.0" y="411" textLength="67.2" fill="#c0caf5">Database</text>
+<text x="261.6" y="411" textLength="33.6" fill="#c0caf5">URL,</text>
+<text x="303.6" y="411" textLength="67.2" fill="#c0caf5">Password</text>
+<text x="26.4" y="487" fill="#6b7394">↑↓</text>
+<text x="51.6" y="487" textLength="33.6" fill="#6b7394">move</text>
+<text x="102.0" y="487" textLength="42.0" fill="#6b7394">space</text>
+<text x="152.4" y="487" textLength="50.4" fill="#6b7394">select</text>
+<text x="219.6" y="487" fill="#6b7394">i</text>
+<text x="236.4" y="487" textLength="58.8" fill="#6b7394">install</text>
+<text x="312.0" y="487" fill="#6b7394">u</text>
+<text x="328.8" y="487" textLength="50.4" fill="#6b7394">update</text>
+<text x="396.0" y="487" fill="#6b7394">c</text>
+<text x="412.8" y="487" textLength="50.4" fill="#6b7394">config</text>
+<text x="480.0" y="487" fill="#6b7394">e</text>
+<text x="496.8" y="487" textLength="117.6" fill="#6b7394">enable/disable</text>
+<text x="631.2" y="487" fill="#6b7394">r</text>
+<text x="648.0" y="487" textLength="50.4" fill="#6b7394">remove</text>
+<text x="715.2" y="487" fill="#6b7394">s</text>
+<text x="732.0" y="487" textLength="33.6" fill="#6b7394">sync</text>
+<text x="782.4" y="487" fill="#6b7394">p</text>
+<text x="799.2" y="487" textLength="42.0" fill="#6b7394">scope</text>
+<text x="858.0" y="487" fill="#6b7394">R</text>
+<text x="874.8" y="487" textLength="50.4" fill="#6b7394">rescan</text>
+<text x="942.0" y="487" fill="#6b7394">?</text>
+<text x="958.8" y="487" textLength="33.6" fill="#6b7394">help</text>
+<text x="1009.2" y="487" fill="#6b7394">q</text>
+<text x="1026.0" y="487" textLength="33.6" fill="#6b7394">quit</text>
+</g></svg>

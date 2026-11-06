@@ -1,0 +1,253 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="574" height="600" viewBox="0 0 574 600">
+<rect width="574" height="600" rx="10" fill="#1a1b26"/>
+<rect width="574" height="26" rx="10" fill="#24283b"/><rect y="16" width="574" height="10" fill="#24283b"/>
+<circle cx="18" cy="13" r="5.5" fill="#ff5f57"/><circle cx="36" cy="13" r="5.5" fill="#febc2e"/><circle cx="54" cy="13" r="5.5" fill="#28c840"/>
+<text x="287" y="17" text-anchor="middle" fill="#6b7394" font-size="12">ccpm status</text>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans Mono CJK SC', 'PingFang SC', monospace" font-size="14" xml:space="preserve">
+<text x="18.0" y="50" fill="#c0caf5">$</text>
+<text x="34.8" y="50" textLength="33.6" fill="#c0caf5">ccpm</text>
+<text x="76.8" y="50" textLength="50.4" fill="#c0caf5">status</text>
+<text x="18.0" y="69" textLength="33.6" fill="#c0caf5" font-weight="bold">ccpm</text>
+<text x="60.0" y="69" textLength="42.0" fill="#6b7394">0.1.0</text>
+<text x="110.4" y="69" fill="#6b7394">·</text>
+<text x="127.2" y="69" fill="#6b7394">全</text>
+<text x="144.0" y="69" fill="#6b7394">局</text>
+<text x="18.0" y="88" fill="#9ece6a">✔</text>
+<text x="34.8" y="88" fill="#c0caf5">准</text>
+<text x="51.6" y="88" fill="#c0caf5">备</text>
+<text x="68.4" y="88" fill="#c0caf5">就</text>
+<text x="85.2" y="88" fill="#c0caf5">绪</text>
+<text x="118.8" y="88" textLength="100.8" fill="#6b7394">demo-plugins</text>
+<text x="228.0" y="88" fill="#6b7394">·</text>
+<text x="244.8" y="88" fill="#6b7394">插</text>
+<text x="261.6" y="88" fill="#6b7394">件</text>
+<text x="278.4" y="88" fill="#6b7394">列</text>
+<text x="295.2" y="88" fill="#6b7394">表</text>
+<text x="312.0" y="88" fill="#6b7394">已</text>
+<text x="328.8" y="88" fill="#6b7394">更</text>
+<text x="345.6" y="88" fill="#6b7394">新</text>
+<text x="370.8" y="88" fill="#6b7394">·</text>
+<text x="387.6" y="88" fill="#6b7394">4</text>
+<text x="404.4" y="88" fill="#6b7394">个</text>
+<text x="421.2" y="88" fill="#6b7394">已</text>
+<text x="438.0" y="88" fill="#6b7394">装</text>
+<text x="34.8" y="126" fill="#9ece6a">●</text>
+<text x="51.6" y="126" fill="#c0caf5">4</text>
+<text x="68.4" y="126" fill="#c0caf5">已</text>
+<text x="85.2" y="126" fill="#c0caf5">装</text>
+<text x="127.2" y="126" fill="#7dcfff">↑</text>
+<text x="144.0" y="126" fill="#c0caf5">1</text>
+<text x="160.8" y="126" fill="#c0caf5">可</text>
+<text x="177.6" y="126" fill="#c0caf5">更</text>
+<text x="194.4" y="126" fill="#c0caf5">新</text>
+<text x="236.4" y="126" fill="#e0af68">▲</text>
+<text x="253.2" y="126" fill="#c0caf5">1</text>
+<text x="270.0" y="126" fill="#c0caf5">需</text>
+<text x="286.8" y="126" fill="#c0caf5">配</text>
+<text x="303.6" y="126" fill="#c0caf5">置</text>
+<text x="345.6" y="126" fill="#e0af68">⏸</text>
+<text x="362.4" y="126" fill="#c0caf5">1</text>
+<text x="379.2" y="126" fill="#c0caf5">已</text>
+<text x="396.0" y="126" fill="#c0caf5">停</text>
+<text x="412.8" y="126" fill="#c0caf5">用</text>
+<text x="454.8" y="126" fill="#6b7394">○</text>
+<text x="471.6" y="126" fill="#6b7394">4</text>
+<text x="488.4" y="126" fill="#6b7394">未</text>
+<text x="505.2" y="126" fill="#6b7394">装</text>
+<text x="34.8" y="164" fill="#c0caf5" font-weight="bold">已</text>
+<text x="51.6" y="164" fill="#c0caf5" font-weight="bold">安</text>
+<text x="68.4" y="164" fill="#c0caf5" font-weight="bold">装</text>
+<text x="34.8" y="183" fill="#e0af68">⏸</text>
+<text x="51.6" y="183" textLength="92.4" fill="#c0caf5" font-weight="bold">code-review</text>
+<text x="160.8" y="183" textLength="42.0" fill="#6b7394">2.0.1</text>
+<text x="286.8" y="183" fill="#e0af68">已</text>
+<text x="303.6" y="183" fill="#e0af68">停</text>
+<text x="320.4" y="183" fill="#e0af68">用</text>
+<text x="34.8" y="202" fill="#e0af68">▲</text>
+<text x="51.6" y="202" textLength="58.8" fill="#c0caf5" font-weight="bold">db-tool</text>
+<text x="160.8" y="202" textLength="42.0" fill="#6b7394">1.1.0</text>
+<text x="286.8" y="202" fill="#c0caf5">缺</text>
+<text x="303.6" y="202" fill="#c0caf5">少</text>
+<text x="320.4" y="202" fill="#c0caf5">配</text>
+<text x="337.2" y="202" fill="#c0caf5">置</text>
+<text x="354.0" y="202" fill="#c0caf5">：</text>
+<text x="370.8" y="202" textLength="67.2" fill="#c0caf5">Database</text>
+<text x="446.4" y="202" textLength="25.2" fill="#c0caf5">URL</text>
+<text x="471.6" y="202" fill="#c0caf5">、</text>
+<text x="488.4" y="202" textLength="67.2" fill="#c0caf5">Password</text>
+<text x="34.8" y="221" fill="#9ece6a">✔</text>
+<text x="51.6" y="221" textLength="92.4" fill="#c0caf5">docs-search</text>
+<text x="160.8" y="221" textLength="42.0" fill="#6b7394">1.0.0</text>
+<text x="34.8" y="240" fill="#7dcfff">↑</text>
+<text x="51.6" y="240" textLength="84.0" fill="#c0caf5" font-weight="bold">git-helper</text>
+<text x="160.8" y="240" textLength="42.0" fill="#6b7394">1.2.0</text>
+<text x="211.2" y="240" fill="#6b7394">→</text>
+<text x="228.0" y="240" textLength="42.0" fill="#6b7394">1.3.0</text>
+<text x="286.8" y="240" fill="#c0caf5">可</text>
+<text x="303.6" y="240" fill="#c0caf5">更</text>
+<text x="320.4" y="240" fill="#c0caf5">新</text>
+<text x="34.8" y="278" fill="#c0caf5" font-weight="bold">还</text>
+<text x="51.6" y="278" fill="#c0caf5" font-weight="bold">没</text>
+<text x="68.4" y="278" fill="#c0caf5" font-weight="bold">装</text>
+<text x="85.2" y="278" fill="#c0caf5" font-weight="bold">的</text>
+<text x="118.8" y="278" fill="#6b7394">可</text>
+<text x="135.6" y="278" fill="#6b7394">选</text>
+<text x="152.4" y="278" fill="#6b7394">，</text>
+<text x="169.2" y="278" fill="#6b7394">按</text>
+<text x="186.0" y="278" fill="#6b7394">需</text>
+<text x="202.8" y="278" fill="#6b7394">安</text>
+<text x="219.6" y="278" fill="#6b7394">装</text>
+<text x="34.8" y="297" fill="#6b7394">○</text>
+<text x="51.6" y="297" textLength="92.4" fill="#6b7394">browser-mcp</text>
+<text x="144.0" y="297" fill="#6b7394">、</text>
+<text x="160.8" y="297" textLength="84.0" fill="#6b7394">deploy-kit</text>
+<text x="244.8" y="297" fill="#6b7394">、</text>
+<text x="261.6" y="297" textLength="109.2" fill="#6b7394">issue-tracker</text>
+<text x="370.8" y="297" fill="#6b7394">、</text>
+<text x="387.6" y="297" textLength="92.4" fill="#6b7394">test-runner</text>
+<text x="34.8" y="316" fill="#6b7394">›</text>
+<text x="51.6" y="316" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="316" textLength="58.8" fill="#7dcfff">install</text>
+<text x="160.8" y="316" fill="#7dcfff">&lt;</text>
+<text x="169.2" y="316" fill="#7dcfff">插</text>
+<text x="186.0" y="316" fill="#7dcfff">件</text>
+<text x="202.8" y="316" fill="#7dcfff">名</text>
+<text x="219.6" y="316" fill="#7dcfff">&gt;</text>
+<text x="253.2" y="316" fill="#6b7394">安</text>
+<text x="270.0" y="316" fill="#6b7394">装</text>
+<text x="286.8" y="316" fill="#6b7394">，</text>
+<text x="303.6" y="316" fill="#6b7394">依</text>
+<text x="320.4" y="316" fill="#6b7394">赖</text>
+<text x="337.2" y="316" fill="#6b7394">会</text>
+<text x="354.0" y="316" fill="#6b7394">一</text>
+<text x="370.8" y="316" fill="#6b7394">起</text>
+<text x="387.6" y="316" fill="#6b7394">装</text>
+<text x="34.8" y="354" fill="#c0caf5" font-weight="bold">预</text>
+<text x="51.6" y="354" fill="#c0caf5" font-weight="bold">设</text>
+<text x="85.2" y="354" fill="#6b7394">一</text>
+<text x="102.0" y="354" fill="#6b7394">组</text>
+<text x="118.8" y="354" fill="#6b7394">常</text>
+<text x="135.6" y="354" fill="#6b7394">用</text>
+<text x="152.4" y="354" fill="#6b7394">插</text>
+<text x="169.2" y="354" fill="#6b7394">件</text>
+<text x="194.4" y="354" fill="#6b7394">·</text>
+<text x="211.2" y="354" fill="#6b7394">共</text>
+<text x="236.4" y="354" fill="#6b7394">2</text>
+<text x="253.2" y="354" fill="#6b7394">个</text>
+<text x="270.0" y="354" fill="#6b7394">，</text>
+<text x="286.8" y="354" fill="#6b7394">已</text>
+<text x="303.6" y="354" fill="#6b7394">选</text>
+<text x="328.8" y="354" fill="#6b7394">1</text>
+<text x="345.6" y="354" fill="#6b7394">个</text>
+<text x="34.8" y="373" fill="#9ece6a">✔</text>
+<text x="51.6" y="373" textLength="58.8" fill="#c0caf5" font-weight="bold">starter</text>
+<text x="144.0" y="373" fill="#c0caf5">已</text>
+<text x="160.8" y="373" fill="#c0caf5">选</text>
+<text x="186.0" y="373" fill="#c0caf5">·</text>
+<text x="202.8" y="373" fill="#c0caf5">已</text>
+<text x="219.6" y="373" fill="#c0caf5">装</text>
+<text x="236.4" y="373" fill="#c0caf5">齐</text>
+<text x="286.8" y="373" textLength="67.2" fill="#6b7394">Everyday</text>
+<text x="362.4" y="373" textLength="42.0" fill="#6b7394">tools</text>
+<text x="68.4" y="392" fill="#9ece6a">✔</text>
+<text x="85.2" y="392" textLength="84.0" fill="#c0caf5">git-helper</text>
+<text x="186.0" y="392" fill="#9ece6a">✔</text>
+<text x="202.8" y="392" textLength="92.4" fill="#c0caf5">code-review</text>
+<text x="312.0" y="392" fill="#9ece6a">✔</text>
+<text x="328.8" y="392" textLength="92.4" fill="#c0caf5">docs-search</text>
+<text x="34.8" y="411" fill="#6b7394">○</text>
+<text x="51.6" y="411" textLength="75.6" fill="#c0caf5">fullstack</text>
+<text x="144.0" y="411" fill="#6b7394">未</text>
+<text x="160.8" y="411" fill="#6b7394">选</text>
+<text x="186.0" y="411" fill="#6b7394">·</text>
+<text x="202.8" y="411" fill="#6b7394">已</text>
+<text x="219.6" y="411" fill="#6b7394">装</text>
+<text x="244.8" y="411" textLength="25.2" fill="#6b7394">4/6</text>
+<text x="286.8" y="411" textLength="25.2" fill="#6b7394">Web</text>
+<text x="320.4" y="411" textLength="25.2" fill="#6b7394">app</text>
+<text x="354.0" y="411" textLength="92.4" fill="#6b7394">development</text>
+<text x="68.4" y="430" fill="#6b7394">含</text>
+<text x="93.6" y="430" textLength="58.8" fill="#6b7394">starter</text>
+<text x="160.8" y="430" fill="#6b7394">全</text>
+<text x="177.6" y="430" fill="#6b7394">部</text>
+<text x="211.2" y="430" fill="#6b7394">○</text>
+<text x="228.0" y="430" textLength="92.4" fill="#6b7394">browser-mcp</text>
+<text x="337.2" y="430" fill="#9ece6a">✔</text>
+<text x="354.0" y="430" textLength="58.8" fill="#c0caf5">db-tool</text>
+<text x="429.6" y="430" fill="#6b7394">○</text>
+<text x="446.4" y="430" textLength="92.4" fill="#6b7394">test-runner</text>
+<text x="34.8" y="449" fill="#6b7394">›</text>
+<text x="51.6" y="449" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="449" textLength="58.8" fill="#7dcfff">install</text>
+<text x="160.8" y="449" fill="#7dcfff">&lt;</text>
+<text x="169.2" y="449" fill="#7dcfff">预</text>
+<text x="186.0" y="449" fill="#7dcfff">设</text>
+<text x="202.8" y="449" fill="#7dcfff">名</text>
+<text x="219.6" y="449" fill="#7dcfff">&gt;</text>
+<text x="253.2" y="449" fill="#6b7394">装</text>
+<text x="270.0" y="449" fill="#6b7394">齐</text>
+<text x="286.8" y="449" fill="#6b7394">整</text>
+<text x="303.6" y="449" fill="#6b7394">个</text>
+<text x="320.4" y="449" fill="#6b7394">预</text>
+<text x="337.2" y="449" fill="#6b7394">设</text>
+<text x="354.0" y="449" fill="#6b7394">，</text>
+<text x="370.8" y="449" fill="#6b7394">并</text>
+<text x="387.6" y="449" fill="#6b7394">记</text>
+<text x="404.4" y="449" fill="#6b7394">为</text>
+<text x="421.2" y="449" fill="#6b7394">你</text>
+<text x="438.0" y="449" fill="#6b7394">选</text>
+<text x="454.8" y="449" fill="#6b7394">的</text>
+<text x="471.6" y="449" fill="#6b7394">预</text>
+<text x="488.4" y="449" fill="#6b7394">设</text>
+<text x="34.8" y="468" fill="#6b7394">›</text>
+<text x="51.6" y="468" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="468" textLength="50.4" fill="#7dcfff">remove</text>
+<text x="152.4" y="468" fill="#7dcfff">&lt;</text>
+<text x="160.8" y="468" fill="#7dcfff">预</text>
+<text x="177.6" y="468" fill="#7dcfff">设</text>
+<text x="194.4" y="468" fill="#7dcfff">名</text>
+<text x="211.2" y="468" fill="#7dcfff">&gt;</text>
+<text x="253.2" y="468" fill="#6b7394">卸</text>
+<text x="270.0" y="468" fill="#6b7394">掉</text>
+<text x="286.8" y="468" fill="#6b7394">整</text>
+<text x="303.6" y="468" fill="#6b7394">个</text>
+<text x="320.4" y="468" fill="#6b7394">预</text>
+<text x="337.2" y="468" fill="#6b7394">设</text>
+<text x="34.8" y="506" fill="#c0caf5" font-weight="bold">下</text>
+<text x="51.6" y="506" fill="#c0caf5" font-weight="bold">一</text>
+<text x="68.4" y="506" fill="#c0caf5" font-weight="bold">步</text>
+<text x="34.8" y="525" fill="#6b7394">›</text>
+<text x="51.6" y="525" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="525" textLength="50.4" fill="#7dcfff">update</text>
+<text x="270.0" y="525" fill="#6b7394">更</text>
+<text x="286.8" y="525" fill="#6b7394">新</text>
+<text x="312.0" y="525" textLength="84.0" fill="#6b7394">git-helper</text>
+<text x="34.8" y="544" fill="#6b7394">›</text>
+<text x="51.6" y="544" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="544" textLength="50.4" fill="#7dcfff">enable</text>
+<text x="152.4" y="544" textLength="92.4" fill="#7dcfff">code-review</text>
+<text x="270.0" y="544" fill="#6b7394">重</text>
+<text x="286.8" y="544" fill="#6b7394">新</text>
+<text x="303.6" y="544" fill="#6b7394">启</text>
+<text x="320.4" y="544" fill="#6b7394">用</text>
+<text x="337.2" y="544" fill="#6b7394">（</text>
+<text x="354.0" y="544" fill="#6b7394">有</text>
+<text x="370.8" y="544" fill="#6b7394">意</text>
+<text x="387.6" y="544" fill="#6b7394">停</text>
+<text x="404.4" y="544" fill="#6b7394">用</text>
+<text x="421.2" y="544" fill="#6b7394">的</text>
+<text x="438.0" y="544" fill="#6b7394">可</text>
+<text x="454.8" y="544" fill="#6b7394">忽</text>
+<text x="471.6" y="544" fill="#6b7394">略</text>
+<text x="488.4" y="544" fill="#6b7394">）</text>
+<text x="34.8" y="563" fill="#6b7394">›</text>
+<text x="51.6" y="563" textLength="33.6" fill="#7dcfff">ccpm</text>
+<text x="93.6" y="563" textLength="50.4" fill="#7dcfff">config</text>
+<text x="152.4" y="563" textLength="58.8" fill="#7dcfff">db-tool</text>
+<text x="270.0" y="563" fill="#6b7394">填</text>
+<text x="286.8" y="563" fill="#6b7394">写</text>
+<text x="312.0" y="563" fill="#6b7394">2</text>
+<text x="328.8" y="563" fill="#6b7394">项</text>
+<text x="345.6" y="563" fill="#6b7394">配</text>
+<text x="362.4" y="563" fill="#6b7394">置</text>
+</g></svg>

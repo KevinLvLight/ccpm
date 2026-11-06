@@ -4,6 +4,8 @@
 
 [English](README.md)
 
+![ccpm 交互界面：预设、已装插件及其状态、光标所在插件的详情](https://raw.githubusercontent.com/KevinLvLight/ccpm/main/docs/images/tui.zh.svg)
+
 Claude Code 可以从插件市场一个个地安装插件。`ccpm` 建立在 `claude plugin` 命令之上，让管理一整个 marketplace 变得省心：
 
 - **交互界面**：运行 `ccpm`，一屏看到全部插件和预设，按一个键就能安装、更新、配置、启用/停用、卸载。
@@ -44,6 +46,10 @@ ccpm sync               # 补装、更新、补配置
 ```
 
 Claude Code 里只添加了一个 marketplace 时，不运行 `ccpm use` 也会直接用它。
+
+![ccpm status：计数、已装插件、预设和下一步建议](https://raw.githubusercontent.com/KevinLvLight/ccpm/main/docs/images/status.zh.svg)
+
+截图来自用演示 marketplace 的真实运行（`node scripts/screenshots.js` 可重新生成）。
 
 ## 给 marketplace 作者
 
