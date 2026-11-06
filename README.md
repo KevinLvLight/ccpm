@@ -27,13 +27,11 @@ runtime dependencies.
 
 ## Install
 
-ccpm is not published to npm yet. Install it from source:
-
 ```bash
-git clone <this repository> ccpm
-cd ccpm
-npm install -g .
+npm install -g @kikilight/ccpm
 ```
+
+The command is `ccpm`. To try it without installing: `npx @kikilight/ccpm`.
 
 ## Quick start
 
@@ -74,7 +72,7 @@ Plugin dependencies are added automatically.
 **Check in CI.** `ccpm check` validates every `plugin.json` and `presets.json` and exits 1 on problems:
 
 ```bash
-npx ccpm check .        # once published; until then: node path/to/ccpm/bin/ccpm.js check .
+npx @kikilight/ccpm check .
 ```
 
 ## Usage
@@ -810,6 +808,9 @@ Reporting a problem
 npm test                    # unit and integration tests (never runs the real claude)
 node scripts/readme.js      # regenerate the Usage sections of both READMEs from the help text
 ```
+
+Releasing: bump `version` in `package.json`, add a `CHANGELOG.md` entry, commit, then push a tag
+`v<version>` (e.g. `git tag v0.1.1 && git push --tags`). The `publish` workflow runs the tests and publishes to npm.
 
 ## License
 

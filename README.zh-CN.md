@@ -22,13 +22,11 @@ ccpm 只管你选定的 marketplace 的插件，只调用 `claude` 命令，没�
 
 ## 安装
 
-ccpm 还没有发布到 npm，先从源码安装：
-
 ```bash
-git clone <本仓库地址> ccpm
-cd ccpm
-npm install -g .
+npm install -g @kikilight/ccpm
 ```
+
+装好后的命令是 `ccpm`。不安装直接试用：`npx @kikilight/ccpm`。
 
 ## 快速开始
 
@@ -68,7 +66,7 @@ ccpm 适用于任何 Claude Code 插件 marketplace。另外有两个可选的�
 **在 CI 里校验。** `ccpm check` 校验每个 `plugin.json` 和 `presets.json`，有问题时退出码为 1：
 
 ```bash
-npx ccpm check .        # 发布后可用；在此之前：node path/to/ccpm/bin/ccpm.js check .
+npx @kikilight/ccpm check .
 ```
 
 ## 用法
@@ -803,6 +801,9 @@ Claude Code 版本太旧，请升级 Claude Code
 npm test                    # 单元和集成测试（不会运行真实的 claude）
 node scripts/readme.js      # 根据帮助文本重新生成两份 README 的“用法”一节
 ```
+
+发布新版本：改 `package.json` 的 `version`、在 `CHANGELOG.md` 加一条，提交后推送标签 `v<版本号>`
+（如 `git tag v0.1.1 && git push --tags`），`publish` 流程会跑测试并发布到 npm。
 
 ## 许可证
 

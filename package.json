@@ -1,12 +1,17 @@
 {
-  "name": "ccpm",
+  "name": "@kikilight/ccpm",
   "version": "0.1.0",
-  "description": "Manage Claude Code plugins from a marketplace: presets, config, updates, TUI",
+  "description": "Manage Claude Code plugins from a marketplace: presets, settings, updates, and a full-screen TUI",
+  "keywords": ["claude", "claude-code", "plugins", "marketplace", "cli", "tui"],
+  "license": "MIT",
   "type": "module",
   "bin": { "ccpm": "bin/ccpm.js" },
   "engines": { "node": ">=18.11" },
   "files": ["bin", "src", "README.md", "README.zh-CN.md", "CHANGELOG.md", "LICENSE"],
-  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/KevinLvLight/ccpm.git" },
+  "homepage": "https://github.com/KevinLvLight/ccpm#readme",
+  "bugs": { "url": "https://github.com/KevinLvLight/ccpm/issues" },
+  "publishConfig": { "access": "public" },
   "dependencies": {},
   "scripts": { "test": "node --test" }
 }

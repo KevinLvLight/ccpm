@@ -1,0 +1,26 @@
+name: publish
+
+# 推送 v* 标签时：跑测试，通过后发布到 npm。
+# 授权用 npm Trusted Publishing（在 npmjs.com 的包设置里登记本仓库和这个文件），不需要 token。
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write   # Trusted Publishing 用 GitHub 的 OIDC 身份向 npm 证明“是这个仓库在发布”
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest   # Trusted Publishing 需要 npm 11.5 以上
+      - name: tag matches package.json version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm test
+      - run: npm publish --access public

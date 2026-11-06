@@ -2,4 +2,4 @@
 
 ## [0.1.0]
 
-- Initial release, derived from the internal aie CLI.
+- Initial release: `ccpm use`, interactive view, presets, settings, updates, `ccpm check`, Chinese / English UI.
