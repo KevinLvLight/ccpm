@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { pageStrings } from './strings.js';
 import { lang } from '../i18n/index.js';
-import { RUNNABLE } from './session.js';
+import { RUNNABLE, listDirs } from './session.js';
 
 const PUBLIC = new URL('./public/', import.meta.url);
 const STATIC = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/app.css': ['app.css', 'text/css'] };
@@ -60,6 +60,10 @@ export function createWebServer({ session, token }) {
     if (!sameToken(given, token)) return send(res, 401, { error: 'unauthorized' });
 
     if (req.method === 'GET' && url.pathname === '/api/strings') return send(res, 200, { lang: lang(), strings: pageStrings() });
+    if (req.method === 'GET' && url.pathname === '/api/dirs') {
+      const r = listDirs(url.searchParams.get('path'));
+      return r ? send(res, 200, r) : send(res, 404, { error: 'not a folder' });
+    }
     if (req.method === 'GET' && url.pathname === '/api/events') {
       res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-store', connection: 'keep-alive' });
       const off = session.subscribe((s) => res.write(`data: ${JSON.stringify(s)}\n\n`));
@@ -83,10 +87,16 @@ export function createWebServer({ session, token }) {
       case '/api/run': {
         if (!RUNNABLE.includes(body.cmd)) return send(res, 400, { error: 'unknown command' });
         const names = Array.isArray(body.names) ? body.names.filter((n) => typeof n === 'string') : [];
-        return start(() => session.run({ cmd: body.cmd, names }));
+        return start(() => session.run({ cmd: body.cmd, names, market: typeof body.market === 'string' ? body.market : undefined }));
       }
+      case '/api/select': {
+        const pick = (k) => (typeof body[k] === 'string' ? body[k] : undefined);
+        return start(() => session.select({ scope: pick('scope'), dir: pick('dir'), market: pick('market') }));
+      }
+      case '/api/marketplace':
+        if (typeof body.source !== 'string' || !body.source.trim()) return send(res, 400, { error: 'source required' });
+        return start(() => session.addMarketplace(body.source));
       case '/api/rescan': return start(() => session.rescan());
-      case '/api/scope': return start(() => session.toggleScope());
       default: return send(res, 404, { error: 'not found' });
     }
   });

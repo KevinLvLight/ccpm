@@ -26,7 +26,8 @@
   const post = (path, body = {}) => fetch(path, {
     method: 'POST', headers: { 'content-type': 'application/json', 'x-ccpm-token': token }, body: JSON.stringify(body),
   });
-  const run = (cmd, names = []) => post('/api/run', { cmd, names });
+  const run = (cmd, names = [], market) => post('/api/run', { cmd, names, market });
+  const select = (sel) => post('/api/select', sel);
   const answer = (id, value) => post('/api/answer', { id, value });
 
   let S = null; // latest state from the server
@@ -58,30 +59,63 @@
   }
 
   // ---------- header ----------
+  const ALL = '*';
+  const isAll = () => S.selection.market === ALL;
   function renderHeader() {
-    $('market').textContent = S.marketplace ? `· ${S.marketplace}` : '';
-    const c = S.model?.counters;
+    $('market').textContent = '';
     const counters = $('counters');
     counters.replaceChildren();
-    if (c) {
-      const item = (cls, sym, n, label) => n ? counters.append(el('span', {}, el('span', { class: cls }, sym), ' ', el('b', {}, n), ' ', label)) : null;
+    const item = (cls, sym, n, label) => (n ? counters.append(el('span', {}, el('span', { class: cls }, sym), ' ', el('b', {}, n), ' ', label)) : null);
+    if (isAll() && S.all) {
+      const here = S.all.filter((p) => p.where === 'here');
+      item('s-ok', '●', here.length, T.cInstalled);
+      item('s-up', '↑', here.filter((p) => p.update).length, T.cUpdate);
+      item('s-off', '⏸', here.filter((p) => !p.enabled).length, T.cDisabled);
+    } else if (S.model) {
+      const c = S.model.counters;
       item('s-ok', '●', c.installed, T.cInstalled);
       item('s-up', '↑', c.update, T.cUpdate);
       item('s-warn', '▲', c.configure, T.cConfigure);
       item('s-off', '⏸', c.disabled, T.cDisabled);
       item('s-none', '○', c.notInstalled, T.cNone);
-      if (S.dryRun) counters.append(el('span', { class: 'tag warn' }, T.dryRun));
     }
-    const scope = $('scope');
-    scope.replaceChildren(
-      ...[['user', T.user], ['project', T.project]].map(([v, label]) => el('button', {
-        'aria-pressed': String(S.scope === v), disabled: S.busy || !S.model,
-        on: { click: () => S.scope !== v && post('/api/scope') },
-      }, label)),
-    );
+    if (S.dryRun) counters.append(el('span', { class: 'tag warn' }, T.dryRun));
     $('rescan').disabled = S.busy;
+    $('sync').hidden = isAll();
+    $('updateAll').hidden = isAll();
     $('sync').disabled = S.busy || !S.model;
     $('updateAll').disabled = S.busy || !S.model?.counters.update;
+  }
+
+  // ---------- sidebar：范围（全局 / 项目目录）和来源（全部已安装 / 各个 marketplace） ----------
+  function renderSide() {
+    const side = $('side');
+    const sel = S.selection;
+    const sb = S.sidebar;
+    const nav = (lbl, current, onClick, extra = {}) => el('button', {
+      class: `nav ${extra.cls ?? ''}`, 'aria-current': String(Boolean(current)), disabled: S.busy, title: extra.title,
+      on: { click: onClick },
+    }, el('span', { class: 'lbl' }, lbl, extra.sub ? el('small', {}, extra.sub) : null), extra.num != null ? el('span', { class: 'num' }, extra.num) : null);
+    // 项目：显示文件夹名，下面一行淡色显示所在位置
+    const proj = (path, lbl, current, onClick) => {
+      const parts = lbl.split(/[\\/]/).filter(Boolean);
+      const name = parts.pop() ?? lbl;
+      return nav(name, current, onClick, { cls: 'sub', title: path, sub: lbl.slice(0, lbl.length - name.length).replace(/[\\/]+$/, '') || '/' });
+    };
+    const projects = sb?.projects ?? [];
+    const inList = projects.some((p) => p.path === sel.dir);
+    side.replaceChildren(
+      el('h4', {}, T.scope),
+      nav(T.user, sel.scope === 'user', () => sel.scope !== 'user' && select({ scope: 'user' }), {}),
+      el('div', { class: 'projects' },
+        sel.scope === 'project' && !inList ? proj(sel.dir, sel.dirLabel, true, () => {}) : null,
+        projects.map((p) => proj(p.path, p.label, sel.scope === 'project' && p.path === sel.dir, () => select({ scope: 'project', dir: p.path })))),
+      nav(T.browse, false, () => openPicker(sel.scope === 'project' ? sel.dir : ''), { cls: 'sub add' }),
+      el('h4', {}, T.sources),
+      nav(T.allInstalled, isAll(), () => !isAll() && select({ market: ALL }), { num: sb?.allInstalled }),
+      ...(sb?.markets ?? []).map((m) => nav(m.name, sel.market === m.name, () => sel.market !== m.name && select({ market: m.name }), { num: `${m.installed}/${m.total}` })),
+      nav(T.addMarket, false, () => openAdd(), { cls: 'add' }),
+    );
   }
 
   // ---------- lists ----------
@@ -91,8 +125,8 @@
   };
   const symOf = (p) => (p.where === 'none' ? ['s-none', '○'] : p.where === 'global' ? ['s-ok', '✔']
     : p.delisted || p.missingConfig.length || p.missingDeps.length ? ['s-warn', '▲'] : p.update ? ['s-up', '↑'] : p.enabled === false ? ['s-off', '⏸'] : ['s-ok', '✔']);
-  const btn = (label, cmd, names, cls = '') => el('button', {
-    class: `btn small ${cls}`, disabled: S.busy, on: { click: (e) => { e.stopPropagation(); run(cmd, names); } },
+  const btn = (label, cmd, names, cls = '', market) => el('button', {
+    class: `btn small ${cls}`, disabled: S.busy, on: { click: (e) => { e.stopPropagation(); run(cmd, names, market); } },
   }, label);
   const check = (name) => el('input', {
     type: 'checkbox', checked: selected.has(name), disabled: S.busy, 'aria-label': name,
@@ -116,7 +150,7 @@
       el('span', { class: `sym ${cls}` }, sym),
       el('span', { class: 'name' }, p.name),
       el('span', { class: 'ver' }, ver),
-      notes.length ? el('span', { class: 'notes' }, notes.map((n) => el('span', { class: `tag ${p.update && n === notes[0] ? 'up' : 'warn'}` }, n)))
+      notes.length ? el('span', { class: 'notes' }, notes.map((n) => el('span', { class: `tag ${p.where === 'global' ? '' : p.update && n === notes[0] ? 'up' : 'warn'}` }, n)))
         : el('span', { class: 'desc' }, p.description),
       el('span', { class: 'acts' }, acts),
     );
@@ -163,14 +197,50 @@
     return [el('h2', {}, el('b', {}, title), sub ? el('span', {}, sub) : null), el('div', { class: 'list' }, rows)];
   }
 
+  // “全部已安装”：各来源的插件放在一起，操作时带上它所属的 marketplace
+  function allRow(p) {
+    const here = p.where === 'here';
+    const [cls, sym] = !here ? ['s-ok', '✔'] : p.update ? ['s-up', '↑'] : !p.enabled ? ['s-off', '⏸'] : ['s-ok', '✔'];
+    const acts = [];
+    if (here && p.known) {
+      if (p.update) acts.push(btn(T.update, 'update', [p.name], 'primary', p.marketplace));
+      if (p.hasConfig) acts.push(btn(T.config, 'config', [p.name], '', p.marketplace));
+      acts.push(p.enabled ? btn(T.disable, 'disable', [p.name], '', p.marketplace) : btn(T.enable, 'enable', [p.name], '', p.marketplace));
+      acts.push(btn(T.remove, 'remove', [p.name], 'danger', p.marketplace));
+    }
+    const tags = [
+      el('span', { class: 'tag' }, p.marketplace),
+      !here ? el('span', { class: 'tag' }, T.installedGlobally) : null,
+      here && p.update ? el('span', { class: 'tag up' }, T.cUpdate) : null,
+      here && !p.enabled ? el('span', { class: 'tag warn' }, T.cDisabled) : null,
+      !p.known ? el('span', { class: 'tag warn' }, T.unknownSource) : null,
+    ];
+    const row = el('div', { class: `row${here ? '' : ' dim'}`, on: { click: () => toggle(`all:${p.marketplace}:${p.name}`) } },
+      el('span'),
+      el('span', { class: `sym ${cls}` }, sym),
+      el('span', { class: 'name' }, p.name),
+      el('span', { class: 'ver' }, p.update ? `${p.version} → ${p.latest}` : p.version ?? ''),
+      el('span', { class: 'notes' }, tags),
+      el('span', { class: 'acts' }, acts),
+    );
+    if (open.has(`all:${p.marketplace}:${p.name}`) && p.description) row.append(el('div', { class: 'detail' }, el('p', {}, p.description)));
+    return row;
+  }
+
   function renderLists() {
     const lists = $('lists');
+    const where = el('div', { class: 'where' }, el('b', {}, S.selection.scope === 'user' ? T.user : S.selection.dirLabel), ' · ', isAll() ? T.allInstalled : S.marketplace ?? '');
+    if (isAll() && S.all) {
+      const rows = S.all.filter(matches).map(allRow);
+      lists.replaceChildren(where, ...(rows.length ? [el('div', { class: 'list' }, rows)] : [el('div', { class: 'empty' }, S.all.length ? T.noMatch : T.nothingInstalled)]));
+      return;
+    }
     if (!S.model) {
       lists.replaceChildren(el('div', { class: 'empty' }, S.busy ? T.loading : ''));
       return;
     }
     const m = S.model;
-    const user = S.scope !== 'project';
+    const user = S.selection.scope !== 'project';
     const of = (where) => m.plugins.filter((p) => p.where === where && matches(p)).map(pluginRow);
     const parts = [
       ...(user ? section(T.presets, T.presetsSub, m.presets.filter(matches).map(presetRow)) : []),
@@ -184,11 +254,12 @@
       parts.push(el('h2', {}, el('b', {}, T.next)), el('div', { class: 'list' }, m.next.map((n) => el('div', { class: 'row next' },
         el('span'), el('span', { class: 'sym s-up' }, '›'), el('span', { class: 'name cmd' }, n.cmd), el('span'), el('span', { class: 'desc' }, n.why), el('span')))));
     }
-    lists.replaceChildren(...parts);
+    lists.replaceChildren(where, ...parts);
   }
 
   function renderSelection() {
     const box = $('selection');
+    if (isAll()) selected.clear();
     for (const n of [...selected]) if (!S.model?.plugins.some((p) => p.name === n) && !S.model?.presets.some((p) => p.name === n)) selected.delete(n);
     if (!selected.size) { box.hidden = true; return; }
     const names = [...selected];
@@ -267,11 +338,6 @@
       primary = d.def ? yes : no;
     } else if (kind === 'choose') {
       body.push(el('div', { class: 'opts' }, d.options.map((o) => el('button', { class: 'btn', on: { click: () => done(o) } }, o))));
-    } else if (kind === 'marketplace') {
-      body.push(el('div', { class: 'opts' }, d.options.map((o) => el('button', { class: 'btn', on: { click: () => done(o) } }, o))));
-      input = el('input', { type: 'text', placeholder: T.sourceHint, 'aria-label': T.source });
-      body.push(el('p', { class: 'hint' }, T.source), input);
-      foot.push(el('button', { class: 'btn', on: { click: () => done('') } }, T.close), primary = el('button', { class: 'btn primary', on: { click: () => done(input.value) } }, T.use));
     } else {
       const tips = [d.secret && T.secretHint, d.hint, d.def !== undefined && d.def !== '' && fmt(T.defaultHint, d.def)].filter(Boolean).join(' · ');
       if (tips) body.push(el('p', { class: 'hint' }, tips));
@@ -289,7 +355,45 @@
     (input ?? primary ?? card.querySelector('button'))?.focus();
   }
 
+  // ---------- 选目录 / 添加 marketplace（页面自己的弹窗） ----------
+  const picker = $('picker');
+  const closePicker = () => { picker.hidden = true; };
+  picker.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicker(); });
+  async function openPicker(path) {
+    const r = await fetch(`/api/dirs?t=${encodeURIComponent(token)}&path=${encodeURIComponent(path || '')}`);
+    if (!r.ok) return openPicker('');
+    const d = await r.json();
+    const input = el('input', { type: 'text', value: d.path, 'aria-label': T.folder });
+    $('pickerCard').replaceChildren(
+      el('div', { class: 'hint' }, T.pickFolder),
+      el('h3', { class: 'path' }, d.label),
+      el('div', { class: 'dirs' },
+        d.parent ? el('button', { on: { click: () => openPicker(d.parent) } }, `↑ ${T.parent}`) : null,
+        d.dirs.map((n) => el('button', { on: { click: () => openPicker(`${d.path}${d.path.endsWith('/') || d.path.endsWith('\\') ? '' : d.path.includes('\\') ? '\\' : '/'}${n}`) } }, `▸ ${n}`))),
+      input,
+      el('div', { class: 'foot' },
+        el('button', { class: 'btn', on: { click: closePicker } }, T.close),
+        el('button', { class: 'btn ghost', on: { click: () => openPicker(input.value) } }, T.go),
+        el('button', { class: 'btn primary', on: { click: () => { closePicker(); select({ scope: 'project', dir: d.path }); } } }, T.useFolder)),
+    );
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') openPicker(input.value); });
+    picker.hidden = false;
+    $('pickerCard').querySelector('.foot .primary').focus();
+  }
+  function openAdd() {
+    const input = el('input', { type: 'text', placeholder: T.sourceHint, 'aria-label': T.source });
+    const go = () => { const v = input.value.trim(); if (v) { closePicker(); post('/api/marketplace', { source: v }); } };
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    $('pickerCard').replaceChildren(
+      el('div', { class: 'hint' }, T.addMarket), el('h3', {}, T.source), el('p', { class: 'hint' }, T.sourceHint), input,
+      el('div', { class: 'foot' }, el('button', { class: 'btn', on: { click: closePicker } }, T.close), el('button', { class: 'btn primary', on: { click: go } }, T.add)),
+    );
+    picker.hidden = false;
+    input.focus();
+  }
+
   function render() {
+    renderSide();
     renderHeader();
     renderLists();
     renderSelection();

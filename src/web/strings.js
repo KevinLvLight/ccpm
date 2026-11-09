@@ -16,7 +16,10 @@ export const pageStrings = () => ({
   close: t('关闭'), running: t('正在执行…'), issues: t('需要注意'), next: t('下一步'),
   confirm: t('确认'), yes: t('是'), no: t('否'), choose: t('请选择'), fill: t('请填写'), ok: t('确定'), skip: t('跳过'),
   secretHint: t('输入内容已隐藏'), defaultHint: t('直接回车使用 {0}'),
-  pick: t('要管理哪个 marketplace？'), source: t('marketplace 地址'), sourceHint: t('GitHub owner/repo、git 地址或本地路径'), use: t('使用'),
+  source: t('marketplace 地址'), sourceHint: t('GitHub owner/repo、git 地址或本地路径'),
   empty: t('{0} 里还没有插件'), loading: t('正在读取插件列表…'),
   disconnected: t('与 ccpm 的连接已断开：回到终端重新运行 ccpm web'),
+  scope: t('范围'), browse: t('浏览其他目录…'), sources: t('来源'), allInstalled: t('全部已安装'), addMarket: t('添加 marketplace'),
+  unknownSource: t('来源里已没有这个插件'), nothingInstalled: t('这里还没有安装任何插件'),
+  folder: t('目录'), pickFolder: t('选择项目目录'), parent: t('上一级'), go: t('前往'), useFolder: t('用这个目录'), add: t('添加'),
 });

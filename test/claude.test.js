@@ -155,3 +155,11 @@ test('assertSafeArgs', () => {
   assert.doesNotThrow(() => assertSafeArgs(['quality-mcp@acme-plugins', '-s', 'user', 'a b']));
   for (const bad of ['a&b', '"x"', '%PATH%', 'a|b', '^']) assert.throws(() => assertSafeArgs(['ok', bad]), /参数含不安全字符/);
 });
+
+test('createClaude 传了 cwd：每次调用都在那个目录里运行', async () => {
+  const seen = [];
+  const claude = createClaude({ cwd: '/tmp/proj', run: async (args, opts) => { seen.push(opts?.cwd); return { code: 0, stdout: '[]', stderr: '' }; } });
+  await claude.listInstalled();
+  await claude.configure('a@acme-plugins', { k: 'v' });
+  assert.deepEqual(seen, ['/tmp/proj', '/tmp/proj']);
+});

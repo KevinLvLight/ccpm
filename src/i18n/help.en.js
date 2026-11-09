@@ -97,8 +97,8 @@ export const COMMANDS = {
   --scope user|project   start with global (default) or the current project; switch on the page`,
     examples: `  ccpm web                 start it and open the browser
   ccpm web --no-open       only print the link (e.g. to open it in another browser)`,
-    does: '  1. Start a web server on 127.0.0.1 with a one-time access token and open the link that carries it\n  2. ccpm runs what you click on this computer; progress and results show at the bottom of the page\n  3. Press Ctrl+C to stop',
-    doesNot: '  - Open anything to your network (it listens on 127.0.0.1 only and rejects requests without the token)\n  - Show or log the tokens and passwords you type (those fields are password fields)',
+    does: '  1. Start a web server on 127.0.0.1 with a one-time access token and open the link that carries it\n  2. Pick the scope in the sidebar: global, or any project folder (one Claude Code has seen, or browse for one)\n  3. Pick the source in the sidebar: all installed (every marketplace together) or one marketplace in full; add marketplaces from the page\n  4. ccpm runs what you click on this computer; progress and results show at the bottom of the page\n  5. Press Ctrl+C to stop',
+    doesNot: '  - Open anything to your network (it listens on 127.0.0.1 only and rejects requests without the token)\n  - Show or log the tokens and passwords you type (those fields are password fields)\n  - Change the CLI\'s default marketplace (switching on the page stays on the page)\n  - Read files when browsing folders (it lists folder names only)',
     faq: `  Q: The browser did not open?
   A: Copy the link printed in the terminal into your browser. It contains the access token, so do not share it.
   Q: The page says the connection was lost?

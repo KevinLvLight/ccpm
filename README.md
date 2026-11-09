@@ -217,12 +217,16 @@ Examples:
 
 What it does:
   1. Start a web server on 127.0.0.1 with a one-time access token and open the link that carries it
-  2. ccpm runs what you click on this computer; progress and results show at the bottom of the page
-  3. Press Ctrl+C to stop
+  2. Pick the scope in the sidebar: global, or any project folder (one Claude Code has seen, or browse for one)
+  3. Pick the source in the sidebar: all installed (every marketplace together) or one marketplace in full; add marketplaces from the page
+  4. ccpm runs what you click on this computer; progress and results show at the bottom of the page
+  5. Press Ctrl+C to stop
 
 What it does not do:
   - Open anything to your network (it listens on 127.0.0.1 only and rejects requests without the token)
   - Show or log the tokens and passwords you type (those fields are password fields)
+  - Change the CLI's default marketplace (switching on the page stays on the page)
+  - Read files when browsing folders (it lists folder names only)
 
 FAQ:
   Q: The browser did not open?

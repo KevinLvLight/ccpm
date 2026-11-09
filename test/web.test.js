@@ -2,7 +2,7 @@ process.env.CCPM_LANG ??= 'zh';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { request } from 'node:http';
-import { cpSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,7 +61,7 @@ async function boot(claude, file = stateFile()) {
   })();
   const until = async (pred, what) => {
     for (let i = 0; i < 400; i++) { if (ev.last && pred(ev.last)) return ev.last; await new Promise((r) => setTimeout(r, 5)); }
-    assert.fail(`等待超时：${what}`);
+    assert.fail(`等待超时：${what} · ${JSON.stringify({ busy: ev.last?.busy, dialog: ev.last?.dialog, message: ev.last?.message, lines: ev.last?.op?.lines.slice(-6) })}`);
   };
   const post = (path, body, headers = {}) => fetch(`${base}${path}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ccpm-token': TOKEN, ...headers }, body: JSON.stringify(body) });
   const close = async () => { await reader.cancel().catch(() => {}); await web.stop(); };
@@ -135,14 +135,83 @@ test('网页：卸载时选“否” → 已取消，不卸载', async () => {
   } finally { await s.close(); }
 });
 
-test('网页：还没选 marketplace → 页面里选一个，选完进入列表', async () => {
-  const claude = fakeClaude({ markets: [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }] });
+test('网页：两个 marketplace、没有默认 → 打开“全部已安装”，列出各来源的插件；点某个 marketplace 看完整列表', async () => {
+  const claude = fakeClaude({
+    installed: [inst('a'), { ...inst('x'), id: 'x@other', marketplace: 'other' }],
+    markets: [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }],
+  });
   const s = await boot(claude, stateFile(null));
   try {
-    const d = await s.until((st) => st.dialog?.kind === 'marketplace', '选择 marketplace');
-    assert.deepEqual(d.dialog.options, ['other', 'acme-plugins']);
-    await s.post('/api/answer', { id: d.dialog.id, value: 'acme-plugins' });
-    const st = await s.until((x) => x.model && !x.busy, '列表');
-    assert.equal(st.marketplace, 'acme-plugins');
+    const st = await s.until((x) => x.all && !x.busy, '全部已安装');
+    assert.equal(st.selection.market, '*');
+    assert.equal(st.model, null);
+    assert.deepEqual(st.all.map((p) => `${p.name}@${p.marketplace}`).sort(), ['a@acme-plugins', 'x@other']);
+    assert.equal(st.all.find((p) => p.name === 'a').update, true); // 目录里 a 是 1.1.0
+    assert.deepEqual(st.sidebar.markets.map((m) => [m.name, m.installed]), [['other', 1], ['acme-plugins', 1]]);
+    assert.equal((await s.post('/api/select', { market: 'acme-plugins' })).status, 202);
+    const m = await s.until((x) => x.model && !x.busy, '完整列表');
+    assert.equal(m.marketplace, 'acme-plugins');
+    assert.ok(m.model.plugins.some((p) => p.name === 'c' && p.where === 'none'));
+  } finally { await s.close(); }
+});
+
+test('网页：在“全部已安装”里直接更新某个来源的插件', async () => {
+  const claude = fakeClaude({ installed: [inst('a')], markets: [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }] });
+  const s = await boot(claude, stateFile(null));
+  try {
+    await s.until((x) => x.all && !x.busy, '全部已安装');
+    await s.post('/api/run', { cmd: 'update', names: ['a'], market: 'acme-plugins' });
+    const c = await s.until((x) => x.dialog?.kind === 'confirm', '确认框');
+    await s.post('/api/answer', { id: c.dialog.id, value: true });
+    // 更新后补问必填的 token：留空两次 → 跳过
+    for (let st = await s.until((x) => x.dialog?.kind === 'ask' || (!x.busy && x.message), '补问'); st.dialog; ) {
+      await s.post('/api/answer', { id: st.dialog.id, value: '' });
+      const id = st.dialog.id;
+      st = await s.until((x) => (x.dialog && x.dialog.id !== id) || (!x.busy && x.message), '下一个提问或结果');
+    }
+    assert.deepEqual(claude.calls.filter((x) => x[0] === 'update').map((x) => x[1]), ['a@acme-plugins']);
+    assert.equal((await s.post('/api/run', { cmd: 'update', names: ['a'], market: '*' })).status, 202); // “全部”不是一个来源：不执行
+    await new Promise((r) => setTimeout(r, 30));
+    assert.equal(claude.calls.filter((x) => x[0] === 'update').length, 1);
+  } finally { await s.close(); }
+});
+
+test('网页：切到某个项目目录 → 只显示装在那个项目里的，全局装的标为“装在全局”', async () => {
+  const proj = mkdtempSync(join(tmpdir(), 'ccpm-web-proj-'));
+  const claude = fakeClaude({ installed: [inst('c', { scope: 'project', projectPath: proj }), inst('b')] });
+  const s = await boot(claude);
+  try {
+    await s.until((x) => x.model && !x.busy, '准备完成');
+    assert.equal((await s.post('/api/select', { scope: 'project', dir: '/no/such/dir' })).status, 202);
+    await s.post('/api/select', { scope: 'project', dir: proj });
+    const st = await s.until((x) => x.selection.scope === 'project' && x.model && !x.busy, '项目范围');
+    assert.equal(st.selection.dir, proj);
+    const where = Object.fromEntries(st.model.plugins.map((p) => [p.name, p.where]));
+    assert.equal(where.c, 'here');
+    assert.equal(where.b, 'global');
+    assert.ok(st.sidebar.projects.some((p) => p.path === proj)); // 有项目插件的目录出现在项目列表里
+  } finally { await s.close(); }
+});
+
+test('网页：目录浏览只给文件夹名；添加 marketplace 不改命令行的默认', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'ccpm-web-dirs-'));
+  for (const d of ['beta', 'alpha', '.hidden']) mkdirSync(join(root, d));
+  writeFileSync(join(root, 'file.txt'), 'x');
+  const markets = [{ name: 'acme-plugins', installLocation: mkt }];
+  const claude = { ...fakeClaude({ markets }), listMarketplaces: async () => markets.map((m) => ({ ...m })), addMarketplace: async () => { markets.push({ name: 'new-one', installLocation: mkt, url: 'https://git.example.com/new.git' }); } };
+  const file = stateFile();
+  const s = await boot(claude, file);
+  try {
+    await s.until((x) => x.model && !x.busy, '准备完成');
+    assert.equal((await fetch(`${s.base}/api/dirs?path=${encodeURIComponent(root)}`)).status, 401);
+    const d = await (await fetch(`${s.base}/api/dirs?t=${TOKEN}&path=${encodeURIComponent(root)}`)).json();
+    assert.deepEqual(d.dirs, ['alpha', 'beta']);
+    assert.equal(d.parent, dirname(root));
+    assert.equal((await fetch(`${s.base}/api/dirs?t=${TOKEN}&path=${encodeURIComponent(join(root, 'file.txt'))}`)).status, 404);
+    assert.equal((await s.post('/api/marketplace', { source: ' ' })).status, 400);
+    await s.post('/api/marketplace', { source: 'https://git.example.com/new.git' });
+    const st = await s.until((x) => x.marketplace === 'new-one' && !x.busy, '切到新 marketplace');
+    assert.ok(st.sidebar.markets.some((m) => m.name === 'new-one'));
+    assert.equal(JSON.parse(readFileSync(file, 'utf8')).current, 'acme-plugins');
   } finally { await s.close(); }
 });

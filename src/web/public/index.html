@@ -13,11 +13,12 @@
   <div class="brand"><b>ccpm</b><span id="market" class="muted"></span></div>
   <div id="counters" class="counters"></div>
   <div class="tools">
-    <div id="scope" class="seg" role="group"></div>
     <button id="rescan" class="btn ghost"></button>
   </div>
 </header>
 <div id="banner" class="banner" hidden></div>
+<div class="layout">
+<aside id="side" class="side"></aside>
 <main>
   <div class="bar">
     <input id="search" type="search" autocomplete="off">
@@ -28,11 +29,13 @@
   <div id="selection" class="selection" hidden></div>
   <div id="lists"></div>
 </main>
+</div>
 <section id="op" class="op" hidden>
   <div class="op-head"><span id="opTitle"></span><span id="opSpin" class="spin"></span><span class="spacer"></span><button id="opClose" class="btn ghost small"></button></div>
   <pre id="opLog"></pre>
 </section>
 <div id="toast" class="toast" hidden></div>
+<div id="picker" class="modal" hidden><div class="card wide" id="pickerCard" role="dialog" aria-modal="true"></div></div>
 <div id="modal" class="modal" hidden><div class="card" id="dialog" role="dialog" aria-modal="true"></div></div>
 </body>
 </html>

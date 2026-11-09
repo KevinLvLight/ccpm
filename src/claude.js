@@ -42,7 +42,7 @@ function defaultRun(args, opts = {}) {
   // shell 模式下参数会被拼成一行，含空格的需加引号
   const argv = shell ? args.map((a) => (/\s/.test(a) ? `"${a}"` : a)) : args;
   return new Promise((resolve, reject) => {
-    const p = spawn(command, argv, { shell, stdio: ['pipe', 'pipe', 'pipe'] });
+    const p = spawn(command, argv, { shell, cwd: opts.cwd, stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     p.stdout.setEncoding('utf8').on('data', (d) => (stdout += d));
@@ -55,7 +55,9 @@ function defaultRun(args, opts = {}) {
 }
 
 // log：诊断日志（可选）。stdin 只记 JSON 的键名，绝不记值。
-export function createClaude({ run: rawRun = defaultRun, log } = {}) {
+// cwd：在哪个目录里运行 claude（项目范围的插件按目录区分）；不传 = 当前目录
+export function createClaude({ run: baseRun = defaultRun, log, cwd } = {}) {
+  const rawRun = cwd ? (args, opts = {}) => baseRun(args, { ...opts, cwd }) : baseRun;
   const run = !log ? rawRun : async (args, opts) => {
     const t0 = Date.now();
     let keys = '';
