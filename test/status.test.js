@@ -109,7 +109,7 @@ test('bin --help 与未知命令；失败打印详细日志路径', () => {
   const s = spawnSync(process.execPath, [bin, 'sync'], { env: { ...env, PATH: '/nonexistent' } }); // 无 claude → 前置失败
   assert.equal(s.status, 2);
   const so = s.stdout.toString();
-  assert.match(so, /^ccpm 0\.1\.0 · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
+  assert.match(so, /^ccpm \d+\.\d+\.\d+ · 全局\n✖ 检查 Claude Code\n✖ 未找到 claude 命令\n  › /);
   const m = /\n  详细日志：(.+\.log)\n$/.exec(so);
   assert.ok(m, so);
   assert.match(readFileSync(m[1], 'utf8'), /==== ccpm [\s\S]*未找到 claude 命令[\s\S]*exit code 2/);
