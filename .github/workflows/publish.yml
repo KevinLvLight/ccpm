@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # 不设 registry-url：设了会生成带占位 token 的 .npmrc，npm 就不走 Trusted Publishing 了
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
       - run: npm install -g npm@latest   # Trusted Publishing 需要 npm 11.5 以上
       - name: tag matches package.json version
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
