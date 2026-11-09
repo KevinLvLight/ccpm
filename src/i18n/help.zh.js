@@ -27,6 +27,7 @@ ${SCENARIOS}
 命令:
   use [marketplace]      选择要管理的 marketplace（没添加过会先添加）
   ui                     打开全屏交互界面（直接运行 ccpm 时默认进入）
+  web                    在浏览器里管理插件（本机网页界面）
   status                 查看插件和预设的完整状态（脚本里不写命令时默认就是它）
   list                   列出当前 marketplace 的全部插件，标出已装 / 未装 / 可更新
   install <插件或预设>   安装插件或预设，自动补装依赖、询问配置
@@ -84,6 +85,24 @@ export const COMMANDS = {
   答：不用，ccpm 会直接用它。
   问：想临时看另一个？
   答：任意命令加 --marketplace <名字>，只对这一次生效。`,
+  }),
+  web: ({
+    name: 'web', summary: '在浏览器里管理插件',
+    purpose: '  启动一个只在本机可用的网页界面：用鼠标查看全部预设和插件，安装、更新、配置、启用/停用、卸载，\n  和交互界面（ccpm ui）能做的一样，适合不习惯命令行的人。',
+    usage: '  ccpm web [--port <端口>] [--no-open]',
+    args: '  无',
+    options: `  --port <端口>          指定端口（默认随机挑一个空闲端口）
+  --no-open              不自动打开浏览器，只打印链接
+  --dry-run              只预览，每个操作都不做改动
+  --scope user|project   从全局（默认）还是当前项目开始看；页面上可以切换`,
+    examples: `  ccpm web                 启动并打开浏览器
+  ccpm web --no-open       只打印链接（例如想用别的浏览器打开）`,
+    does: '  1. 在 127.0.0.1 上启动网页服务，生成一次性的访问口令，打开带口令的链接\n  2. 页面上的操作由 ccpm 在本机执行，过程和结果实时显示在页面下方\n  3. 按 Ctrl+C 结束',
+    doesNot: '  - 不对局域网或外网开放（只监听 127.0.0.1，没有口令的请求一律拒绝）\n  - 不在任何地方显示或记录你填的 token、密码（输入框按密码框处理）',
+    faq: `  问：浏览器没有自动打开？
+  答：复制终端里打印的链接到浏览器打开；链接里带着口令，不要发给别人。
+  问：页面显示“连接已断开”？
+  答：终端里的 ccpm web 已经结束，重新运行一次即可。`,
   }),
   ui: ({
     name: 'ui', summary: '全屏交互界面：边看边操作',
@@ -279,7 +298,7 @@ export const COMMANDS = {
     name: 'help', summary: '显示帮助',
     purpose: '  查看总览、某个命令的详细说明、概念说明或排错指南。',
     usage: '  ccpm help\n  ccpm help <命令>\n  ccpm help concepts\n  ccpm help troubleshooting\n  ccpm <命令> --help',
-    args: '  <命令>   use、ui、status、list、install、sync、update、config、enable、disable、remove、check、log、help',
+    args: '  <命令>   use、web、ui、status、list、install、sync、update、config、enable、disable、remove、check、log、help',
     options: '  无',
     examples: `  ccpm help install     install 的详细说明
   ccpm help concepts           预设、全局/当前项目等概念

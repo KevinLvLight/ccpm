@@ -13,7 +13,7 @@ import { bold, dim, error } from '../src/ui.js';
 const READ_ONLY = ['status', 'list'];
 const COMMANDS = [...READ_ONLY, 'install', 'config', 'enable', 'disable', 'remove', 'update', 'sync'];
 const LOCAL = ['help', 'log', 'check']; // 不调用 claude
-const SETUP = ['use']; // 不需要先选定 marketplace
+const SETUP = ['use', 'web']; // 不需要先选定 marketplace（web 在页面里选）
 
 async function main(argv, deps = {}) {
   const print = deps.out ?? ((l) => console.log(l));
@@ -28,6 +28,8 @@ async function main(argv, deps = {}) {
         scope: { type: 'string', default: 'user' },
         marketplace: { type: 'string' },
         show: { type: 'boolean' },
+        port: { type: 'string' },
+        'no-open': { type: 'boolean' },
         verbose: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' },
       },
@@ -76,6 +78,12 @@ async function main(argv, deps = {}) {
   const tty = Boolean(process.stdin.isTTY && process.stdout.isTTY);
   const tui = cmd === 'ui' || (!positionals.length && tty && !flags.yes);
   log(`==== ccpm ${version} node ${process.version} ${process.platform}/${process.arch} cwd=${process.cwd()} argv=${JSON.stringify(argv)} scope=${flags.scope} interactive=${interactive ? 'yes' : 'no'}${tui ? ' ui' : ''}`);
+  if (cmd === 'web') {
+    const { runWeb } = await import('../src/web/index.js');
+    const code = await runWeb({ flags, log, logFile: logger.file, print });
+    log(`exit code ${code}`);
+    return code;
+  }
   if (tui) {
     if (!tty) {
       error(t('ccpm ui 需要在命令行窗口里运行'), t('在脚本里请用 ccpm status 查看状态')).forEach(print);

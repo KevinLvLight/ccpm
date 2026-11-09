@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>ccpm</title>
+<link rel="stylesheet" href="/app.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>ccpm</b><span id="market" class="muted"></span></div>
+  <div id="counters" class="counters"></div>
+  <div class="tools">
+    <div id="scope" class="seg" role="group"></div>
+    <button id="rescan" class="btn ghost"></button>
+  </div>
+</header>
+<div id="banner" class="banner" hidden></div>
+<main>
+  <div class="bar">
+    <input id="search" type="search" autocomplete="off">
+    <span class="spacer"></span>
+    <button id="updateAll" class="btn"></button>
+    <button id="sync" class="btn primary"></button>
+  </div>
+  <div id="selection" class="selection" hidden></div>
+  <div id="lists"></div>
+</main>
+<section id="op" class="op" hidden>
+  <div class="op-head"><span id="opTitle"></span><span id="opSpin" class="spin"></span><span class="spacer"></span><button id="opClose" class="btn ghost small"></button></div>
+  <pre id="opLog"></pre>
+</section>
+<div id="toast" class="toast" hidden></div>
+<div id="modal" class="modal" hidden><div class="card" id="dialog" role="dialog" aria-modal="true"></div></div>
+</body>
+</html>
