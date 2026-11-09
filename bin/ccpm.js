@@ -84,6 +84,8 @@ async function main(argv, deps = {}) {
     const { runTui } = await import('../src/tui/app.js');
     const code = await runTui({ flags, log, logFile: logger.file, context: deps.context });
     log(`exit code ${code}`);
+    // On Windows a stdin read in raw mode can't be cancelled, so the process lingers until the next key; the screen is restored, exit now
+    if (!deps.context) process.stdout.write('', () => process.exit(code));
     return code;
   }
   out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? t('当前项目') : t('全局')}`)}`);
