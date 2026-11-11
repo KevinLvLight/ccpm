@@ -241,9 +241,20 @@ test('网页：插件详情给出“包含什么”和这次更新的说明', as
     assert.equal(info.contents.alwaysOn, '~430');
     assert.ok(info.changelog.length >= 1); // a 已装 1.0.0，目录里是 1.1.0
     assert.equal(info.changelog[0].version, '1.1.0');
+    assert.equal(info.history, null); // 本地目录的市场：没有 GitHub 提交记录可链
     const other = await (await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=b`)).json();
     assert.equal(other.contents, null);
     assert.equal(other.raw, 'Plugin not found');
     assert.equal((await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=nope`)).status, 404);
+  } finally { await s.close(); }
+});
+
+test('网页：GitHub 上的插件市场，详情里给出插件的提交记录链接', async () => {
+  const markets = [{ name: 'acme-plugins', installLocation: mkt, source: 'github', repo: 'acme/plugins' }];
+  const s = await boot(fakeClaude({ installed: [inst('a')], markets }));
+  try {
+    await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '准备完成');
+    const info = await (await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=a`)).json();
+    assert.equal(info.history, 'https://github.com/acme/plugins/commits/HEAD/plugins/a');
   } finally { await s.close(); }
 });

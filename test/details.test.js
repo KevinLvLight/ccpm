@@ -34,3 +34,15 @@ test('changelogBetween：已装版本（不含）到最新版本（含）之间�
   assert.deepEqual(changelogBetween(meta, undefined, '1.1.0').map((e) => e.version), ['1.1.0']);
   assert.deepEqual(changelogBetween({ dir: join(dir, 'none') }, '1.0.0', '2.0.0'), []);
 });
+
+test('changelogBetween：按大版本分组的写法和 Unreleased', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ccpm-cl-'));
+  writeFileSync(join(dir, 'CHANGELOG.md'), '# Changelog\n\n## [Unreleased]\n\n- newest\n\n## [2.6] - 2026-08-20\n\nCovers 2.6.0 to 2.6.70.\n\n## [2.5] - 2026-08-18\n\n- five\n\n## [2.4]\n\n- four\n');
+  const meta = { dir };
+  // 同一组里升级（2.6.115 → 2.6.153），版本号都不在文件里 → 退回 Unreleased
+  assert.deepEqual(changelogBetween(meta, '2.6.115', '2.6.153').map((e) => [e.version, e.unreleased, e.text]), [['Unreleased', true, '- newest']]);
+  // 跨组升级：带上跨进的那些组，新的在前
+  assert.deepEqual(changelogBetween(meta, '2.4.9', '2.6.153').map((e) => e.version), ['2.6.x', '2.5.x']);
+  // 没装过（from 为空）只看目标版本所在的组
+  assert.deepEqual(changelogBetween(meta, undefined, '2.5.3').map((e) => e.version), ['2.5.x']);
+});
