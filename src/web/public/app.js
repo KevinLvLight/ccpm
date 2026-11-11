@@ -387,8 +387,14 @@
     if (!(p.where === 'here' && p.update)) return null;
     const box = el('section', { class: 'section' }, el('h4', {}, fmt(T.whatsNew, p.update.from, p.update.to)));
     if (!info) box.append(el('div', { class: 'skeleton line' }));
-    else if (!info.changelog?.length) box.append(el('p', { class: 'muted small' }, T.noChangelog));
-    else box.append(...info.changelog.map((e) => el('div', { class: 'release' }, el('div', { class: 'release-v' }, e.version), el('div', { class: 'release-notes' }, notes(e.text)))));
+    else if (!info.changelog?.length) {
+      box.append(el('p', { class: 'muted small' }, T.noChangelog));
+      if (info.history) box.append(el('a', { class: 'link small', href: info.history, target: '_blank', rel: 'noopener noreferrer' }, T.seeCommits, ' ↗'));
+    } else {
+      box.append(...info.changelog.map((e) => el('div', { class: 'release' },
+        el('div', { class: 'release-v' }, e.unreleased ? T.unreleased : e.version),
+        el('div', { class: 'release-notes' }, notes(e.text)))));
+    }
     return box;
   }
 

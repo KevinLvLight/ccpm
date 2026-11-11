@@ -42,7 +42,7 @@ export const pageStrings = () => ({
   whatsInside: t('包含什么'), kSkills: t('{0} 个技能'), kCommands: t('{0} 个命令'), kAgents: t('{0} 个子代理'), kHooks: t('{0} 个 hooks'),
   kMcp: t('{0} 个 MCP 服务'), kLsp: t('{0} 个 LSP 服务'), hooksFree: t('不占用对话上下文'), noComponents: t('没有可加载的组件'),
   alwaysOn: t('tokens · 每次开新会话都会占用'), perComponent: t('每个组件的 token 占用'), component: t('组件'), colAlways: t('常驻'), colInvoke: t('每次调用'),
-  noDetails: t('读取不到插件内容'), whatsNew: t('更新内容 · {0} → {1}'), noChangelog: t('这个插件没有写更新说明'),
+  noDetails: t('读取不到插件内容'), whatsNew: t('更新内容 · {0} → {1}'), noChangelog: t('这个插件没有写更新说明'), seeCommits: t('在 GitHub 上看最近的改动'), unreleased: t('最新改动'),
   // 进度和对话框
   running: t('正在执行…'), showLog: t('详情'), hideLog: t('收起'), close: t('关闭'), cancel: t('取消'),
   confirm: t('确认'), yes: t('确认'), no: t('取消'), choose: t('请选择'), fill: t('请填写'), ok: t('确定'), skip: t('跳过'),

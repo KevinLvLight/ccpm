@@ -286,8 +286,9 @@ details.per th { text-align: left; font-weight: 500; color: var(--subtle); paddi
 details.per td { padding: 4px 0; font-family: var(--mono); border-bottom: 1px solid var(--line); }
 details.per th:not(:first-child), details.per td:not(:first-child) { text-align: right; }
 pre.raw { margin: 0; padding: 10px 12px; border-radius: var(--r-sm); background: var(--bg); font: 12px/1.6 var(--mono); white-space: pre-wrap; color: var(--muted); }
-.release { display: grid; grid-template-columns: 64px 1fr; gap: 10px; }
-.release-v { font: 600 12.5px var(--mono); color: var(--accent-text); padding-top: 2px; }
+.release { display: grid; grid-template-columns: 72px 1fr; gap: 10px; }
+.release-v { font: 600 12.5px var(--mono); color: var(--accent-text); padding-top: 2px; overflow-wrap: anywhere; }
+.link { color: var(--accent-text); text-decoration: none; } .link:hover { text-decoration: underline; }
 .release-notes { font-size: 13px; line-height: 1.6; }
 .release-notes p, .release-notes ul { margin: 0 0 4px; }
 .release-notes ul { padding-left: 18px; }

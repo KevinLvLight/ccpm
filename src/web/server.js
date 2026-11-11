@@ -43,15 +43,17 @@ const send = (res, code, body, type = 'application/json') => {
 
 // session：createWebSession 的返回值。返回 http.Server（还没 listen）
 export function createWebServer({ session, token }) {
+  // 页面文件启动时读一次：页面和接口永远出自同一个版本（改了代码要重启 ccpm web）
+  const files = Object.fromEntries(Object.entries(STATIC).map(([path, [file, type]]) => [path, [readFileSync(new URL(file, PUBLIC)), type]]));
   const server = createServer(async (req, res) => {
     const port = server.address()?.port;
     const url = new URL(req.url, 'http://localhost');
     if (!sameSite(req, port)) return send(res, 403, { error: 'forbidden' });
 
     if (req.method === 'GET' && STATIC[url.pathname]) {
-      const [file, type] = STATIC[url.pathname];
+      const [body, type] = files[url.pathname];
       res.setHeader('content-security-policy', "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'");
-      return send(res, 200, readFileSync(new URL(file, PUBLIC)), type);
+      return send(res, 200, body, type);
     }
     if (!url.pathname.startsWith('/api/')) return send(res, 404, { error: 'not found' });
 

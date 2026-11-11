@@ -456,4 +456,6 @@ export const EN = {
   "读取不到插件内容": "Couldn't read what's inside",
   "更新内容 · {0} → {1}": "What's new · {0} → {1}",
   "这个插件没有写更新说明": "This plugin has no release notes",
+  "在 GitHub 上看最近的改动": "See recent changes on GitHub",
+  "最新改动": "Latest",
 };

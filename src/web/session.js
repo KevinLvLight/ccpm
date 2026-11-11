@@ -3,7 +3,7 @@
 // 页面上随时切换“插件装在哪里”（全局 / 任意项目目录）。输出、转圈和提问都变成状态推给浏览器。
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { failLines, gatherPlan, loadContext, refreshInstalled, samePath } from '../context.js';
 import { createClaude, setMarketplace } from '../claude.js';
 import { changelogBetween, loadCatalog } from '../catalog.js';
@@ -280,6 +280,15 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     }
   }
 
+  // 插件在 GitHub 上的提交记录（没有 CHANGELOG 时给个去处）；不是 GitHub 上的市场就没有
+  function historyUrl(market, meta) {
+    const m = lists.markets.find((x) => x.name === market);
+    const gh = m?.repo ?? String(m?.url ?? '').match(/^https:\/\/github\.com\/([^/]+\/[^/.]+?)(?:\.git)?\/?$/)?.[1];
+    if (!gh || !/^[\w.-]+\/[\w.-]+$/.test(gh)) return null;
+    const rel = meta?.dir && m.installLocation ? relative(m.installLocation, meta.dir).split('\\').join('/') : '';
+    return `https://github.com/${gh}/commits/HEAD${rel && !rel.startsWith('..') ? `/${rel.split('/').map(encodeURIComponent).join('/')}` : ''}`;
+  }
+
   // 插件详情：里面有什么（claude plugin details）和这次更新改了什么（CHANGELOG）。按版本缓存
   const infoCache = new Map();
   async function pluginInfo(market, name) {
@@ -297,7 +306,7 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
             : meta ? await bare.details(`${name}@${market}`, { dir: meta.dir }) : '';
         } catch (e) { log(`details failed: ${name}@${market}: ${e.message}`); }
         const changelog = meta && p?.update ? changelogBetween(meta, p.update.from, p.update.to) : [];
-        return { contents: parseDetails(text), raw: parseDetails(text) ? '' : text.trim(), changelog };
+        return { contents: parseDetails(text), raw: parseDetails(text) ? '' : text.trim(), changelog, history: historyUrl(market, meta) };
       })().catch((e) => { infoCache.delete(key); throw e; }));
     }
     return infoCache.get(key);
