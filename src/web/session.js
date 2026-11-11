@@ -6,7 +6,8 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { failLines, gatherPlan, loadContext, refreshInstalled, samePath } from '../context.js';
 import { createClaude, setMarketplace } from '../claude.js';
-import { loadCatalog } from '../catalog.js';
+import { changelogBetween, loadCatalog } from '../catalog.js';
+import { parseDetails } from '../details.js';
 import { buildModel } from '../model.js';
 import { createProgress } from '../progress.js';
 import { pluginNotes } from '../render.js';
@@ -279,7 +280,31 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     }
   }
 
+  // 插件详情：里面有什么（claude plugin details）和这次更新改了什么（CHANGELOG）。按版本缓存
+  const infoCache = new Map();
+  async function pluginInfo(market, name) {
+    const meta = catalogOf(market).get(name);
+    const p = state.models[market]?.plugins.find((x) => x.name === name);
+    if (!meta && !p) return null;
+    const installed = p && p.where !== 'none';
+    const key = `${market}|${name}|${p?.version ?? ''}|${meta?.version ?? ''}`;
+    if (!infoCache.has(key)) {
+      infoCache.set(key, (async () => {
+        let text = '';
+        try {
+          text = installed
+            ? await claudeFor(state.selection.dir).details(`${name}@${market}`)
+            : meta ? await bare.details(`${name}@${market}`, { dir: meta.dir }) : '';
+        } catch (e) { log(`details failed: ${name}@${market}: ${e.message}`); }
+        const changelog = meta && p?.update ? changelogBetween(meta, p.update.from, p.update.to) : [];
+        return { contents: parseDetails(text), raw: parseDetails(text) ? '' : text.trim(), changelog };
+      })().catch((e) => { infoCache.delete(key); throw e; }));
+    }
+    return infoCache.get(key);
+  }
+
   return {
+    pluginInfo,
     state: snapshot,
     subscribe(fn) { listeners.add(fn); fn(snapshot()); return () => listeners.delete(fn); },
     load: async () => { const r = await task(t('准备'), rebuild, { keepLog: false }); checkUpdates(); return r; },

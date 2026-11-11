@@ -8,6 +8,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { startWeb } from '../src/web/index.js';
 import { strip } from '../src/ui.js';
+const DETAILS_SAMPLE = readFileSync(new URL('./fixtures/plugin-details.txt', import.meta.url), 'utf8');
 
 const here = dirname(fileURLToPath(import.meta.url));
 const mkt = mkdtempSync(join(tmpdir(), 'ccpm-web-mkt-'));
@@ -33,6 +34,7 @@ function fakeClaude({ installed = [], markets = [{ name: 'acme-plugins', install
     update: rec('update'),
     uninstall: rec('uninstall'),
     prune: async () => ({ ids: [] }),
+    details: async (id) => (id.startsWith('a@') ? DETAILS_SAMPLE : 'Plugin not found'),
   };
 }
 const stateFile = (current = 'acme-plugins') => {
@@ -227,5 +229,21 @@ test('网页：先用本地数据显示列表，联网更新在后台；更新�
     const r = await s.until((x) => x.message, '拒绝改动');
     assert.equal(r.message.kind, 'warn');
     assert.equal(claude.calls ? claude.calls.filter((c) => c[0] === 'install').length : 0, 0);
+  } finally { await s.close(); }
+});
+
+test('网页：插件详情给出“包含什么”和这次更新的说明', async () => {
+  const s = await boot(fakeClaude({ installed: [inst('a')] }));
+  try {
+    await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '准备完成');
+    assert.equal((await fetch(`${s.base}/api/plugin?market=acme-plugins&name=a`)).status, 401);
+    const info = await (await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=a`)).json();
+    assert.equal(info.contents.alwaysOn, '~430');
+    assert.ok(info.changelog.length >= 1); // a 已装 1.0.0，目录里是 1.1.0
+    assert.equal(info.changelog[0].version, '1.1.0');
+    const other = await (await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=b`)).json();
+    assert.equal(other.contents, null);
+    assert.equal(other.raw, 'Plugin not found');
+    assert.equal((await fetch(`${s.base}/api/plugin?t=${TOKEN}&market=acme-plugins&name=nope`)).status, 404);
   } finally { await s.close(); }
 });

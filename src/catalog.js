@@ -64,3 +64,25 @@ export function readChangelogEntry(meta, version) {
   const m = new RegExp(`^## \\[?${esc}\\]?(?:[ \\t].*)?$\\n?([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm').exec(text);
   return m ? m[1].trim() : null;
 }
+
+// from（不含）到 to（含）之间每个版本的更新说明，新的在前；from 为空时只取 to 这一版
+export function changelogBetween(meta, from, to) {
+  let text;
+  try { text = readFileSync(join(meta.dir, 'CHANGELOG.md'), 'utf8'); } catch { return []; }
+  const cmp = (a, b) => {
+    const pa = String(a).split(/[.-]/).map((x) => (/^\d+$/.test(x) ? Number(x) : x));
+    const pb = String(b).split(/[.-]/).map((x) => (/^\d+$/.test(x) ? Number(x) : x));
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const x = pa[i] ?? 0, y = pb[i] ?? 0;
+      if (x !== y) return typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
+    }
+    return 0;
+  };
+  const out = [];
+  for (const m of text.matchAll(/^## \[?([^\]\s]+)\]?(?:[ \t].*)?$\n?([\s\S]*?)(?=^## |(?![\s\S]))/gm)) {
+    const v = m[1];
+    if (!/^\d/.test(v)) continue;
+    if ((from ? cmp(v, from) > 0 : cmp(v, to) === 0) && cmp(v, to) <= 0) out.push({ version: v, text: m[2].trim() });
+  }
+  return out.sort((a, b) => cmp(b.version, a.version));
+}

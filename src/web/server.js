@@ -60,6 +60,10 @@ export function createWebServer({ session, token }) {
     if (!sameToken(given, token)) return send(res, 401, { error: 'unauthorized' });
 
     if (req.method === 'GET' && url.pathname === '/api/strings') return send(res, 200, { lang: lang(), strings: pageStrings() });
+    if (req.method === 'GET' && url.pathname === '/api/plugin') {
+      const info = await session.pluginInfo(url.searchParams.get('market') ?? '', url.searchParams.get('name') ?? '').catch(() => null);
+      return info ? send(res, 200, info) : send(res, 404, { error: 'not found' });
+    }
     if (req.method === 'GET' && url.pathname === '/api/dirs') {
       const r = listDirs(url.searchParams.get('path'));
       return r ? send(res, 200, r) : send(res, 404, { error: 'not a folder' });

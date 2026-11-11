@@ -112,6 +112,10 @@ export function createClaude({ run: baseRun = defaultRun, log, cwd } = {}) {
     },
     async addMarketplace(source) { await exec(['plugin', 'marketplace', 'add', source]); },
     async updateMarketplace(name) { await exec(['plugin', 'marketplace', 'update', name]); },
+    // 插件里有什么、占多少 token（文字输出，由 details.js 解析）。没装的插件用 dir 指向它在插件市场里的目录
+    async details(id, { dir } = {}) {
+      return exec(dir ? ['--plugin-dir', dir, 'plugin', 'details', id.split('@')[0]] : ['plugin', 'details', id]);
+    },
     async getUnconfigured(id) {
       return (await json(['plugin', 'configure', id, '--json'])).unconfigured ?? [];
     },

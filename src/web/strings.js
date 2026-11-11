@@ -38,6 +38,11 @@ export const pageStrings = () => ({
   from: t('来自'), versionInstalled: t('已装版本'), versionLatest: t('最新版本'), dependsOn: t('依赖'), notInstalled: t('还没装'),
   updateCallout: t('有新版本 {0}，更新后重启 Claude Code 生效'), configCallout: t('还缺这些配置：{0}'), depsCallout: t('缺少依赖：{0}'),
   globalReadonly: t('这个插件装在全局，所有项目都能用；要在这里管理它，先切到“所有项目”'),
+  // 插件里有什么 / 更新了什么
+  whatsInside: t('包含什么'), kSkills: t('{0} 个技能'), kCommands: t('{0} 个命令'), kAgents: t('{0} 个子代理'), kHooks: t('{0} 个 hooks'),
+  kMcp: t('{0} 个 MCP 服务'), kLsp: t('{0} 个 LSP 服务'), hooksFree: t('不占用对话上下文'), noComponents: t('没有可加载的组件'),
+  alwaysOn: t('tokens · 每次开新会话都会占用'), perComponent: t('每个组件的 token 占用'), component: t('组件'), colAlways: t('常驻'), colInvoke: t('每次调用'),
+  noDetails: t('读取不到插件内容'), whatsNew: t('更新内容 · {0} → {1}'), noChangelog: t('这个插件没有写更新说明'),
   // 进度和对话框
   running: t('正在执行…'), showLog: t('详情'), hideLog: t('收起'), close: t('关闭'), cancel: t('取消'),
   confirm: t('确认'), yes: t('确认'), no: t('取消'), choose: t('请选择'), fill: t('请填写'), ok: t('确定'), skip: t('跳过'),

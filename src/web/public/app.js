@@ -72,7 +72,8 @@
   async function pump() {
     if (sending || !S || S.busy || S.dialog || !queue.length) return;
     sending = true;
-    try { await post('/api/run', queue.shift()); } finally { sending = false; }
+    ui.current = queue.shift();
+    try { await post('/api/run', ui.current); } finally { sending = false; }
   }
   const select = (sel) => { closeMenu(); post('/api/select', sel); };
 
@@ -333,6 +334,64 @@
     if (focused != null) { const s = main.querySelector('input[type="search"]'); s?.focus(); s?.setSelectionRange(focused, focused); }
   }
 
+  // ---------- plugin info: what's inside, what changed (fetched on demand, cached) ----------
+  const infos = new Map();
+  function infoOf(market, name, onReady) {
+    const key = `${market}|${name}|${S.models?.[market]?.plugins.find((p) => p.name === name)?.version ?? ''}`;
+    const hit = infos.get(key);
+    if (hit && hit !== 'loading') return hit;
+    if (!hit) {
+      infos.set(key, 'loading');
+      fetch(`/api/plugin?t=${encodeURIComponent(token)}&market=${encodeURIComponent(market)}&name=${encodeURIComponent(name)}`)
+        .then((r) => (r.ok ? r.json() : { error: true })).catch(() => ({ error: true }))
+        .then((v) => { infos.set(key, v); onReady(); });
+    }
+    return null;
+  }
+  const KIND = () => ({ skills: T.kSkills, commands: T.kCommands, agents: T.kAgents, hooks: T.kHooks, mcp: T.kMcp, lsp: T.kLsp });
+  function contentsSection(info) {
+    const box = el('section', { class: 'section' }, el('h4', {}, T.whatsInside));
+    if (!info) { box.append(el('div', { class: 'skeleton line' }), el('div', { class: 'skeleton line short' })); return box; }
+    if (info.error || (!info.contents && !info.raw)) { box.append(el('p', { class: 'muted small' }, T.noDetails)); return box; }
+    if (!info.contents) { box.append(el('pre', { class: 'raw' }, info.raw)); return box; }
+    const c = info.contents;
+    const kinds = c.components.filter((k) => k.count);
+    box.append(el('div', { class: 'kinds' }, kinds.length ? kinds.map((k) => el('div', { class: 'kind' },
+      el('div', { class: 'kind-head' }, el('b', {}, fmt(KIND()[k.kind] ?? k.kind, k.count)), k.contextFree ? el('span', { class: 'muted small' }, T.hooksFree) : null),
+      el('div', { class: 'names' }, k.names.map((n) => el('span', { class: 'name-chip' }, n))))) : el('p', { class: 'muted small' }, T.noComponents)));
+    if (c.alwaysOn) {
+      box.append(el('div', { class: 'cost' }, el('span', { class: 'cost-num' }, `${c.alwaysOn}`), el('span', {}, T.alwaysOn)));
+    }
+    if (c.perComponent.length) {
+      box.append(el('details', { class: 'per' }, el('summary', {}, T.perComponent),
+        el('table', {}, el('thead', {}, el('tr', {}, el('th', {}, T.component), el('th', {}, T.colAlways), el('th', {}, T.colInvoke))),
+          el('tbody', {}, c.perComponent.map((r) => el('tr', {}, el('td', {}, r.name), el('td', {}, r.alwaysOn), el('td', {}, r.onInvoke)))))));
+    }
+    return box;
+  }
+  // CHANGELOG text: a light reading of markdown (bullets, sub-headings) as text nodes
+  const notes = (text) => {
+    const out = [];
+    let list = null;
+    for (const raw of String(text).split('\n')) {
+      const line = raw.trim();
+      if (!line) { list = null; continue; }
+      const b = line.match(/^[-*]\s+(.*)$/);
+      if (b) { if (!list) out.push(list = el('ul', {})); list.append(el('li', {}, b[1].replace(/\*\*|`/g, ''))); continue; }
+      list = null;
+      out.push(/^#{3,}\s/.test(line) ? el('h5', {}, line.replace(/^#+\s*/, '')) : el('p', {}, line.replace(/\*\*|`/g, '')));
+    }
+    return out;
+  };
+  function changelogSection(p, info) {
+    if (!(p.where === 'here' && p.update)) return null;
+    const box = el('section', { class: 'section' }, el('h4', {}, fmt(T.whatsNew, p.update.from, p.update.to)));
+    if (!info) box.append(el('div', { class: 'skeleton line' }));
+    else if (!info.changelog?.length) box.append(el('p', { class: 'muted small' }, T.noChangelog));
+    else box.append(...info.changelog.map((e) => el('div', { class: 'release' }, el('div', { class: 'release-v' }, e.version), el('div', { class: 'release-notes' }, notes(e.text)))));
+    return box;
+  }
+
   // ---------- drawer and menus ----------
   function openDrawer(p) { ui.drawer = { market: p.market, name: p.name }; renderLayer(); }
   function renderLayer() {
@@ -341,6 +400,7 @@
     const p = ui.drawer && plugins().find((x) => x.market === ui.drawer.market && x.name === ui.drawer.name);
     if (ui.drawer && !p) ui.drawer = null;
     if (p) {
+      const info = infoOf(p.market, p.name, () => { if (ui.drawer?.name === p.name && !ui.menu) renderLayer(); });
       const close = () => { ui.drawer = null; renderLayer(); };
       const callouts = [];
       if (p.where === 'here' && p.update) callouts.push(el('div', { class: 'callout blue' }, icon('up'), el('span', {}, fmt(T.updateCallout, p.update.to))));
@@ -366,10 +426,12 @@
             fact(T.placeLabel, p.where === 'none' ? T.notInstalled : p.where === 'global' ? T.allProjectsLong : placeName()),
             fact(T.versionInstalled, p.where !== 'none' ? p.version : null),
             fact(T.versionLatest, p.latest),
-            fact(T.dependsOn, p.dependencies?.length ? p.dependencies.join(', ') : null))),
+            fact(T.dependsOn, p.dependencies?.length ? p.dependencies.join(', ') : null)),
+          changelogSection(p, info),
+          contentsSection(info)),
         foot.some(Boolean) ? el('footer', {}, foot) : null);
       parts.push(el('div', { class: 'scrim', on: { click: close } }), drawer);
-      requestAnimationFrame(() => { if (!drawer.contains(document.activeElement)) drawer.focus(); });
+      requestAnimationFrame(() => { if (!$('modal').firstChild && !drawer.contains(document.activeElement)) drawer.focus(); }); // 有对话框时不抢焦点
     }
     if (ui.menu) {
       const m = el('div', { class: 'menu', role: 'menu' }, ui.menu.items);
@@ -461,6 +523,19 @@
       if (d.kind === 'confirm') {
         const plan = (S.op?.lines ?? []).filter((l) => l.trim());
         if (plan.length) body.push(el('div', { class: 'plan' }, logNodes(plan)));
+        const cur = ui.current;
+        if (cur?.cmd === 'update') {
+          const targets = plugins().filter((x) => x.market === cur.market && x.where === 'here' && x.update && (!cur.names.length || cur.names.includes(x.name)));
+          const notesBox = el('div', { class: 'dialog-notes' });
+          const fill = () => {
+            notesBox.replaceChildren(...targets.map((x) => {
+              const info = infoOf(x.market, x.name, fill);
+              return changelogSection(x, info);
+            }));
+          };
+          fill();
+          if (targets.length) body.push(notesBox);
+        }
         const no = el('button', { class: `btn${d.def ? '' : ' primary'}`, on: { click: () => done(false) } }, T.no);
         const yes = el('button', { class: `btn${d.def ? ' primary' : ' danger'}`, on: { click: () => done(true) } }, T.yes);
         foot.push(no, yes);
