@@ -438,4 +438,5 @@ export const EN = {
   "详情": "Details",
   "收起": "Hide",
   "取消": "Cancel",
+  "正在检查更新…": "Checking for updates…",
 };

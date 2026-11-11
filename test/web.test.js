@@ -211,3 +211,21 @@ test('网页：目录浏览只给文件夹名；添加 marketplace 不改命令�
     assert.equal(JSON.parse(readFileSync(file, 'utf8')).current, 'acme-plugins');
   } finally { await s.close(); }
 });
+
+test('网页：先用本地数据显示列表，联网更新在后台；更新失败的插件市场不允许改动', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const claude = { ...fakeClaude(), updateMarketplace: async () => { await gate; throw new Error('Could not resolve host'); } };
+  const s = await boot(claude);
+  try {
+    const first = await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '先显示列表');
+    assert.equal(first.checking, true); // 列表出来时，后台还在联网
+    release();
+    const st = await s.until((x) => !x.checking && !x.busy && x.markets?.[0]?.error, '后台检查结束');
+    assert.match(st.markets[0].error, /Could not resolve host/);
+    await s.post('/api/run', { cmd: 'install', names: ['c'], market: 'acme-plugins' });
+    const r = await s.until((x) => x.message, '拒绝改动');
+    assert.equal(r.message.kind, 'warn');
+    assert.equal(claude.calls ? claude.calls.filter((c) => c[0] === 'install').length : 0, 0);
+  } finally { await s.close(); }
+});

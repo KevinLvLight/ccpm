@@ -60,6 +60,7 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     projects: [], // [{ path, label, installed }]
     models: {}, // marketplace → 完整数据（和交互界面同一份：插件、预设、问题）
     busy: false,
+    checking: false, // 后台正在联网检查插件市场更新
     op: null, // { title, lines, spinner, running }
     dialog: null, // { id, kind, title, options?, def?, hint?, secret? }
     message: null, // { kind: 'ok'|'warn'|'fail', text }
@@ -90,8 +91,42 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
   const open = (dialog) => new Promise((done) => { const id = ++dialogSeq; pending = { id, resolve: done }; set({ dialog: { id, ...dialog } }); });
   const tuiPrompter = createTuiPrompter({ log, open });
   const prompter = { ...tuiPrompter, confirm: async (...a) => { const ok = await tuiPrompter.confirm(...a); if (!ok) declined = true; return ok; } };
-  const deps = { ...context, out: append, log, progress, prompter };
   const bare = context.claude ?? createClaude({ log }); // 列表类调用不需要目录
+
+  // 打开页面要快：准备数据时不联网（插件市场更新、MCP 检查放到后台，见 checkUpdates），
+  // 同一轮准备里各插件市场共用一次查询结果（已装列表、市场列表、各插件缺的配置）
+  let userMcp = null; // 后台查到的“你自己配置的 MCP”；查到之前当作没有
+  let failed = new Map(); // 后台更新失败的插件市场 → 原因
+  let sharing = false; // 只在准备数据时共用查询结果；执行命令时每次都真实查询
+  const wrappers = new Map();
+  const claudeFor = (dir) => {
+    if (wrappers.has(dir)) return wrappers.get(dir);
+    const real = context.claude ?? createClaude({ log, cwd: dir });
+    const memo = new Map();
+    const share = (key, f) => (args) => {
+      if (!sharing) return f(args);
+      const k = `${key}|${args ?? ''}`;
+      if (!memo.has(k)) memo.set(k, f(args));
+      return memo.get(k);
+    };
+    const w = {
+      ...real,
+      checkCapabilities: share('cap', () => real.checkCapabilities()),
+      listMarketplaces: share('mk', () => real.listMarketplaces()),
+      listInstalled: share('li', () => real.listInstalled()),
+      getUnconfigured: share('uc', (id) => real.getUnconfigured(id)),
+      listUserMcp: async () => userMcp ?? [],
+      updateMarketplace: async () => {}, // 后台统一拉取
+      reset: () => memo.clear(),
+    };
+    wrappers.set(dir, w);
+    return w;
+  };
+  const shared = async (fn) => {
+    for (const w of wrappers.values()) w.reset();
+    sharing = true;
+    try { return await fn(); } finally { sharing = false; for (const w of wrappers.values()) w.reset(); }
+  };
 
   // 一次只做一件事；出错时把原因写进记录区。keepLog=false：顺利完成后不留记录区（切换、扫描）
   const task = async (title, fn, { keepLog = true } = {}) => {
@@ -125,7 +160,8 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     : p.scope === 'project' && Boolean(p.projectPath) && samePath(p.projectPath, state.selection.dir));
 
   async function readLists() {
-    const [markets, listing] = await Promise.all([bare.listMarketplaces(), bare.listInstalled()]);
+    const c = claudeFor(state.selection.dir);
+    const [markets, listing] = await Promise.all([c.listMarketplaces(), c.listInstalled()]);
     lists = { markets, listing };
     const byDir = new Map();
     for (const p of listing) {
@@ -149,13 +185,14 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     setMarketplace(market);
     let ctx = contexts.get(key);
     if (ctx) { await refreshInstalled(ctx); return ctx; }
-    ctx = await loadContext({ scope, cwd: dir, marketplace: market, yes: false, dryRun: state.dryRun, readOnly: true }, deps);
+    ctx = await loadContext({ scope, cwd: dir, marketplace: market, yes: false, dryRun: state.dryRun, readOnly: true },
+      { ...context, claude: claudeFor(dir), out: append, log, progress, prompter });
     contexts.set(key, ctx);
     return ctx;
   }
 
   // 每个插件市场一份完整数据。某个市场出错（比如网络不通）不影响其他的
-  async function rebuild() {
+  const rebuild = () => shared(async () => {
     await readLists();
     const models = {};
     for (const m of lists.markets) {
@@ -169,8 +206,9 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
       }
     }
     progress.ready();
+    for (const [name, why] of failed) { const row = state.markets.find((x) => x.name === name); if (row) row.error = why; }
     state.models = models;
-  }
+  });
 
   // ---------- 操作 ----------
   // 切换“插件装在哪里”：全局，或某个项目目录
@@ -189,7 +227,7 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     return task(title, async () => {
       const ctx = await ctxFor(market);
       // 和命令行一致：插件列表没更新成功时，不在旧数据上改动环境
-      if (ctx.refreshError && !state.dryRun) {
+      if (failed.has(market) && !state.dryRun) {
         state.message = msg('warn', t('{0} 插件列表没有更新成功（检查网络 / VPN），按 R 重新扫描后再{1}', I.warn, title));
         return { refused: true };
       }
@@ -216,11 +254,36 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     state.message = msg('ok', t('{0} {1}：{2}', I.ok, target.name, t('完成')));
   });
 
+  // 后台联网：各插件市场同时拉取更新、同时查 MCP；拉完再用新数据刷新一次（页面照常可用）
+  const idle = () => new Promise((done) => { const tick = () => (state.busy ? setTimeout(tick, 100) : done()); tick(); });
+  async function checkUpdates() {
+    if (state.checking) return;
+    set({ checking: true });
+    try {
+      const markets = await bare.listMarketplaces();
+      const [results, mcp] = await Promise.all([
+        Promise.all(markets.map((m) => bare.updateMarketplace(m.name).then(() => null, (e) => [m.name, strip(String(e.brief ?? e.message).split('\n')[0])]))),
+        bare.listUserMcp().catch(() => []),
+      ]);
+      userMcp = mcp;
+      failed = new Map(results.filter(Boolean));
+      for (const [name, why] of failed) log(`marketplace update failed: ${name}: ${why}`);
+      catalogs.clear();
+      contexts.clear(); // 插件市场内容可能变了：下次准备时重新读取
+      await idle();
+      await task(t('重新扫描'), rebuild, { keepLog: false });
+    } catch (e) {
+      log(`exception: ${e?.stack ?? e}`);
+    } finally {
+      set({ checking: false });
+    }
+  }
+
   return {
     state: snapshot,
     subscribe(fn) { listeners.add(fn); fn(snapshot()); return () => listeners.delete(fn); },
-    load: () => task(t('准备'), rebuild, { keepLog: false }),
-    rescan: () => task(t('重新扫描'), async () => { contexts.clear(); catalogs.clear(); await rebuild(); }, { keepLog: false }),
+    load: async () => { const r = await task(t('准备'), rebuild, { keepLog: false }); checkUpdates(); return r; },
+    rescan: async () => { checkUpdates(); },
     select,
     run,
     addMarketplace,

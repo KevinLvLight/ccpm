@@ -9,7 +9,7 @@ export const pageStrings = () => ({
   pickFolder: t('选择项目文件夹'), folderPath: t('文件夹路径'), up: t('上一级'), go: t('前往'), useFolder: t('用这个文件夹'),
   // 导航
   installed: t('已安装'), discover: t('发现插件'), bundles: t('插件套装'), markets: t('插件市场'),
-  recheck: t('重新检查'), working: t('正在处理…'), upToDate: t('已是最新数据'), needsAttention: t('有需要处理的插件'), dryRun: t('预览模式'),
+  recheck: t('重新检查'), working: t('正在处理…'), checking: t('正在检查更新…'), upToDate: t('已是最新数据'), needsAttention: t('有需要处理的插件'), dryRun: t('预览模式'),
   // 已安装
   installedSub: t('{0} · {1} 个插件'), searchInstalled: t('搜索已安装的插件'), searchAll: t('搜索插件'),
   updatesN: t('{0} 个插件有新版本'), updateAll: t('全部更新'),

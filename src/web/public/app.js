@@ -120,8 +120,9 @@
       nav('discover', 'compass', T.discover, plist.filter((p) => p.where === 'none' && !p.delisted).length),
       nav('bundles', 'layers', T.bundles, presets().length || null),
       nav('markets', 'store', T.markets, markets().length),
-      el('div', { class: 'side-foot' }, el('span', {}, S?.busy ? T.working : T.upToDate),
-        el('button', { class: 'btn ghost sm', disabled: !S || S.busy, on: { click: () => post('/api/rescan') } }, icon('refresh'), T.recheck)),
+      el('div', { class: 'side-foot' }, S?.checking ? el('span', { class: 'spin', vars: { width: '12px', height: '12px', 'border-width': '1.5px' } }) : null,
+        el('span', {}, S?.checking ? T.checking : S?.busy ? T.working : T.upToDate),
+        el('button', { class: 'btn ghost sm', disabled: !S || S.busy || S.checking, on: { click: () => post('/api/rescan') } }, icon('refresh'), T.recheck)),
     );
   }
 
