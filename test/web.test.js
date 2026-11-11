@@ -55,7 +55,7 @@ async function boot(claude, file = stateFile()) {
       const { value, done } = await reader.read().catch(() => ({ done: true }));
       if (done) return;
       ev.raw += dec.decode(value, { stream: true });
-      const msgs = ev.raw.split('\n\n').filter((m) => m.startsWith('data: '));
+      const msgs = ev.raw.split('\n\n').slice(0, -1).filter((m) => m.startsWith('data: ')); // 最后一段可能还没收完
       if (msgs.length) ev.last = JSON.parse(msgs.at(-1).slice(6));
     }
   })();
@@ -99,10 +99,10 @@ test('网页：安装 a → 确认 → 填 token（只经过 POST，不进推送
   const claude = fakeClaude();
   const s = await boot(claude);
   try {
-    await s.until((st) => st.model && !st.busy, '准备完成');
-    assert.equal((await s.post('/api/run', { cmd: 'rm -rf', names: [] })).status, 400);
-    assert.equal((await s.post('/api/run', { cmd: 'install', names: ['a'] })).status, 202);
-    assert.equal((await s.post('/api/run', { cmd: 'sync' })).status, 409); // 一次只做一件事
+    await s.until((st) => st.models?.['acme-plugins'] && !st.busy, '准备完成');
+    assert.equal((await s.post('/api/run', { cmd: 'rm -rf', names: [], market: 'acme-plugins' })).status, 400);
+    assert.equal((await s.post('/api/run', { cmd: 'install', names: ['a'], market: 'acme-plugins' })).status, 202);
+    assert.equal((await s.post('/api/run', { cmd: 'sync', market: 'acme-plugins' })).status, 409); // 一次只做一件事
     const c = await s.until((st) => st.dialog?.kind === 'confirm', '确认框');
     assert.match(c.op.lines.join('\n'), /将要执行/);
     await s.post('/api/answer', { id: c.dialog.id, value: true });
@@ -114,7 +114,7 @@ test('网页：安装 a → 确认 → 填 token（只经过 POST，不进推送
     assert.equal(done.message.kind, 'ok');
     assert.deepEqual(claude.calls.filter((x) => x[0] === 'install').map((x) => x[1]), ['b@acme-plugins', 'a@acme-plugins']);
     assert.deepEqual(claude.calls.find((x) => x[0] === 'configure')[2], { token: 'sekret' });
-    assert.equal(done.model.plugins.find((p) => p.name === 'a').where, 'here');
+    assert.equal(done.models['acme-plugins'].plugins.find((p) => p.name === 'a').where, 'here');
     assert.doesNotMatch(s.ev.raw + s.logged.join('\n'), /sekret/);
     assert.doesNotMatch(s.logged.join('\n'), new RegExp(TOKEN));
   } finally { await s.close(); }
@@ -124,8 +124,8 @@ test('网页：卸载时选“否” → 已取消，不卸载', async () => {
   const claude = fakeClaude({ installed: [inst('c')] });
   const s = await boot(claude);
   try {
-    await s.until((st) => st.model && !st.busy, '准备完成');
-    await s.post('/api/run', { cmd: 'remove', names: ['c'] });
+    await s.until((st) => st.models?.['acme-plugins'] && !st.busy, '准备完成');
+    await s.post('/api/run', { cmd: 'remove', names: ['c'], market: 'acme-plugins' });
     const c = await s.until((st) => st.dialog?.kind === 'confirm', '确认框');
     assert.equal(c.dialog.def, false);
     await s.post('/api/answer', { id: c.dialog.id, value: false });
@@ -135,31 +135,27 @@ test('网页：卸载时选“否” → 已取消，不卸载', async () => {
   } finally { await s.close(); }
 });
 
-test('网页：两个 marketplace、没有默认 → 打开“全部已安装”，列出各来源的插件；点某个 marketplace 看完整列表', async () => {
+test('网页：两个插件市场同时准备好，已安装的跨市场汇总，未装的可供发现', async () => {
   const claude = fakeClaude({
     installed: [inst('a'), { ...inst('x'), id: 'x@other', marketplace: 'other' }],
     markets: [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }],
   });
   const s = await boot(claude, stateFile(null));
   try {
-    const st = await s.until((x) => x.all && !x.busy, '全部已安装');
-    assert.equal(st.selection.market, '*');
-    assert.equal(st.model, null);
-    assert.deepEqual(st.all.map((p) => `${p.name}@${p.marketplace}`).sort(), ['a@acme-plugins', 'x@other']);
-    assert.equal(st.all.find((p) => p.name === 'a').update, true); // 目录里 a 是 1.1.0
-    assert.deepEqual(st.sidebar.markets.map((m) => [m.name, m.installed]), [['other', 1], ['acme-plugins', 1]]);
-    assert.equal((await s.post('/api/select', { market: 'acme-plugins' })).status, 202);
-    const m = await s.until((x) => x.model && !x.busy, '完整列表');
-    assert.equal(m.marketplace, 'acme-plugins');
-    assert.ok(m.model.plugins.some((p) => p.name === 'c' && p.where === 'none'));
+    const st = await s.until((x) => Object.keys(x.models ?? {}).length === 2 && !x.busy, '两个市场都准备好');
+    const installed = Object.entries(st.models).flatMap(([m, d]) => d.plugins.filter((p) => p.where === 'here').map((p) => `${p.name}@${m}`));
+    assert.deepEqual(installed.sort(), ['a@acme-plugins', 'x@other']);
+    assert.ok(st.models['acme-plugins'].plugins.find((p) => p.name === 'a').update); // 目录里 a 是 1.1.0
+    assert.deepEqual(st.markets.map((m) => [m.name, m.installed]), [['other', 1], ['acme-plugins', 1]]);
+    assert.ok(st.models['acme-plugins'].plugins.some((p) => p.name === 'c' && p.where === 'none')); // “发现插件”的数据
   } finally { await s.close(); }
 });
 
-test('网页：在“全部已安装”里直接更新某个来源的插件', async () => {
+test('网页：更新时指明插件所属的市场；没指明就不执行', async () => {
   const claude = fakeClaude({ installed: [inst('a')], markets: [{ name: 'other', installLocation: mkt }, { name: 'acme-plugins', installLocation: mkt }] });
   const s = await boot(claude, stateFile(null));
   try {
-    await s.until((x) => x.all && !x.busy, '全部已安装');
+    await s.until((x) => Object.keys(x.models ?? {}).length === 2 && !x.busy, '两个市场都准备好');
     await s.post('/api/run', { cmd: 'update', names: ['a'], market: 'acme-plugins' });
     const c = await s.until((x) => x.dialog?.kind === 'confirm', '确认框');
     await s.post('/api/answer', { id: c.dialog.id, value: true });
@@ -170,7 +166,7 @@ test('网页：在“全部已安装”里直接更新某个来源的插件', as
       st = await s.until((x) => (x.dialog && x.dialog.id !== id) || (!x.busy && x.message), '下一个提问或结果');
     }
     assert.deepEqual(claude.calls.filter((x) => x[0] === 'update').map((x) => x[1]), ['a@acme-plugins']);
-    assert.equal((await s.post('/api/run', { cmd: 'update', names: ['a'], market: '*' })).status, 202); // “全部”不是一个来源：不执行
+    assert.equal((await s.post('/api/run', { cmd: 'update', names: ['a'] })).status, 202); // 没指明市场：不执行
     await new Promise((r) => setTimeout(r, 30));
     assert.equal(claude.calls.filter((x) => x[0] === 'update').length, 1);
   } finally { await s.close(); }
@@ -181,15 +177,15 @@ test('网页：切到某个项目目录 → 只显示装在那个项目里的，
   const claude = fakeClaude({ installed: [inst('c', { scope: 'project', projectPath: proj }), inst('b')] });
   const s = await boot(claude);
   try {
-    await s.until((x) => x.model && !x.busy, '准备完成');
+    await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '准备完成');
     assert.equal((await s.post('/api/select', { scope: 'project', dir: '/no/such/dir' })).status, 202);
     await s.post('/api/select', { scope: 'project', dir: proj });
-    const st = await s.until((x) => x.selection.scope === 'project' && x.model && !x.busy, '项目范围');
+    const st = await s.until((x) => x.selection.scope === 'project' && x.models?.['acme-plugins'] && !x.busy, '项目范围');
     assert.equal(st.selection.dir, proj);
-    const where = Object.fromEntries(st.model.plugins.map((p) => [p.name, p.where]));
+    const where = Object.fromEntries(st.models['acme-plugins'].plugins.map((p) => [p.name, p.where]));
     assert.equal(where.c, 'here');
     assert.equal(where.b, 'global');
-    assert.ok(st.sidebar.projects.some((p) => p.path === proj)); // 有项目插件的目录出现在项目列表里
+    assert.ok(st.projects.some((p) => p.path === proj && p.installed === 1)); // 有项目插件的目录出现在项目列表里
   } finally { await s.close(); }
 });
 
@@ -202,7 +198,7 @@ test('网页：目录浏览只给文件夹名；添加 marketplace 不改命令�
   const file = stateFile();
   const s = await boot(claude, file);
   try {
-    await s.until((x) => x.model && !x.busy, '准备完成');
+    await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '准备完成');
     assert.equal((await fetch(`${s.base}/api/dirs?path=${encodeURIComponent(root)}`)).status, 401);
     const d = await (await fetch(`${s.base}/api/dirs?t=${TOKEN}&path=${encodeURIComponent(root)}`)).json();
     assert.deepEqual(d.dirs, ['alpha', 'beta']);
@@ -210,8 +206,8 @@ test('网页：目录浏览只给文件夹名；添加 marketplace 不改命令�
     assert.equal((await fetch(`${s.base}/api/dirs?t=${TOKEN}&path=${encodeURIComponent(join(root, 'file.txt'))}`)).status, 404);
     assert.equal((await s.post('/api/marketplace', { source: ' ' })).status, 400);
     await s.post('/api/marketplace', { source: 'https://git.example.com/new.git' });
-    const st = await s.until((x) => x.marketplace === 'new-one' && !x.busy, '切到新 marketplace');
-    assert.ok(st.sidebar.markets.some((m) => m.name === 'new-one'));
+    const st = await s.until((x) => x.models?.['new-one'] && !x.busy, '新市场准备好');
+    assert.ok(st.markets.some((m) => m.name === 'new-one'));
     assert.equal(JSON.parse(readFileSync(file, 'utf8')).current, 'acme-plugins');
   } finally { await s.close(); }
 });
