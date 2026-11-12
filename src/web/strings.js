@@ -8,7 +8,7 @@ export const pageStrings = () => ({
   projectOnly: t('只装在某个项目里'), otherFolder: t('选择其他文件夹…'), installedN: t('{0} 个'),
   pickFolder: t('选择项目文件夹'), folderPath: t('文件夹路径'), up: t('上一级'), go: t('前往'), useFolder: t('用这个文件夹'),
   // 导航
-  installed: t('已安装'), discover: t('发现插件'), bundles: t('插件套装'), markets: t('插件市场'),
+  installed: t('已安装'), bundles: t('插件套装'), markets: t('插件市场'),
   recheck: t('重新检查'), working: t('正在处理…'), checking: t('正在检查更新…'), upToDate: t('已是最新数据'), needsAttention: t('有需要处理的插件'), dryRun: t('预览模式'),
   // 已安装
   installedSub: t('{0} · {1} 个插件'), searchInstalled: t('搜索已安装的插件'), searchAll: t('搜索插件'),
@@ -16,15 +16,15 @@ export const pageStrings = () => ({
   configOne: t('{0} 还缺 {1} 项配置'), configMany: t('{0} 个插件还缺配置'), configHint: t('填好之前，这些插件可能用不了'), fillIn: t('去填写'),
   depsN: t('{0} 个插件缺少依赖'), fixDeps: t('补装依赖'),
   inThisProject: t('这个项目里的'), globalAlso: t('全局安装的'), globalAlsoHint: t('在这个项目里也能用'),
-  emptyInstalled: t('这里还没有安装插件'), emptyInstalledHint: t('到“发现插件”里看看有什么可以装'),
+  emptyInstalled: t('这里还没有安装插件'), emptyInstalledHint: t('到插件市场里看看有什么可以装'), browseMarkets: t('去插件市场看看'),
   emptyProject: t('这个项目还没有单独安装插件'), emptyProjectHint: t('只想在这个项目里用的插件，可以装在这里'),
   noMatch: t('没有匹配的插件'),
   sUpdate: t('有新版本'), sConfig: t('缺配置'), sDeps: t('缺依赖'), sOff: t('已停用'), sRemoved: t('已下架'),
   // 操作
   install: t('安装'), installHere: t('也装到这个项目'), update: t('更新'), fillConfig: t('填写配置'), changeConfig: t('修改配置'),
   enable: t('启用'), disable: t('停用'), remove: t('卸载'), details: t('查看详情'), more: t('更多操作'),
-  // 发现插件
-  discoverSub: t('{0} 个插件可以安装 · 来自 {1} 个插件市场'), all: t('全部'), emptyDiscover: t('所有插件都已经装上了'),
+  // 一个插件市场
+  tabPlugins: t('插件列表'), searchBundles: t('搜索插件套装'), emptyMarketPlugins: t('这个插件市场里还没有插件'),
   // 插件套装
   bundlesSub: t('一组搭配好的插件，一次装齐'), bundleChosen: t('已选用'), viaBundle: t('包含在套装 {0} 里'),
   bundleProgress: t('已装 {0}/{1}'), installBundle: t('装齐'), removeBundle: t('卸载套装'), includesBundle: t('含 {0} 全部'), removedByYou: t('你卸掉的'),

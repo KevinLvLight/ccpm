@@ -35,6 +35,7 @@
     trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
     sliders: '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
     download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    chevronLeft: '<path d="m15 18-6-6 6-6"/>',
     info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   };
   const icon = (name) => {
@@ -64,7 +65,7 @@
 
   // ---------- state ----------
   let S = null; // latest state from the server
-  const ui = { page: 'installed', query: '', market: '', drawer: null, menu: null, modal: null, logOpen: false, dismissedOp: null, shownMessage: null };
+  const ui = { page: 'installed', query: '', market: '', tab: 'plugins', drawer: null, menu: null, modal: null, logOpen: false, dismissedOp: null, shownMessage: null };
   // several actions in a row (e.g. update in every marketplace): the server does one at a time
   const queue = [];
   let sending = false;
@@ -75,6 +76,7 @@
     ui.current = queue.shift();
     try { await post('/api/run', ui.current); } finally { sending = false; }
   }
+  const go = (page, market = '') => { Object.assign(ui, { page, market, query: '', tab: 'plugins' }); render(); };
   const select = (sel) => { closeMenu(); post('/api/select', sel); };
 
   // ---------- derived data ----------
@@ -103,10 +105,10 @@
     const plist = plugins();
     const installed = plist.filter((p) => p.where === 'here');
     const issues = installed.filter((p) => ['config', 'deps', 'update', 'removed'].includes(statusOf(p))).length;
-    const nav = (page, ico, label, count, dot) => el('button', {
-      class: 'nav', 'aria-current': ui.page === page ? 'page' : null,
-      on: { click: () => { ui.page = page; ui.query = ''; ui.market = ''; render(); } },
-    }, icon(ico), label, dot ? el('span', { class: 'dot', title: T.needsAttention }) : null, count != null ? el('span', { class: 'count' }, count) : null);
+    const nav = (page, ico, label, count, dot, market = '') => el('button', {
+      class: `nav${market ? ' sub' : ''}`, 'aria-current': ui.page === page && ui.market === market ? 'page' : null,
+      on: { click: () => go(page, market) },
+    }, ico ? icon(ico) : null, el('span', { class: 'label' }, label), dot ? el('span', { class: 'dot', title: T.needsAttention }) : null, count != null ? el('span', { class: 'count' }, count) : null);
     $('side').replaceChildren(
       el('div', { class: 'logo' }, el('span', { class: 'mark' }, icon('package')), 'ccpm', S?.dryRun ? el('small', {}, T.dryRun) : null),
       el('div', { class: 'place' },
@@ -118,9 +120,8 @@
             el('span', { class: 's' }, S ? (project() ? S.selection.dirLabel : T.allProjectsHint) : '')),
           icon('updown'))),
       nav('installed', 'package', T.installed, installed.length, issues > 0),
-      nav('discover', 'compass', T.discover, plist.filter((p) => p.where === 'none' && !p.delisted).length),
-      nav('bundles', 'layers', T.bundles, presets().length || null),
       nav('markets', 'store', T.markets, markets().length),
+      ...markets().map((m) => nav('market', null, m.name, m.total, false, m.name)),
       el('div', { class: 'side-foot' }, S?.checking ? el('span', { class: 'spin', vars: { width: '12px', height: '12px', 'border-width': '1.5px' } }) : null,
         el('span', {}, S?.checking ? T.checking : S?.busy ? T.working : T.upToDate),
         el('button', { class: 'btn ghost sm', disabled: !S || S.busy || S.checking, on: { click: () => post('/api/rescan') } }, icon('refresh'), T.recheck)),
@@ -190,7 +191,7 @@
   const empty = (ico, title, hint, action) => el('div', { class: 'empty' }, el('div', { class: 'ico' }, icon(ico)), el('b', {}, title), hint ? el('span', {}, hint) : null, action);
   const loadingList = () => el('div', { class: 'list' }, [1, 2, 3, 4].map(() => el('div', { class: 'skeleton' })));
 
-  function pluginItem(p) {
+  function pluginItem(p, { market = true } = {}) {
     const readonly = p.where === 'global';
     return el('div', { class: `item${readonly ? ' readonly' : ''}`, on: { click: () => openDrawer(p) } },
       tile(p.name),
@@ -198,7 +199,7 @@
         el('div', { class: 'title' }, el('span', { class: 'name' }, p.name), statusBadge(p)),
         el('div', { class: 'desc' }, p.description || '')),
       el('div', { class: 'meta' },
-        src(p.market),
+        market ? src(p.market) : null,
         el('span', { class: 'ver' }, p.update && p.where === 'here' ? `${p.update.from} → ${p.update.to}` : p.version ?? p.latest ?? ''),
         el('div', { class: 'acts' },
           primaryAction(p),
@@ -239,7 +240,7 @@
     const shown = here.filter(matches);
     const g = global.filter(matches);
     if (!here.length && !global.length) {
-      out.push(empty('package', T.emptyInstalled, T.emptyInstalledHint, el('button', { class: 'btn primary', on: { click: () => { ui.page = 'discover'; render(); } } }, icon('compass'), T.discover)));
+      out.push(empty('package', T.emptyInstalled, T.emptyInstalledHint, el('button', { class: 'btn primary', on: { click: () => go(markets().length === 1 ? 'market' : 'markets', markets().length === 1 ? markets()[0].name : '') } }, icon('store'), T.browseMarkets)));
     } else if (!shown.length && !g.length) {
       out.push(empty('search', T.noMatch));
     } else {
@@ -249,7 +250,7 @@
           el('div', { class: 'list' }, shown.map(pluginItem))));
       } else if (project() && !ui.query) {
         out.push(el('section', { class: 'group' }, el('div', { class: 'group-head' }, el('h2', {}, T.inThisProject)),
-          empty('folder', T.emptyProject, T.emptyProjectHint, el('button', { class: 'btn primary', on: { click: () => { ui.page = 'discover'; render(); } } }, icon('compass'), T.discover))));
+          empty('folder', T.emptyProject, T.emptyProjectHint, el('button', { class: 'btn primary', on: { click: () => go(markets().length === 1 ? 'market' : 'markets', markets().length === 1 ? markets()[0].name : '') } }, icon('store'), T.browseMarkets))));
       }
       if (g.length) {
         out.push(el('section', { class: 'group' }, el('div', { class: 'group-head' }, el('h2', {}, T.globalAlso), el('span', {}, T.globalAlsoHint)),
@@ -259,42 +260,8 @@
     return out;
   }
 
-  function pageDiscover() {
-    const avail = plugins().filter((p) => p.where === 'none' && !p.delisted);
-    const counts = new Map();
-    avail.forEach((p) => counts.set(p.market, (counts.get(p.market) ?? 0) + 1));
-    const out = [head(T.discover, loading() ? '' : fmt(T.discoverSub, avail.length, markets().length), [searchBox(T.searchAll)])];
-    if (loading()) return [...out, loadingList()];
-    if (counts.size > 1) {
-      const chip = (value, label) => el('button', { class: 'chip', 'aria-pressed': String(ui.market === value), on: { click: () => { ui.market = value; renderMain(); } } }, label);
-      out.push(el('div', { class: 'chips' }, chip('', `${T.all} · ${avail.length}`), [...counts].map(([m, n]) => chip(m, `${m} · ${n}`))));
-    }
-    const shown = avail.filter((p) => (!ui.market || p.market === ui.market) && matches(p));
-    if (!markets().length) out.push(empty('store', T.emptyMarkets, T.emptyMarketsHint, el('button', { class: 'btn primary', on: { click: openAdd } }, icon('plus'), T.addMarket)));
-    else if (!avail.length) out.push(empty('check', T.emptyDiscover));
-    else if (!shown.length) out.push(empty('search', T.noMatch));
-    else {
-      out.push(el('div', { class: 'grid' }, shown.map((p) => el('div', { class: 'card', on: { click: () => openDrawer(p) } },
-        el('div', { class: 'top' }, tile(p.name), el('div', {}, el('div', { class: 'name' }, p.name), el('div', { class: 'mono muted' }, p.latest ?? ''))),
-        el('div', { class: 'desc' }, p.description || ''),
-        el('div', { class: 'foot' }, src(p.market), primaryAction(p))))));
-    }
-    return out;
-  }
-
-  function pageBundles() {
-    const list = presets().filter(matches);
-    const out = [head(T.bundles, T.bundlesSub, project() ? [] : [searchBox(T.searchAll)])];
-    if (project()) {
-      out.push(el('div', { class: 'alerts' }, el('div', { class: 'alert blue' }, el('div', { class: 'ico' }, icon('info')),
-        el('div', { class: 'body' }, el('b', {}, T.bundlesGlobalOnly), el('span', {}, T.allProjectsHint)),
-        el('button', { class: 'btn sm', on: { click: () => select({ scope: 'user' }) } }, T.switchToAll))));
-      return out;
-    }
-    if (loading()) return [...out, loadingList()];
-    if (!presets().length) return [...out, empty('layers', T.emptyBundles, T.emptyBundlesHint)];
-    if (!list.length) return [...out, empty('search', T.noMatch)];
-    out.push(el('div', { class: 'grid' }, list.map((b) => {
+  function bundleGrid(list) {
+    return el('div', { class: 'grid' }, list.map((b) => {
       const done = b.got >= b.want;
       const on = b.chosen || b.via;
       const acts = [];
@@ -309,8 +276,45 @@
         el('div', { class: 'members' }, b.members.map((m) => (m.kind === 'preset'
           ? el('span', { class: 'member' }, icon('layers'), fmt(T.includesBundle, m.name))
           : el('span', { class: `member${m.installed ? ' on' : ''}`, title: m.excluded ? T.removedByYou : '' }, m.installed ? icon('check') : null, m.name)))),
-        el('div', { class: 'foot' }, src(b.market), el('span', { vars: { 'margin-left': 'auto', display: 'flex', gap: '6px' } }, acts)));
-    })));
+        acts.length ? el('div', { class: 'foot' }, el('span', { vars: { 'margin-left': 'auto', display: 'flex', gap: '6px' } }, acts)) : null);
+    }));
+  }
+
+  // one marketplace: what it is, its plugins, its bundles
+  function pageMarket() {
+    const m = markets().find((x) => x.name === ui.market);
+    if (!m) { ui.page = 'markets'; ui.market = ''; return pageMarkets(); }
+    const list = plugins().filter((p) => p.market === m.name && !(p.delisted && p.where === 'none'));
+    const bundles = presets().filter((b) => b.market === m.name);
+    const stat = (n, label) => el('div', {}, el('b', {}, n), el('span', {}, label));
+    const out = [
+      el('button', { class: 'btn ghost sm back', on: { click: () => go('markets') } }, icon('chevronLeft'), T.markets),
+      el('div', { class: 'market-head' },
+        el('div', { class: 'tile lg', vars: { '--h': hue(m.name) } }, icon('store')),
+        el('div', { class: 'main' }, el('h1', {}, m.name), m.source ? el('p', { class: 'mono' }, m.source) : null),
+        el('div', { class: 'stats' }, stat(m.installed, T.mInstalled), stat(m.total, T.mTotal), bundles.length ? stat(bundles.length, T.bundles) : null)),
+    ];
+    if (m.error) out.push(el('div', { class: 'alerts' }, el('div', { class: 'alert red' }, el('div', { class: 'ico' }, icon('alert')), el('div', { class: 'body' }, el('b', {}, fmt(T.marketError, m.error))))));
+    const tab = (key, label, n) => el('button', { role: 'tab', 'aria-selected': String(ui.tab === key), on: { click: () => { ui.tab = key; ui.query = ''; renderMain(); } } }, label, el('span', { class: 'count' }, n));
+    out.push(el('div', { class: 'tabs-row' },
+      el('div', { class: 'tabs', role: 'tablist' }, tab('plugins', T.tabPlugins, list.length), tab('bundles', T.bundles, bundles.length)),
+      ui.tab === 'plugins' || !project() ? searchBox(ui.tab === 'plugins' ? T.searchAll : T.searchBundles) : null));
+    if (loading()) return [...out, loadingList()];
+    if (ui.tab === 'plugins') {
+      const shown = list.filter(matches);
+      out.push(!list.length ? empty('package', T.emptyMarketPlugins) : !shown.length ? empty('search', T.noMatch)
+        : el('div', { class: 'list' }, shown.map((p) => pluginItem(p, { market: false }))));
+      return out;
+    }
+    out.push(el('p', { class: 'muted tab-hint' }, T.bundlesSub));
+    if (project()) {
+      out.push(el('div', { class: 'alerts' }, el('div', { class: 'alert blue' }, el('div', { class: 'ico' }, icon('info')),
+        el('div', { class: 'body' }, el('b', {}, T.bundlesGlobalOnly), el('span', {}, T.allProjectsHint)),
+        el('button', { class: 'btn sm', on: { click: () => select({ scope: 'user' }) } }, T.switchToAll))));
+      return out;
+    }
+    const shown = bundles.filter(matches);
+    out.push(!bundles.length ? empty('layers', T.emptyBundles, T.emptyBundlesHint) : !shown.length ? empty('search', T.noMatch) : bundleGrid(shown));
     return out;
   }
 
@@ -318,7 +322,7 @@
     const out = [head(T.markets, T.marketsSub, [el('button', { class: 'btn primary', disabled: S?.busy, on: { click: openAdd } }, icon('plus'), T.addMarket)])];
     if (loading()) return [...out, loadingList()];
     if (!markets().length) return [...out, empty('store', T.emptyMarkets, T.emptyMarketsHint)];
-    out.push(el('div', { class: 'list' }, markets().map((m) => el('div', { class: 'market item', on: { click: () => { ui.page = 'discover'; ui.market = m.name; render(); } } },
+    out.push(el('div', { class: 'list' }, markets().map((m) => el('div', { class: 'market item', on: { click: () => go('market', m.name) } },
       el('div', { class: 'tile', vars: { '--h': hue(m.name) } }, icon('store')),
       el('div', { class: 'main' }, el('div', { class: 'name' }, m.name),
         m.error ? el('div', { class: 'desc', vars: { color: 'var(--red)' } }, fmt(T.marketError, m.error)) : el('div', { class: 'desc mono' }, m.source || '')),
@@ -329,7 +333,7 @@
   function renderMain({ keepFocus = false } = {}) {
     const main = $('main');
     const focused = keepFocus && document.activeElement?.type === 'search' ? document.activeElement.selectionStart : null;
-    const page = { installed: pageInstalled, discover: pageDiscover, bundles: pageBundles, markets: pageMarkets }[ui.page];
+    const page = { installed: pageInstalled, market: pageMarket, markets: pageMarkets }[ui.page];
     main.replaceChildren(...(S ? page() : [head(''), loadingList()]));
     if (focused != null) { const s = main.querySelector('input[type="search"]'); s?.focus(); s?.setSelectionRange(focused, focused); }
   }
