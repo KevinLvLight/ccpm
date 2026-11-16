@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const readJson = (f) => JSON.parse(readFileSync(f, 'utf8'));
+// Claude Code 的 marketplace 条目通常用字符串；新版也可能把来源写成 { path } / { source }。
+const sourceDir = (entry) => typeof entry.source === 'string' ? entry.source
+  : typeof entry.source?.path === 'string' ? entry.source.path
+    : typeof entry.source?.source === 'string' ? entry.source.source : null;
 const USER_KEYS = ['title', 'description', 'type', 'sensitive', 'required', 'default'];
 const TYPES = ['string', 'directory'];
 
@@ -11,7 +15,12 @@ export function loadCatalog(marketplaceDir, warn = console.warn) {
   const { plugins = [] } = readJson(join(marketplaceDir, '.claude-plugin/marketplace.json'));
   const catalog = new Map();
   for (const entry of plugins) {
-    const dir = join(marketplaceDir, entry.source);
+    const source = sourceDir(entry);
+    if (!source) {
+      warn(t('跳过插件 {0}：source 不是有效路径', entry.name));
+      continue;
+    }
+    const dir = join(marketplaceDir, source);
     let raw;
     try {
       raw = readJson(join(dir, '.claude-plugin/plugin.json'));

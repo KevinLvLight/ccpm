@@ -46,6 +46,7 @@ export const EN = {
   "已更新 {0}": "Updated {0}",
   "更新失败 {0}": "Failed to update {0}",
   "跳过插件 {0}：缺少或无法解析 plugin.json": "skipping plugin {0}: plugin.json missing or unreadable",
+  "跳过插件 {0}：source 不是有效路径": "skipping plugin {0}: source is not a valid path",
   "插件 {0}：plugin.json 的 name 为 {1}，以 marketplace 条目名为准": "plugin {0}: plugin.json name is {1}; using the marketplace entry name",
   "dependencies 不是数组": "dependencies is not an array",
   "dependencies 第 {0} 项不是字符串": "dependencies item {0} is not a string",
