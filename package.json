@@ -1,6 +1,6 @@
 {
   "name": "@kikilight/ccpm",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Manage Claude Code plugins from a marketplace: presets, settings, updates, and a full-screen TUI",
   "keywords": [
     "claude",
