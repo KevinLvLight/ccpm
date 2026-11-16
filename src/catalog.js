@@ -64,3 +64,35 @@ export function readChangelogEntry(meta, version) {
   const m = new RegExp(`^## \\[?${esc}\\]?(?:[ \\t].*)?$\\n?([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm').exec(text);
   return m ? m[1].trim() : null;
 }
+
+// from（不含）到 to（含）之间的更新说明，新的在前；from 为空时只取 to 这一版。
+// 也认按大版本分组的写法（“## [2.6]”：更新跨进了这一组才算）；都对不上时退回“Unreleased”一节
+export function changelogBetween(meta, from, to) {
+  let text;
+  try { text = readFileSync(join(meta.dir, 'CHANGELOG.md'), 'utf8'); } catch { return []; }
+  const parts = (v) => String(v).replace(/^v/i, '').split(/[.-]/).map((x) => (/^\d+$/.test(x) ? Number(x) : x));
+  const cmp = (a, b) => {
+    const pa = parts(a), pb = parts(b);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const x = pa[i] ?? 0, y = pb[i] ?? 0;
+      if (x !== y) return typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
+    }
+    return 0;
+  };
+  const head = (v, n) => parts(v).slice(0, n).join('.'); // 2.6.115 的前两段 → 2.6
+  const out = [];
+  let unreleased = null;
+  for (const m of text.matchAll(/^## \[?([^\]\s]+)\]?(?:[ \t].*)?$\n?([\s\S]*?)(?=^## |(?![\s\S]))/gm)) {
+    const v = m[1].replace(/^v/i, '');
+    const body = m[2].trim();
+    if (/^unreleased$/i.test(v)) { unreleased = body; continue; }
+    if (!/^\d+(\.\d+)*$/.test(v)) continue;
+    const n = v.split('.').length;
+    const take = n >= 3
+      ? (from ? cmp(v, from) > 0 : cmp(v, to) === 0) && cmp(v, to) <= 0
+      : (from ? cmp(v, head(from, n)) > 0 : v === head(to, n)) && cmp(v, head(to, n)) <= 0; // 分组：2.6 覆盖 2.6.x
+    if (take) out.push({ version: n >= 3 ? v : `${v}.x`, text: body });
+  }
+  if (!out.length && unreleased && from) return [{ version: 'Unreleased', unreleased: true, text: unreleased }];
+  return out.sort((a, b) => cmp(b.version.replace('.x', '.9999999'), a.version.replace('.x', '.9999999')));
+}

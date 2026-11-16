@@ -110,6 +110,7 @@ Common tasks:
 Commands:
   use [marketplace]         choose the marketplace to manage (adds it first if needed)
   ui                        open the full-screen interactive view (the default when you just run ccpm)
+  web                       manage plugins in your browser (a local web page)
   status                    full state of plugins and presets (the default in scripts)
   list                      every plugin in the current marketplace: installed / not installed / updatable
   install <plugin|preset>   install plugins or presets, with dependencies and settings
@@ -187,6 +188,51 @@ FAQ:
   A: No, ccpm uses it directly.
   Q: How do I look at another one just once?
   A: Add --marketplace <name> to any command; it applies to that run only.
+```
+
+#### ccpm web
+
+```text
+ccpm web — manage plugins in your browser
+
+Purpose:
+  Start a web page that only works on this computer: browse every preset and plugin with the mouse and install,
+  update, configure, enable/disable or remove them — everything ccpm ui does, for people who prefer not to use a terminal.
+
+Usage:
+  ccpm web [--port <port>] [--no-open]
+
+Arguments:
+  none
+
+Options:
+  --port <port>          use this port (default: a random free one)
+  --no-open              do not open the browser, just print the link
+  --dry-run              preview only; no action changes anything
+  --scope user|project   start with global (default) or the current project; switch on the page
+
+Examples:
+  ccpm web                 start it and open the browser
+  ccpm web --no-open       only print the link (e.g. to open it in another browser)
+
+What it does:
+  1. Start a web server on 127.0.0.1 with a one-time access token and open the link that carries it
+  2. Pick the scope in the sidebar: global, or any project folder (one Claude Code has seen, or browse for one)
+  3. Pick the source in the sidebar: all installed (every marketplace together) or one marketplace in full; add marketplaces from the page
+  4. ccpm runs what you click on this computer; progress and results show at the bottom of the page
+  5. Press Ctrl+C to stop
+
+What it does not do:
+  - Open anything to your network (it listens on 127.0.0.1 only and rejects requests without the token)
+  - Show or log the tokens and passwords you type (those fields are password fields)
+  - Change the CLI's default marketplace (switching on the page stays on the page)
+  - Read files when browsing folders (it lists folder names only)
+
+FAQ:
+  Q: The browser did not open?
+  A: Copy the link printed in the terminal into your browser. It contains the access token, so do not share it.
+  Q: The page says the connection was lost?
+  A: ccpm web was stopped in the terminal; run it again.
 ```
 
 #### ccpm ui
@@ -699,7 +745,7 @@ Usage:
   ccpm <command> --help
 
 Arguments:
-  <command>   use, ui, status, list, install, sync, update, config, enable, disable, remove, check, log, help
+  <command>   use, web, ui, status, list, install, sync, update, config, enable, disable, remove, check, log, help
 
 Options:
   none

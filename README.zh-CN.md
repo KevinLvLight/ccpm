@@ -104,6 +104,7 @@ ccpm 帮你管理 Claude Code 里来自你选定的插件市场（marketplace，
 命令:
   use [marketplace]      选择要管理的 marketplace（没添加过会先添加）
   ui                     打开全屏交互界面（直接运行 ccpm 时默认进入）
+  web                    在浏览器里管理插件（本机网页界面）
   status                 查看插件和预设的完整状态（脚本里不写命令时默认就是它）
   list                   列出当前 marketplace 的全部插件，标出已装 / 未装 / 可更新
   install <插件或预设>   安装插件或预设，自动补装依赖、询问配置
@@ -181,6 +182,51 @@ ccpm use — 选择要管理的 marketplace
   答：不用，ccpm 会直接用它。
   问：想临时看另一个？
   答：任意命令加 --marketplace <名字>，只对这一次生效。
+```
+
+#### ccpm web
+
+```text
+ccpm web — 在浏览器里管理插件
+
+用途:
+  启动一个只在本机可用的网页界面：用鼠标查看全部预设和插件，安装、更新、配置、启用/停用、卸载，
+  和交互界面（ccpm ui）能做的一样，适合不习惯命令行的人。
+
+用法:
+  ccpm web [--port <端口>] [--no-open]
+
+参数:
+  无
+
+选项:
+  --port <端口>          指定端口（默认随机挑一个空闲端口）
+  --no-open              不自动打开浏览器，只打印链接
+  --dry-run              只预览，每个操作都不做改动
+  --scope user|project   从全局（默认）还是当前项目开始看；页面上可以切换
+
+示例:
+  ccpm web                 启动并打开浏览器
+  ccpm web --no-open       只打印链接（例如想用别的浏览器打开）
+
+会做什么:
+  1. 在 127.0.0.1 上启动网页服务，生成一次性的访问口令，打开带口令的链接
+  2. 左栏切换范围：全局，或任意项目目录（Claude Code 用过的项目，或浏览本机目录选一个）
+  3. 左栏切换来源：全部已安装（所有 marketplace 的插件放在一起），或某个 marketplace 的完整列表；也能在页面上添加 marketplace
+  4. 页面上的操作由 ccpm 在本机执行，过程和结果实时显示在页面下方
+  5. 按 Ctrl+C 结束
+
+不会做什么:
+  - 不对局域网或外网开放（只监听 127.0.0.1，没有口令的请求一律拒绝）
+  - 不在任何地方显示或记录你填的 token、密码（输入框按密码框处理）
+  - 不改命令行的默认 marketplace（页面上的切换只在页面里有效）
+  - 浏览目录时只列出文件夹名，不读取文件内容
+
+常见问题:
+  问：浏览器没有自动打开？
+  答：复制终端里打印的链接到浏览器打开；链接里带着口令，不要发给别人。
+  问：页面显示“连接已断开”？
+  答：终端里的 ccpm web 已经结束，重新运行一次即可。
 ```
 
 #### ccpm ui
@@ -693,7 +739,7 @@ ccpm help — 显示帮助
   ccpm <命令> --help
 
 参数:
-  <命令>   use、ui、status、list、install、sync、update、config、enable、disable、remove、check、log、help
+  <命令>   use、web、ui、status、list、install、sync、update、config、enable、disable、remove、check、log、help
 
 选项:
   无

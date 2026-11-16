@@ -29,7 +29,7 @@ export const samePath = (a, b, platform = process.platform) =>
 export async function loadContext(opts, deps = {}) {
   const { scope = 'user', yes = false, dryRun = false, readOnly = false } = opts;
   const rawOut = deps.out ?? ((l) => console.log(l));
-  const ctx = { scope }; // 交互界面会切换 ctx.scope，输出按当前范围处理
+  const ctx = { scope, cwd: resolve(opts.cwd ?? process.cwd()) }; // 交互界面会切换 ctx.scope，输出按当前范围处理；cwd = 项目范围看哪个目录
   // 项目范围下，提示里建议的 ccpm 命令都要带上 --scope project，否则照做会作用到全局
   let blank = false; // 不连续输出两行空行
   const print = (l) => {
@@ -38,7 +38,7 @@ export async function loadContext(opts, deps = {}) {
     rawOut(ctx.scope === 'project' ? withScope(l) : l);
   };
   const log = deps.log ?? (() => {});
-  const claude = deps.claude ?? createClaude({ log });
+  const claude = deps.claude ?? createClaude({ log, cwd: opts.cwd });
   const progress = deps.progress ?? createProgress({ out: print, animate: Boolean(process.stdout.isTTY) && !yes, prep: true });
   // 第一行正式输出 / 第一个提问前，准备阶段的转圈收成一行“准备就绪”
   const out = (l) => { progress.ready?.(); print(l); };
@@ -103,7 +103,7 @@ export async function loadContext(opts, deps = {}) {
 
 // 按 ctx.scope 从完整的已装列表里取出当前范围的插件
 function applyListing(ctx, listing) {
-  const cwd = resolve(process.cwd());
+  const cwd = ctx.cwd ?? resolve(process.cwd());
   ctx.listing = listing;
   ctx.installed = listing.filter(
     (p) => p.scope === ctx.scope && (ctx.scope !== 'project' || (p.projectPath && samePath(p.projectPath, cwd))),
