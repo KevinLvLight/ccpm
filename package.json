@@ -1,6 +1,6 @@
 {
   "name": "@kikilight/ccpm",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A local Web-first manager for Claude Code plugin marketplaces",
   "keywords": [
     "claude",
