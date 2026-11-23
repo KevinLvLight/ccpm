@@ -110,7 +110,14 @@
       on: { click: () => go(page, market) },
     }, ico ? icon(ico) : null, el('span', { class: 'label' }, label), dot ? el('span', { class: 'dot', title: T.needsAttention }) : null, count != null ? el('span', { class: 'count' }, count) : null);
     $('side').replaceChildren(
-      el('div', { class: 'logo' }, el('span', { class: 'mark' }, icon('package')), 'ccpm', S?.dryRun ? el('small', {}, T.dryRun) : null),
+      el('div', { class: 'logo' },
+        el('span', { class: 'product' },
+          el('span', { class: 'product-initial' }, 'C'), 'laude ',
+          el('span', { class: 'product-initial' }, 'C'), 'ode ',
+          el('span', { class: 'product-initial' }, 'P'), 'lugin ',
+          el('span', { class: 'product-initial' }, 'M'), 'anager'),
+        S?.version ? el('small', {}, fmt(T.productVersion, S.version)) : null,
+        S?.dryRun ? el('small', {}, T.dryRun) : null),
       el('div', { class: 'place' },
         el('button', { class: 'place-btn', 'aria-haspopup': 'menu', on: { click: (e) => openPlaceMenu(e.currentTarget) } },
           el('span', { class: 'ico' }, icon(project() ? 'folder' : 'globe')),
@@ -120,6 +127,7 @@
             el('span', { class: 's' }, S ? (project() ? S.selection.dirLabel : T.allProjectsHint) : '')),
           icon('updown'))),
       nav('installed', 'package', T.installed, installed.length, issues > 0),
+      nav('updates', 'refresh', T.updates),
       nav('markets', 'store', T.markets, markets().length),
       ...markets().map((m) => nav('market', null, m.name, m.total, false, m.name)),
       el('div', { class: 'side-foot' }, S?.checking ? el('span', { class: 'spin', vars: { width: '12px', height: '12px', 'border-width': '1.5px' } }) : null,
@@ -260,14 +268,23 @@
     return out;
   }
 
+  function bundleActions(b, { small = true, stopClick = false } = {}) {
+    const done = b.got >= b.want;
+    const on = b.chosen || b.via;
+    const click = (fn) => (stopClick ? stop(fn) : fn);
+    const size = small ? ' sm' : '';
+    const acts = [];
+    if (!done) acts.push(el('button', { class: `btn primary${size}`, disabled: S?.busy, on: { click: click(() => run('install', [b.name], b.market)) } }, icon('download'), T.installBundle));
+    if (on || b.got) acts.push(el('button', { class: `btn ghost${size} danger`, disabled: S?.busy, on: { click: click(() => run('remove', [b.name], b.market)) } }, T.removeBundle));
+    return acts;
+  }
+
   function bundleGrid(list) {
     return el('div', { class: 'grid' }, list.map((b) => {
       const done = b.got >= b.want;
       const on = b.chosen || b.via;
-      const acts = [];
-      if (!done) acts.push(el('button', { class: 'btn primary sm', disabled: S.busy, on: { click: () => run('install', [b.name], b.market) } }, icon('download'), T.installBundle));
-      if (on || b.got) acts.push(el('button', { class: 'btn ghost sm danger', disabled: S.busy, on: { click: () => run('remove', [b.name], b.market) } }, T.removeBundle));
-      return el('div', { class: 'card bundle' },
+      const acts = bundleActions(b, { stopClick: true });
+      return el('div', { class: 'card bundle', on: { click: () => openBundleDrawer(b) } },
         el('div', { class: 'top' }, el('div', { class: 'tile', vars: { '--h': hue(b.name) } }, icon('layers')),
           el('div', { vars: { flex: '1', 'min-width': '0' } }, el('div', { class: 'name' }, b.name), el('div', { class: 'muted' }, b.description || '')),
           on ? el('span', { class: 'badge accent', title: b.via ? fmt(T.viaBundle, b.via) : '' }, icon('check'), T.bundleChosen) : null),
@@ -276,7 +293,9 @@
         el('div', { class: 'members' }, b.members.map((m) => (m.kind === 'preset'
           ? el('span', { class: 'member' }, icon('layers'), fmt(T.includesBundle, m.name))
           : el('span', { class: `member${m.installed ? ' on' : ''}`, title: m.excluded ? T.removedByYou : '' }, m.installed ? icon('check') : null, m.name)))),
-        acts.length ? el('div', { class: 'foot' }, el('span', { vars: { 'margin-left': 'auto', display: 'flex', gap: '6px' } }, acts)) : null);
+        el('div', { class: 'foot' },
+          el('button', { class: 'btn ghost sm', on: { click: stop(() => openBundleDrawer(b)) } }, T.details),
+          acts.length ? el('span', { vars: { 'margin-left': 'auto', display: 'flex', gap: '6px' } }, acts) : null));
     }));
   }
 
@@ -292,7 +311,8 @@
       el('div', { class: 'market-head' },
         el('div', { class: 'tile lg', vars: { '--h': hue(m.name) } }, icon('store')),
         el('div', { class: 'main' }, el('h1', {}, m.name), m.source ? el('p', { class: 'mono' }, m.source) : null),
-        el('div', { class: 'stats' }, stat(m.installed, T.mInstalled), stat(m.total, T.mTotal), bundles.length ? stat(bundles.length, T.bundles) : null)),
+        el('div', { class: 'stats' }, stat(m.installed, T.mInstalled), stat(m.total, T.mTotal), bundles.length ? stat(bundles.length, T.bundles) : null),
+        el('button', { class: 'btn ghost sm danger', disabled: S?.busy, on: { click: () => openRemoveMarket(m) } }, icon('trash'), T.removeMarket)),
     ];
     if (m.error) out.push(el('div', { class: 'alerts' }, el('div', { class: 'alert red' }, el('div', { class: 'ico' }, icon('alert')), el('div', { class: 'body' }, el('b', {}, fmt(T.marketError, m.error))))));
     const tab = (key, label, n) => el('button', { role: 'tab', 'aria-selected': String(ui.tab === key), on: { click: () => { ui.tab = key; ui.query = ''; renderMain(); } } }, label, el('span', { class: 'count' }, n));
@@ -318,6 +338,17 @@
     return out;
   }
 
+  function pageUpdates() {
+    const action = (title, hint, click) => el('section', { class: 'update-letter' },
+      el('div', { class: 'update-copy' }, el('h2', {}, title), el('p', {}, hint)),
+      el('button', { class: 'btn primary', disabled: S?.busy, on: { click } }, icon('download'), title));
+    return [
+      head(T.updates, S?.version ? fmt(T.productVersion, S.version) : ''),
+      action(T.managerUpdate, T.managerUpdateHint, () => post('/api/upgrade')),
+      action(T.claudeUpdate, T.claudeUpdateHint, () => post('/api/cc-update')),
+    ];
+  }
+
   function pageMarkets() {
     const out = [head(T.markets, T.marketsSub, [el('button', { class: 'btn primary', disabled: S?.busy, on: { click: openAdd } }, icon('plus'), T.addMarket)])];
     if (loading()) return [...out, loadingList()];
@@ -333,7 +364,7 @@
   function renderMain({ keepFocus = false } = {}) {
     const main = $('main');
     const focused = keepFocus && document.activeElement?.type === 'search' ? document.activeElement.selectionStart : null;
-    const page = { installed: pageInstalled, market: pageMarket, markets: pageMarkets }[ui.page];
+    const page = { installed: pageInstalled, updates: pageUpdates, market: pageMarket, markets: pageMarkets }[ui.page];
     main.replaceChildren(...(S ? page() : [head(''), loadingList()]));
     if (focused != null) { const s = main.querySelector('input[type="search"]'); s?.focus(); s?.setSelectionRange(focused, focused); }
   }
@@ -403,12 +434,14 @@
   }
 
   // ---------- drawer and menus ----------
-  function openDrawer(p) { ui.drawer = { market: p.market, name: p.name }; renderLayer(); }
+  function openDrawer(p) { ui.drawer = { type: 'plugin', market: p.market, name: p.name }; renderLayer(); }
+  function openBundleDrawer(b) { ui.drawer = { type: 'bundle', market: b.market, name: b.name }; renderLayer(); }
   function renderLayer() {
     const layer = $('layer');
     const parts = [];
-    const p = ui.drawer && plugins().find((x) => x.market === ui.drawer.market && x.name === ui.drawer.name);
-    if (ui.drawer && !p) ui.drawer = null;
+    const p = ui.drawer?.type === 'plugin' && plugins().find((x) => x.market === ui.drawer.market && x.name === ui.drawer.name);
+    const b = ui.drawer?.type === 'bundle' && presets().find((x) => x.market === ui.drawer.market && x.name === ui.drawer.name);
+    if (ui.drawer && !p && !b) ui.drawer = null;
     if (p) {
       const info = infoOf(p.market, p.name, () => { if (ui.drawer?.name === p.name && !ui.menu) renderLayer(); });
       const close = () => { ui.drawer = null; renderLayer(); };
@@ -442,6 +475,29 @@
         foot.some(Boolean) ? el('footer', {}, foot) : null);
       parts.push(el('div', { class: 'scrim', on: { click: close } }), drawer);
       requestAnimationFrame(() => { if (!$('modal').firstChild && !drawer.contains(document.activeElement)) drawer.focus(); }); // 有对话框时不抢焦点
+    }
+    if (b) {
+      const close = () => { ui.drawer = null; renderLayer(); };
+      const member = (m) => {
+        if (m.kind === 'preset') return el('div', { class: 'bundle-member nested' },
+          el('span', { class: 'member-icon' }, icon('layers')),
+          el('span', { class: 'member-main' }, el('b', {}, m.name), el('small', {}, T.bundles)));
+        const p = plugins().find((x) => x.market === b.market && x.name === m.name);
+        const state = m.excluded ? T.removedByYou : m.delisted ? T.sRemoved : m.installed ? T.installed : T.notInstalled;
+        return el('button', { class: 'bundle-member', on: { click: () => p && openDrawer(p) } },
+          tile(m.name),
+          el('span', { class: 'member-main' }, el('b', {}, m.name), el('small', {}, state)));
+      };
+      const drawer = el('aside', { class: 'drawer', role: 'dialog', 'aria-label': b.name, tabindex: '-1', on: { keydown: (e) => e.key === 'Escape' && close() } },
+        el('header', {}, tile(b.name, true),
+          el('div', {}, el('h2', {}, b.name), el('p', {}, [b.market, fmt(T.bundleProgress, b.got, b.want)].join(' · '))),
+          el('button', { class: 'btn ghost icon', 'aria-label': T.close, on: { click: close } }, icon('x'))),
+        el('div', { class: 'content' },
+          b.description ? el('p', { class: 'lead' }, b.description) : null,
+          el('section', { class: 'section bundle-detail' }, el('h4', {}, T.bundleMembers), el('div', { class: 'bundle-members' }, b.members.map(member)))),
+        bundleActions(b, { small: false }).length ? el('footer', {}, bundleActions(b, { small: false })) : null);
+      parts.push(el('div', { class: 'scrim', on: { click: close } }), drawer);
+      requestAnimationFrame(() => { if (!$('modal').firstChild && !drawer.contains(document.activeElement)) drawer.focus(); });
     }
     if (ui.menu) {
       const m = el('div', { class: 'menu', role: 'menu' }, ui.menu.items);
@@ -599,6 +655,23 @@
       input,
       el('div', { class: 'foot' }, el('button', { class: 'btn', on: { click: closeModal } }, T.cancel), el('button', { class: 'btn', on: { click: () => openFolder(input.value) } }, T.go), use)), use);
   }
+  function openRemoveMarket(market) {
+    const affected = plugins().filter((p) => p.market === market.name && p.where !== 'none');
+    const names = affected.map((p) => p.name).sort();
+    const remove = () => {
+      closeModal();
+      post('/api/marketplace/remove', { name: market.name, confirm: true });
+    };
+    const list = names.length ? el('ul', { class: 'remove-list' }, names.map((name) => el('li', {}, name))) : el('p', { class: 'hint' }, T.noInstalledPlugins);
+    showModal(el('div', { class: 'dialog', role: 'dialog', 'aria-modal': 'true' },
+      el('div', { class: 'eyebrow' }, T.removeMarket),
+      el('h3', {}, fmt(T.removeMarketTitle, market.name)),
+      el('p', { class: 'hint' }, T.removeMarketWarning),
+      el('p', { class: 'remove-count' }, fmt(T.removeMarketCount, names.length)),
+      list,
+      el('div', { class: 'foot' }, el('button', { class: 'btn', on: { click: closeModal } }, T.cancel), el('button', { class: 'btn danger', on: { click: remove } }, icon('trash'), T.removeAnyway))));
+  }
+
   function openAdd() {
     const input = el('input', { type: 'text', placeholder: 'owner/repo', 'aria-label': T.source });
     const err = el('p', { class: 'hint', vars: { color: 'var(--red)', margin: '8px 0 0' }, hidden: true }, T.sourceRequired);

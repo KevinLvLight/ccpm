@@ -19,15 +19,6 @@ export const yellow = sgr(33, 39);
 export const blue = sgr(36, 39);
 export const inverse = sgr(7, 27);
 
-// 全屏交互界面用到的终端控制码（Windows Terminal 均支持）
-export const TERM = {
-  enter: '\x1b[?1049h\x1b[?25l', // 备用屏幕 + 隐藏光标
-  leave: '\x1b[0m\x1b[?25h\x1b[?1049l', // 显示光标 + 回到主屏幕
-  home: '\x1b[H',
-  eol: '\x1b[0m\x1b[K', // 行尾：复位颜色并清掉余下部分
-  below: '\x1b[J',
-};
-
 // 只用单宽字符，不用 emoji
 export const SYMBOLS = '✔✖↑▲○⏸+−?›●';
 export const I = {

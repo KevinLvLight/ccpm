@@ -56,8 +56,8 @@ test('buildModel 全局：插件、预设（via）、计数、下一步', async 
     { name: 'base', kind: 'preset', installed: false, excluded: false, delisted: false },
     { name: 'a', kind: 'plugin', installed: true, excluded: false, delisted: false },
   ]);
-  assert.deepEqual(m.next.map((n) => n.cmd), ['ccpm enable old', 'ccpm config a', 'ccpm sync', 'ccpm remove old']);
-  assert.match(m.next[2].why, /补装缺少的依赖、更新 a/); // update 并入 sync
+  assert.deepEqual(m.next.map((n) => n.cmd), ['ccpm']);
+  assert.match(m.next[0].why, /更新 a、重新启用（有意停用的可忽略）、填写 1 项配置、补装缺少的依赖、卸载已下架的 old/);
 });
 
 test('buildModel 当前项目：全局装的标 global，不含预设', async () => {

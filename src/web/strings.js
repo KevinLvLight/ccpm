@@ -8,7 +8,10 @@ export const pageStrings = () => ({
   projectOnly: t('只装在某个项目里'), otherFolder: t('选择其他文件夹…'), installedN: t('{0} 个'),
   pickFolder: t('选择项目文件夹'), folderPath: t('文件夹路径'), up: t('上一级'), go: t('前往'), useFolder: t('用这个文件夹'),
   // 导航
-  installed: t('已安装'), bundles: t('插件套装'), markets: t('插件市场'),
+  installed: t('已安装'), bundles: t('插件套装'), markets: t('插件市场'), updates: t('更新中心'),
+  product: 'Claude Code Plugin Manager', productVersion: t('管理器版本 {0}'),
+  managerUpdate: t('更新 Plugin Manager'), managerUpdateHint: t('检查并安装 ccpm 的最新版'),
+  claudeUpdate: t('更新 Claude Code'), claudeUpdateHint: t('安全检查、安装并验证 Claude Code 的新版本'),
   recheck: t('重新检查'), working: t('正在处理…'), checking: t('正在检查更新…'), upToDate: t('已是最新数据'), needsAttention: t('有需要处理的插件'), dryRun: t('预览模式'),
   // 已安装
   installedSub: t('{0} · {1} 个插件'), searchInstalled: t('搜索已安装的插件'), searchAll: t('搜索插件'),
@@ -27,13 +30,14 @@ export const pageStrings = () => ({
   tabPlugins: t('插件列表'), searchBundles: t('搜索插件套装'), emptyMarketPlugins: t('这个插件市场里还没有插件'),
   // 插件套装
   bundlesSub: t('一组搭配好的插件，一次装齐'), bundleChosen: t('已选用'), viaBundle: t('包含在套装 {0} 里'),
-  bundleProgress: t('已装 {0}/{1}'), installBundle: t('装齐'), removeBundle: t('卸载套装'), includesBundle: t('含 {0} 全部'), removedByYou: t('你卸掉的'),
+  bundleProgress: t('已装 {0}/{1}'), bundleMembers: t('套装成员'), installBundle: t('装齐'), removeBundle: t('卸载套装'), includesBundle: t('含 {0} 全部'), removedByYou: t('你卸掉的'),
   bundlesGlobalOnly: t('插件套装只能装到所有项目'), switchToAll: t('切到所有项目'),
   emptyBundles: t('这些插件市场没有提供套装'), emptyBundlesHint: t('插件市场作者可以在 presets.json 里定义套装'),
   // 插件市场
   marketsSub: t('插件都从这些插件市场安装'), addMarket: t('添加插件市场'), mInstalled: t('已装'), mTotal: t('插件'),
   marketError: t('读取失败：{0}'), emptyMarkets: t('还没有添加插件市场'), emptyMarketsHint: t('添加一个插件市场，就能浏览和安装里面的插件'),
   source: t('插件市场地址'), sourceHint: t('GitHub owner/repo、git 地址或本地路径'), sourceRequired: t('先填写地址'), add: t('添加'),
+  removeMarket: t('删除插件市场'), removeMarketTitle: t('删除 {0}？'), removeMarketWarning: t('这会从 Claude Code 删除此插件市场，并卸载由它安装的所有插件。'), removeMarketCount: t('将卸载 {0} 个插件'), noInstalledPlugins: t('没有已安装插件'), removeAnyway: t('仍要删除'),
   // 详情
   from: t('来自'), versionInstalled: t('已装版本'), versionLatest: t('最新版本'), dependsOn: t('依赖'), notInstalled: t('还没装'),
   updateCallout: t('有新版本 {0}，更新后重启 Claude Code 生效'), configCallout: t('还缺这些配置：{0}'), depsCallout: t('缺少依赖：{0}'),

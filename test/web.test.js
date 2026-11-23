@@ -24,6 +24,7 @@ function fakeClaude({ installed = [], markets = [{ name: 'acme-plugins', install
     checkCapabilities: async () => ({ ok: true, missing: [] }),
     listMarketplaces: async () => markets.map((m) => ({ ...m })),
     updateMarketplace: async () => {},
+    removeMarketplace: rec('removeMarketplace', (name) => { markets.splice(markets.findIndex((m) => m.name === name), 1); }),
     listInstalled: async () => [...installed],
     getUnconfigured: async (id) => (id.startsWith('a@') && !calls.some((c) => c[0] === 'configure') ? ['token'] : []),
     listUserMcp: async () => [],
@@ -211,6 +212,20 @@ test('网页：目录浏览只给文件夹名；添加 marketplace 不改命令�
     const st = await s.until((x) => x.models?.['new-one'] && !x.busy, '新市场准备好');
     assert.ok(st.markets.some((m) => m.name === 'new-one'));
     assert.equal(JSON.parse(readFileSync(file, 'utf8')).current, 'acme-plugins');
+  } finally { await s.close(); }
+});
+
+test('网页：删除 marketplace 必须带确认，确认后调用 Claude Code 并刷新状态', async () => {
+  const claude = fakeClaude({ installed: [inst('a')] });
+  const s = await boot(claude);
+  try {
+    await s.until((x) => x.models?.['acme-plugins'] && !x.busy, '准备完成');
+    assert.equal((await s.post('/api/marketplace/remove', { name: 'acme-plugins' })).status, 400);
+    assert.equal((await s.post('/api/marketplace/remove', { name: 'acme-plugins', confirm: true })).status, 202);
+    const done = await s.until((x) => !x.busy && x.message, '删除完成');
+    assert.deepEqual(claude.calls.filter((x) => x[0] === 'removeMarketplace'), [['removeMarketplace', 'acme-plugins']]);
+    assert.equal(done.markets.length, 0);
+    assert.match(done.message.text, /已删除/);
   } finally { await s.close(); }
 });
 

@@ -170,7 +170,7 @@ export async function gatherPlan(ctx) {
   return plan;
 }
 
-const CCPM_CMD = /\bccpm (status|install|update|sync|config|enable|disable|remove)((?: [A-Za-z0-9@._-]+)*)/g;
+const CCPM_CMD = /\bccpm(?: (?:status|install|update|sync|config|enable|disable|remove)(?: [A-Za-z0-9@._-]+)*|(?!\s))/g;
 export const withScope = (line) =>
   String(line).replace(CCPM_CMD, (m) => (m.includes('--scope') ? m : `${m} --scope project`));
 // 需要先对齐再输出的命令，提前加上 --scope project

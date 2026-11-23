@@ -1,4 +1,4 @@
-// 网页界面的“会话”：和交互界面（tui/app.js）做同样的事——准备、按需执行命令、刷新——
+// 网页界面的“会话”：准备插件市场、按需执行操作并刷新状态。
 // 但不受“一次一个 marketplace、项目 = 当前目录”的限制：所有插件市场同时准备好，
 // 页面上随时切换“插件装在哪里”（全局 / 任意项目目录）。输出、转圈和提问都变成状态推给浏览器。
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -11,10 +11,10 @@ import { parseDetails } from '../details.js';
 import { buildModel } from '../model.js';
 import { createProgress } from '../progress.js';
 import { pluginNotes } from '../render.js';
-import { createTuiPrompter } from '../tui/prompter.js';
+import { createWebPrompter } from './prompter.js';
 import { findOrAdd } from '../commands/use.js';
 import { t } from '../i18n/index.js';
-import { I, strip } from '../ui.js';
+import { I, dim, strip } from '../ui.js';
 
 export const RUNNABLE = ['install', 'update', 'config', 'enable', 'disable', 'remove', 'sync'];
 const VERB = () => ({ install: t('安装'), update: t('更新'), config: t('配置'), enable: t('启用'), disable: t('停用'), remove: t('卸载'), sync: t('同步') });
@@ -22,6 +22,9 @@ const MAX_LOG = 500;
 const home = homedir();
 const label = (p) => (p === home ? '~' : p.startsWith(home + '/') || p.startsWith(home + '\\') ? `~${p.slice(home.length)}` : p);
 const isDir = (p) => { try { return statSync(p).isDirectory(); } catch { return false; } };
+const packageVersion = () => {
+  try { return JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version ?? '?'; } catch { return '?'; }
+};
 
 // Claude Code 记下的项目目录（只读 projects 的键，不读其他内容）
 function claudeProjects() {
@@ -55,6 +58,7 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
   let declined = false;
   let lists = { markets: [], listing: [] }; // 最近一次读到的 marketplace 列表和已装列表
   const state = {
+    version: packageVersion(),
     dryRun: Boolean(flags['dry-run']),
     selection: { scope: flags.scope === 'project' ? 'project' : 'user', dir: resolve(process.cwd()) }, // 插件装在哪里
     markets: null, // [{ name, source, total, installed, error? }]
@@ -90,8 +94,8 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
   };
   const progress = createProgress({ out: append, stream: spinner, animate: true, prep: true });
   const open = (dialog) => new Promise((done) => { const id = ++dialogSeq; pending = { id, resolve: done }; set({ dialog: { id, ...dialog } }); });
-  const tuiPrompter = createTuiPrompter({ log, open });
-  const prompter = { ...tuiPrompter, confirm: async (...a) => { const ok = await tuiPrompter.confirm(...a); if (!ok) declined = true; return ok; } };
+  const webPrompter = createWebPrompter({ log, open });
+  const prompter = { ...webPrompter, confirm: async (...a) => { const ok = await webPrompter.confirm(...a); if (!ok) declined = true; return ok; } };
   const bare = context.claude ?? createClaude({ log }); // 列表类调用不需要目录
 
   // 打开页面要快：准备数据时不联网（插件市场更新、MCP 检查放到后台，见 checkUpdates），
@@ -255,6 +259,46 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     state.message = msg('ok', t('{0} {1}：{2}', I.ok, target.name, t('完成')));
   });
 
+  // Claude Code 的 remove 会卸载该 marketplace 来源的所有插件；浏览器在调用前已展示影响范围并取得确认。
+  const removeMarketplace = (name) => {
+    const market = String(name ?? '').trim();
+    if (!market || !lists.markets.some((m) => m.name === market)) return Promise.resolve({ invalid: true });
+    const installed = lists.listing.filter((p) => p.marketplace === market);
+    return task(t('删除插件市场 {0}', market), async () => {
+      if (state.dryRun) {
+        append(dim(t('预览：会移除插件市场 {0} 及其 {1} 个已安装插件', market, installed.length)));
+      } else {
+        await bare.removeMarketplace(market);
+      }
+      catalogs.delete(market);
+      contexts.clear();
+      infoCache.clear();
+      failed.delete(market);
+      await rebuild();
+      state.message = msg('ok', t('{0} 已删除，Claude Code 已一并卸载来自它的 {1} 个插件', market, installed.length));
+    });
+  };
+
+  const upgrade = () => task(t('更新 Plugin Manager'), async () => {
+    const mod = await import('../commands/upgrade.js');
+    declined = false;
+    const rc = await mod.run({ out: append, log, prompter, dryRun: state.dryRun, progress });
+    state.message = declined ? msg('warn', t('已取消，没有做任何改动'))
+      : rc ? msg('warn', t('Plugin Manager 更新未完成，详见上方记录'))
+        : msg('ok', t('Plugin Manager 更新完成'));
+    return { rc };
+  });
+
+  const ccUpdate = (args = [], updateFlags = {}) => task(t('更新 Claude Code'), async () => {
+    const mod = await import('../commands/cc-update.js');
+    declined = false;
+    const rc = await mod.run({ out: append, log, prompter, dryRun: state.dryRun, progress }, args, updateFlags);
+    state.message = declined ? msg('warn', t('已取消，没有做任何改动'))
+      : rc ? msg('warn', t('Claude Code 更新未完成，详见上方记录'))
+        : msg('ok', t('Claude Code 更新完成'));
+    return { rc };
+  });
+
   // 后台联网：各插件市场同时拉取更新、同时查 MCP；拉完再用新数据刷新一次（页面照常可用）
   const idle = () => new Promise((done) => { const tick = () => (state.busy ? setTimeout(tick, 100) : done()); tick(); });
   async function checkUpdates() {
@@ -321,6 +365,9 @@ export function createWebSession({ context = {}, flags = {}, log = () => {} } = 
     select,
     run,
     addMarketplace,
+    removeMarketplace,
+    upgrade,
+    ccUpdate,
     // 浏览器回答当前的提问；id 对不上（旧弹窗）就忽略
     answer(id, value) {
       if (!pending || pending.id !== id) return false;

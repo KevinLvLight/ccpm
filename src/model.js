@@ -9,7 +9,7 @@ const byName = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 // line=true 的问题占一整行（strong：标题加粗；faint：说明变灰）
 export function planIssues(plan) {
   const out = [];
-  for (const o of plan.orphans) out.push({ name: o, title: o, detail: t('marketplace 里已下架'), cmd: `ccpm remove ${o}`, why: t('卸载已下架的 {0}', o) });
+  for (const o of plan.orphans) out.push({ name: o, title: o, detail: t('marketplace 里已下架'), cmd: 'ccpm', why: t('卸载已下架的 {0}', o) });
   for (const { server, owners } of plan.duplicateMcp) {
     const plugins = owners.filter((o) => o !== USER_MCP);
     const who = owners.map((o) => (o === USER_MCP ? t('你自己配置的') : t('插件 {0}', o))).join(t('、'));
@@ -17,8 +17,8 @@ export function planIssues(plan) {
     out.push({
       title: `MCP ${server}`,
       detail: t('配了两份：{0}', who),
-      cmd: mine ? `claude mcp remove ${server} -s user` : `ccpm remove ${plugins.at(-1)}`,
-      why: mine ? t('去掉你自己配置的那份（或 ccpm remove {0}）', plugins.join(' ')) : t('去掉重复的 MCP {0}', server),
+      cmd: mine ? `claude mcp remove ${server} -s user` : 'ccpm',
+      why: mine ? t('去掉你自己配置的那份') : t('去掉重复的 MCP {0}', server),
     });
   }
   for (const w of plan.warnings) out.push({ title: w.msg, detail: w.fix, line: true, faint: true });
@@ -69,12 +69,12 @@ export function buildModel(ctx, plan) {
   const next = (cmd, why) => todo.set(cmd, new Set([...(todo.get(cmd) ?? []), why]));
   if (plan.update.length) {
     const names = plan.update.map((u) => u.name);
-    next('ccpm update', names.length > 2 ? t('更新 {0} 个插件', names.length) : t('更新 {0}', names.join(t('、'))));
+    next('ccpm', names.length > 2 ? t('更新 {0} 个插件', names.length) : t('更新 {0}', names.join(t('、'))));
   }
-  for (const n of plan.disabled ?? []) next(`ccpm enable ${n}`, t('重新启用（有意停用的可忽略）'));
-  for (const c of plan.configure) next(`ccpm config ${c.name}`, t('填写 {0} 项配置', c.keys.length));
+  for (const n of plan.disabled ?? []) next('ccpm', t('重新启用（有意停用的可忽略）'));
+  for (const c of plan.configure) next('ccpm', t('填写 {0} 项配置', c.keys.length));
   const depsMissing = new Set(plugins.flatMap((p) => p.missingDeps));
-  if (depsMissing.size) next('ccpm sync', t('补装缺少的依赖'));
+  if (depsMissing.size) next('ccpm', t('补装缺少的依赖'));
 
   // 不属于某个已装插件的问题
   const issues = [];
@@ -82,23 +82,17 @@ export function buildModel(ctx, plan) {
     const chosen = ctx.state.presets.flatMap((ps) => { try { return expandPreset(presets, ps); } catch { return []; } });
     for (const n of plan.install.filter((x) => !depsMissing.has(x))) {
       if (!chosen.includes(n)) issues.push({ title: n, detail: t('预设插件的依赖，还没装') }); // 预设里的缺口在“预设”一节里标出
-      next('ccpm sync', t('补装预设里的插件'));
+      next('ccpm', t('补装预设里的插件'));
     }
   } else if (user && Object.keys(presets).length) { // 没有预设的 marketplace 不需要“开始管理”
     issues.push({ title: t('还没开始用 ccpm 管理'), detail: t('推荐预设：{0}', plan.inferredPresets?.join(t('、')) || t('暂无（可选的预设见上方）')), line: true, strong: true });
-    next('ccpm sync', t('开始用 ccpm 管理'));
+    next('ccpm', t('开始用 ccpm 管理'));
   }
   for (const it of planIssues(plan)) {
     if (!it.name) issues.push(it);
     if (it.cmd) next(it.cmd, it.why);
   }
   if (ctx.refreshError) issues.push({ title: t('插件列表更新失败'), detail: t('结果来自上次的本地副本 · 检查网络 / VPN 后重试'), line: true, strong: true, faint: true });
-  // sync 已包含更新，避免同时让用户跑两条
-  if (todo.has('ccpm sync') && todo.has('ccpm update')) {
-    todo.get('ccpm update').forEach((w) => todo.get('ccpm sync').add(w));
-    todo.delete('ccpm update');
-  }
-
   return {
     scope: ctx.scope,
     counters,
