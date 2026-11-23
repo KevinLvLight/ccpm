@@ -10,9 +10,10 @@ import { createLogger } from '../src/log.js';
 import { helpText } from '../src/help.js';
 import { bold, dim, error } from '../src/ui.js';
 
+// Web 是唯一的插件变更入口；命令行仅保留脚本查询和维护操作。
 const READ_ONLY = ['status', 'list'];
-const COMMANDS = [...READ_ONLY, 'install', 'config', 'enable', 'disable', 'remove', 'update', 'sync'];
-const LOCAL = ['help', 'log', 'check']; // 不调用 claude
+const COMMANDS = [...READ_ONLY];
+const LOCAL = ['help', 'log', 'check', 'upgrade', 'cc-update']; // 不调用 ccpm 的 Claude marketplace 操作
 const SETUP = ['use', 'web']; // 不需要先选定 marketplace（web 在页面里选）
 
 async function main(argv, deps = {}) {
@@ -30,6 +31,7 @@ async function main(argv, deps = {}) {
         show: { type: 'boolean' },
         port: { type: 'string' },
         'no-open': { type: 'boolean' },
+        tries: { type: 'string' },
         verbose: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' },
       },
@@ -39,7 +41,9 @@ async function main(argv, deps = {}) {
     return 1;
   }
   const { values: flags, positionals } = parsed;
-  const [cmd = 'status', ...rest] = positionals;
+  // 直接运行打开本地 Web 管理器；--yes 保留非交互脚本的 status 语义。
+  const [given, ...rest] = positionals;
+  const cmd = given ?? (flags.yes ? 'status' : 'web');
 
   if (cmd === 'help' || flags.help) {
     const topic = cmd === 'help' ? rest[0] : positionals.length ? cmd : undefined;
@@ -51,7 +55,7 @@ async function main(argv, deps = {}) {
     print(text);
     return 0;
   }
-  if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && !SETUP.includes(cmd) && cmd !== 'ui') {
+  if (!COMMANDS.includes(cmd) && !LOCAL.includes(cmd) && !SETUP.includes(cmd)) {
     error(t('未知命令：{0}', cmd), t('运行 ccpm help 查看所有命令')).forEach(print);
     return 1;
   }
@@ -74,29 +78,23 @@ async function main(argv, deps = {}) {
   const interactive = Boolean(process.stdin.isTTY) && !flags.yes;
   let version = '?';
   try { version = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version; } catch {}
-  // 不写命令、在命令行窗口里、没有 --yes：进入全屏交互界面
-  const tty = Boolean(process.stdin.isTTY && process.stdout.isTTY);
-  const tui = cmd === 'ui' || (!positionals.length && tty && !flags.yes);
-  log(`==== ccpm ${version} node ${process.version} ${process.platform}/${process.arch} cwd=${process.cwd()} argv=${JSON.stringify(argv)} scope=${flags.scope} interactive=${interactive ? 'yes' : 'no'}${tui ? ' ui' : ''}`);
+  log(`==== ccpm ${version} node ${process.version} ${process.platform}/${process.arch} cwd=${process.cwd()} argv=${JSON.stringify(argv)} scope=${flags.scope} interactive=${interactive ? 'yes' : 'no'}`);
   if (cmd === 'web') {
     const { runWeb } = await import('../src/web/index.js');
     const code = await runWeb({ flags, log, logFile: logger.file, print });
     log(`exit code ${code}`);
     return code;
   }
-  if (tui) {
-    if (!tty) {
-      error(t('ccpm ui 需要在命令行窗口里运行'), t('在脚本里请用 ccpm status 查看状态')).forEach(print);
-      return 1;
-    }
-    const { runTui } = await import('../src/tui/app.js');
-    const code = await runTui({ flags, log, logFile: logger.file, context: deps.context });
+  out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? t('当前项目') : t('全局')}`)}`);
+
+  if (cmd === 'upgrade' || cmd === 'cc-update') {
+    const prompter = deps.context?.prompter ?? createPrompter({ input: process.stdin, output: process.stdout, interactive, log });
+    const progress = createProgress({ out, animate: Boolean(process.stdout.isTTY) && !flags.yes });
+    const mod = await import(`../src/commands/${cmd}.js`);
+    const code = await mod.run({ out, log, prompter, progress, dryRun: Boolean(flags['dry-run']) }, rest, flags);
     log(`exit code ${code}`);
-    // On Windows a stdin read in raw mode can't be cancelled, so the process lingers until the next key; the screen is restored, exit now
-    if (!deps.context) process.stdout.write('', () => process.exit(code));
     return code;
   }
-  out(`${bold('ccpm')} ${dim(`${version} · ${flags.scope === 'project' ? t('当前项目') : t('全局')}`)}`);
 
   if (cmd === 'use') {
     try {

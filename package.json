@@ -1,14 +1,14 @@
 {
   "name": "@kikilight/ccpm",
-  "version": "0.2.1",
-  "description": "Manage Claude Code plugins from a marketplace: presets, settings, updates, and a full-screen TUI",
+  "version": "0.3.0",
+  "description": "A local Web-first manager for Claude Code plugin marketplaces",
   "keywords": [
     "claude",
     "claude-code",
     "plugins",
     "marketplace",
     "cli",
-    "tui"
+    "web"
   ],
   "license": "MIT",
   "type": "module",

@@ -30,15 +30,13 @@ export async function run(ctx) {
     out('');
     out(`  ${bold(t('还没装的'))}  ${dim(t('可选，按需安装'))}`);
     out(`  ${I.none} ${dim(of('none').map((p) => p.name).join(t('、')))}`);
-    hints(user
-      ? [[t('ccpm install <插件名>'), t('安装，依赖会一起装')]]
-      : [[t('ccpm install --scope project <插件名>'), t('只装到本项目')], [t('ccpm install --scope user <插件名>'), t('装到全局，所有项目都能用')]]).forEach(out);
+    hints([[scoped(ctx, 'ccpm'), t('在 Web 管理器中安装或配置')]]).forEach(out);
   }
   if (m.presets.length) {
     out('');
     out(`  ${bold(t('预设'))}  ${dim(t('一组常用插件 · 共 {0} 个，已选 {1} 个', m.counters.presets, m.counters.presetsChosen))}`);
     table(m.presets.flatMap((p) => [presetCells(p), [`    ${p.members.map(memberText).join('  ')}`]])).forEach(out);
-    if (m.presets.some((p) => p.got < p.want)) hints([[t('ccpm install <预设名>'), t('装齐整个预设，并记为你选的预设')], [t('ccpm remove <预设名>'), t('卸掉整个预设')]]).forEach(out);
+    if (m.presets.some((p) => p.got < p.want)) hints([[scoped(ctx, 'ccpm'), t('在 Web 管理器中管理预设')]]).forEach(out);
   }
   if (m.issues.length) {
     out('');

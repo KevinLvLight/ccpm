@@ -111,6 +111,8 @@ export function createClaude({ run: baseRun = defaultRun, log, cwd } = {}) {
       return l.map((m) => ({ name: m.name, installLocation: m.installLocation, source: m.source, url: m.url, repo: m.repo, path: m.path }));
     },
     async addMarketplace(source) { await exec(['plugin', 'marketplace', 'add', source]); },
+    // Claude Code 会同时移除由该 marketplace 安装的插件；调用方必须先明确确认影响范围。
+    async removeMarketplace(name) { await exec(['plugin', 'marketplace', 'remove', name]); },
     async updateMarketplace(name) { await exec(['plugin', 'marketplace', 'update', name]); },
     // 插件里有什么、占多少 token（文字输出，由 details.js 解析）。没装的插件用 dir 指向它在插件市场里的目录
     async details(id, { dir } = {}) {

@@ -6,9 +6,7 @@ import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { detectLang, setLang, t } from '../src/i18n/index.js';
 import { EN } from '../src/i18n/en.js';
-import { loadContext, gatherPlan } from '../src/context.js';
-import { buildModel } from '../src/model.js';
-import { initialState, render } from '../src/tui/view.js';
+import { loadContext } from '../src/context.js';
 import { strip } from '../src/ui.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,17 +93,6 @@ test('英文：status 完整输出没有中文', async () => {
     assert.match(text, /Next steps/);
     assert.match(text, /Ready/);
     assert.doesNotMatch(text, CJK_RE);
-  } finally { setLang('zh'); }
-});
-
-test('英文：交互界面一帧没有中文，按键栏有 q quit', async () => {
-  setLang('en');
-  try {
-    const { ctx } = await ctxEn();
-    const model = buildModel(ctx, await gatherPlan(ctx));
-    const frame = render({ ...initialState(), model, cursor: 'a' }, { cols: 160, rows: 30 }).map(strip).join('\n');
-    assert.match(frame, /q quit/);
-    assert.doesNotMatch(frame, CJK_RE);
   } finally { setLang('zh'); }
 });
 

@@ -102,6 +102,15 @@ export function createWebServer({ session, token }) {
       case '/api/marketplace':
         if (typeof body.source !== 'string' || !body.source.trim()) return send(res, 400, { error: 'source required' });
         return start(() => session.addMarketplace(body.source));
+      case '/api/marketplace/remove':
+        if (typeof body.name !== 'string' || !body.name.trim() || body.confirm !== true) return send(res, 400, { error: 'confirmed marketplace name required' });
+        return start(() => session.removeMarketplace(body.name));
+      case '/api/upgrade': return start(() => session.upgrade());
+      case '/api/cc-update': {
+        const version = typeof body.version === 'string' && body.version.trim() ? body.version.trim() : undefined;
+        const tries = body.tries === undefined ? undefined : body.tries;
+        return start(() => session.ccUpdate(version ? [version] : [], { tries }));
+      }
       case '/api/rescan': return start(() => session.rescan());
       default: return send(res, 404, { error: 'not found' });
     }

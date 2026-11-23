@@ -1,4 +1,4 @@
-// 生成 README 用的截图：docs/images/{tui,status}.{en,zh}.svg
+// 生成 README 用的状态截图：docs/images/status.{en,zh}.svg
 // 用 scripts/demo-env.js 搭的演示环境（临时 CLAUDE_CONFIG_DIR，不碰你自己的配置）。
 // 运行：node scripts/screenshots.js（需要本机装有 claude）
 import { execFileSync } from 'node:child_process';
@@ -68,23 +68,10 @@ ${out.join('\n')}
 // ---------- 截图 ----------
 const imgDir = join(root, 'docs/images');
 mkdirSync(imgDir, { recursive: true });
-const { setColor } = await import('../src/ui.js');
-const { setLang } = await import('../src/i18n/index.js');
-const { loadContext, gatherPlan } = await import('../src/context.js');
-const { buildModel } = await import('../src/model.js');
-const { initialState, render } = await import('../src/tui/view.js');
-
 for (const lang of ['en', 'zh']) {
   // status：真实命令的完整输出（去掉第一行的版本号标题和准备阶段的耗时）
   const status = ccpm(['status', '--yes'], lang).replace(/(\s+)[\d.]+s(\x1b\[[0-9;]*m)*\n/, '$2\n');
   writeFileSync(join(imgDir, `status.${lang}.svg`), toSvg(`$ ccpm status\n${status}`, 'ccpm status'));
 
-  // 交互界面：真实数据画出的一帧，光标停在缺配置的 db-tool 上
-  setLang(lang);
-  setColor(true);
-  const ctx = await loadContext({ readOnly: true }, { out() {}, progress: { step: (_l, fn) => fn(), pause() {}, ready() {} }, prompter: {} });
-  const model = buildModel(ctx, await gatherPlan(ctx));
-  const frame = render({ ...initialState(), model, cursor: 'db-tool', selected: [] }, { cols: 132, rows: 24 }).map((l) => l.replace(/\s+$/, '')).join('\n');
-  writeFileSync(join(imgDir, `tui.${lang}.svg`), toSvg(frame, 'ccpm'));
-  console.log(`wrote docs/images/{status,tui}.${lang}.svg`);
+  console.log(`wrote docs/images/status.${lang}.svg`);
 }

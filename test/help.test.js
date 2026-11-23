@@ -23,8 +23,8 @@ const SECTIONS = {
   en: ['Purpose', 'Usage', 'Arguments', 'Options', 'Examples', 'What it does', 'What it does not do', 'FAQ'],
 };
 
-test('每个命令都有完整的帮助页（中英文）', () => {
-  for (const c of ['use', 'ui', 'status', 'list', 'install', 'config', 'enable', 'disable', 'remove', 'update', 'sync', 'check', 'log', 'help']) {
+test('每个公开命令都有完整的帮助页（中英文）', () => {
+  for (const c of ['web', 'use', 'status', 'list', 'upgrade', 'cc-update', 'check', 'log', 'help']) {
     assert.ok(COMMAND_NAMES.includes(c), c);
     for (const [l, h] of [['zh', zh], ['en', en]]) {
       const t = helpText(c, h);
@@ -43,12 +43,12 @@ test('README 的用法一节与 help 一致（README.md 英文，README.zh-CN.md
 });
 
 test('help 入口不调用 claude；未知主题退出 1', () => {
-  for (const args of [['help'], ['-h'], ['--help'], ['help', 'install'], ['install', '--help'], ['help', 'troubleshooting']]) {
+  for (const args of [['help'], ['-h'], ['--help'], ['help', 'cc-update'], ['cc-update', '--help'], ['help', 'troubleshooting']]) {
     const r = ccpm(...args);
     assert.equal(r.status, 0, args.join(' '));
   }
-  assert.match(ccpm('install', '--help').stdout, /^ccpm install — /);
-  assert.match(ccpm('help').stdout, /一键安装 \/ 配置 \/ 更新 Claude Code 插件/);
+  assert.match(ccpm('cc-update', '--help').stdout, /^ccpm cc-update — /);
+  assert.match(ccpm('help').stdout, /Claude Code Plugin Manager/);
   assert.equal(ccpm('help', 'xyz').status, 1);
 });
 

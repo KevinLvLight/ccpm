@@ -26,8 +26,7 @@ export async function run(ctx) {
   table(rows, { gap: '   ' }).forEach(out);
 
   const tips = [];
-  if (not.length) tips.push([scoped(ctx, t('ccpm install <插件名>')), t('安装，依赖会一起装')]);
-  if (have.some((p) => p.update)) tips.push([scoped(ctx, 'ccpm update'), t('更新到最新版')]);
+  if (not.length || have.some((p) => p.update)) tips.push([scoped(ctx, 'ccpm'), t('在 Web 管理器中安装、更新或配置')]);
   if (tips.length) {
     out('');
     hints(tips).forEach(out);

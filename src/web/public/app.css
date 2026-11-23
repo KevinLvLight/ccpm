@@ -235,7 +235,7 @@ main { min-width: 0; width: 100%; max-width: 1280px; margin: 0 auto; padding: 32
 
 /* ---------- dialogs ---------- */
 .modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(10, 10, 14, .42); animation: fade .15s; }
-.dialog { width: min(440px, 100%); background: var(--raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 22px; animation: pop .16s ease-out; }
+.dialog { box-sizing: border-box; width: min(440px, 100%); background: var(--raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 22px; animation: pop .16s ease-out; }
 .dialog.wide { width: min(560px, 100%); }
 .dialog .eyebrow { font-size: 12px; color: var(--subtle); margin-bottom: 6px; }
 .dialog h3 { margin: 0 0 6px; font-size: 17px; font-weight: 650; white-space: pre-wrap; line-height: 1.4; }
@@ -318,3 +318,90 @@ pre.raw { margin: 0; padding: 10px 12px; border-radius: var(--r-sm); background:
 .tab-hint { margin: 0 0 14px; font-size: 13px; }
 .alert.red { background: var(--red-soft); border-color: color-mix(in srgb, var(--red) 25%, transparent); }
 .alert.red .ico { color: var(--red); }
+
+/* ---------- editorial letter treatment ----------
+   Palette: paper #f4efe5, margin #e8dfd0, ink #2b2723, vermilion #a94935,
+   green #38634f.  The sidebar acts as a letter margin; the reading column is
+   deliberately left aligned and ruled rather than composed as a dashboard. */
+:root {
+  --bg: #f4efe5; --side: #e8dfd0; --surface: #fbf8f1; --raised: #fffdf8;
+  --hover: #efe8db; --press: #e5dac9; --line: #d5ccbc; --line-strong: #bcb09d;
+  --text: #2b2723; --muted: #71685e; --subtle: #968b7d;
+  --accent: #a94935; --accent-hover: #873b2b; --accent-soft: #f4dfd7; --accent-text: #7c3327; --on-accent: #fffaf4;
+  --blue: #356b80; --blue-soft: #e2edf0; --blue-text: #2b596a;
+  --amber: #9a6817; --amber-soft: #f5ead2; --amber-text: #765013;
+  --green: #38634f; --green-soft: #e1ede5; --green-text: #315542;
+  --red: #a74432; --red-soft: #f5e1db; --red-text: #813326;
+  --shadow-sm: none; --shadow: none; --shadow-lg: 0 16px 38px rgba(59, 45, 32, .17);
+  --r: 2px; --r-sm: 1px;
+  color-scheme: light;
+}
+body { font-family: "Avenir Next", Avenir, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", sans-serif; letter-spacing: .002em; }
+.app { grid-template-columns: 292px minmax(0, 1fr); }
+.side { padding: 28px 22px; gap: 4px; background: var(--side); border-right-color: var(--line-strong); }
+.logo { display: grid; gap: 4px; padding: 4px 6px 24px; font: 600 18px/1.15 Georgia, "Songti SC", "Noto Serif CJK SC", serif; letter-spacing: -.02em; }
+.logo .product { display: block; }
+.logo .product-initial { color: var(--accent); }
+.logo small { margin: 0; font: 12px/1.35 var(--mono); color: var(--muted); letter-spacing: 0; }
+.place { margin-bottom: 20px; }
+.place-btn { padding: 12px 0; background: transparent; border: 0; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line); border-radius: 0; }
+.place-btn:hover { border-color: var(--accent); }
+.place-btn .ico, .tile { border-radius: 50%; background: transparent; border: 1px solid currentColor; }
+.place-btn .ico { color: var(--accent-text); }
+.nav { padding: 8px 6px; border-radius: 0; border-left: 2px solid transparent; }
+.nav:hover { background: transparent; color: var(--accent-text); }
+.nav[aria-current="page"] { background: transparent; box-shadow: none; border-left-color: var(--accent); color: var(--text); }
+.side-foot { padding: 14px 0 0; border-top-color: var(--line-strong); }
+main { width: 100%; max-width: none; margin: 0; padding: 62px clamp(24px, 6vw, 88px) 160px; }
+.page-head { margin-bottom: 36px; padding-bottom: 18px; border-bottom: 1px solid var(--line-strong); }
+.page-head h1, .market-head h1 { font: 500 clamp(28px, 3vw, 40px)/1.1 Georgia, "Songti SC", "Noto Serif CJK SC", serif; letter-spacing: -.035em; }
+.page-head p { font-size: 15px; max-width: 58ch; }
+.btn { border-radius: 1px; box-shadow: none; font-weight: 600; }
+.btn.primary { letter-spacing: .01em; }
+.search input { border-radius: 0; background: transparent; }
+.list { background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.item { padding: 16px 4px; border-top-color: var(--line-strong); }
+.item:last-child { border-bottom: 1px solid var(--line-strong); }
+.item:hover { background: rgba(255, 253, 248, .42); }
+.tile { width: 34px; height: 34px; font-family: Georgia, serif; }
+.tile.lg { border-radius: 50%; }
+.group-head { margin: 0 0 10px; }
+.group-head h2, .section h4 { font: 600 13px/1.2 var(--mono); letter-spacing: .02em; color: var(--muted); }
+.alert, .empty, .card, .market { border-radius: 0; box-shadow: none; }
+.alert { border-left: 3px solid currentColor; }
+.empty { background: transparent; border-style: solid; border-left: 0; border-right: 0; }
+.market { padding: 18px 4px; }
+.market-head { padding-bottom: 22px; border-bottom: 1px solid var(--line-strong); }
+.update-letter { display: flex; align-items: end; gap: 24px; padding: 28px 0; border-bottom: 1px solid var(--line-strong); max-width: 720px; }
+.update-copy { flex: 1; }
+.update-copy h2 { margin: 0 0 7px; font: 500 24px/1.2 Georgia, "Songti SC", "Noto Serif CJK SC", serif; }
+.update-copy p { margin: 0; color: var(--muted); }
+.activity, .dialog, .menu { border-radius: 2px; }
+.activity { border-top: 3px solid var(--accent); }
+.bundle { cursor: pointer; }
+.bundle-members { border-top: 1px solid var(--line); }
+.bundle-member { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: inherit; text-align: left; }
+button.bundle-member:hover { background: var(--hover); }
+.bundle-member.nested { color: var(--muted); }
+.member-icon { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--accent-text); }
+.member-main { display: grid; gap: 1px; min-width: 0; }
+.member-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-main small { color: var(--muted); font-size: 12px; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #24201c; --side: #2d2822; --surface: #2a2520; --raised: #332d27; --hover: #3b342d; --press: #453c33; --line: #51483d; --line-strong: #706353; --text: #f3eadc; --muted: #c5b9a9; --subtle: #9a8f80; --accent: #db765f; --accent-hover: #ec8b73; --accent-soft: #50342e; --accent-text: #f0a18e; --on-accent: #2a211c; --blue: #83bdcd; --blue-soft: #293f46; --blue-text: #a9d2dd; --amber: #e0b76e; --amber-soft: #47371d; --amber-text: #f0d39a; --green: #91c6a6; --green-soft: #293d32; --green-text: #bbe0c5; --red: #ec8a79; --red-soft: #4a2d29; --red-text: #f1aaa0; color-scheme: dark; }
+}
+.remove-count { margin: 16px 0 8px; font-weight: 650; color: var(--red-text); }
+.remove-list { max-height: 180px; margin: 0; padding: 10px 12px 10px 28px; overflow: auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); font: 12px/1.7 var(--mono); }
+@media (max-width: 860px) {
+  .side { padding: 18px 16px; }
+  .logo { padding-bottom: 14px; }
+  .update-letter { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 720px) {
+  .app { display: block; }
+  .side { position: static; height: auto; padding: 14px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .side-foot { margin-top: 8px; padding-top: 8px; }
+  main { padding: 22px 16px 72px; }
+  .dialog { padding: 18px; }
+  .dialog .foot { flex-wrap: wrap; }
+}
